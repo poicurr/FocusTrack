@@ -24,8 +24,8 @@ const TaskEdit = (props) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState('medium');
-  const [tags, setTags] = useState([]);
-  const [deadline, setDeadline] = useState(Date.now);
+  const [tags, setTags] = useState(''); // 保存時にクライアント側では文字列として扱う
+  const [deadline, setDeadline] = useState(null);
   const [status, setStatus] = useState('pending');
 
   const [isFormValid, setIsFormValid] = useState(false);

@@ -51,22 +51,22 @@ router.post('/tasks', authenticateToken, async (req, res) => {
     // 認証されたユーザーIDを取得
     const userId = req.user.id;
 
+    // カンマ区切り文字列を配列に変換する
+    const newtags = tags.split(',').map(tag => tag.trim());
+
     // 新しいタスクを作成
     const newTask = new Task({
       userId,               // 認証されたユーザーIDをセット
       title,                // タスクタイトル
       description,          // タスクの詳細
       priority,             // 優先度
-      tags,                 // タグ
+      tags: newtags,        // タグ <--- ここだけ特別な処理になっている
       deadline,             // 締切日時
       status,               // ステータス
     });
 
     // データベースにタスクを保存
     await newTask.save();
-
-    console.log("taskを登録中...");
-    console.dir(newTask);
 
     // 保存完了後、成功メッセージを返す
     res.status(201).json({ message: 'タスクが正常に作成されました', task: newTask });
@@ -81,9 +81,8 @@ router.put('/tasks/:taskId', authenticateToken, async (req, res) => {
   try {
     const { taskId } = req.params; // URLからtaskIdを取得
     const updatedTaskData = req.body; // リクエストのボディから更新データを取得
-
-    console.log("taskを更新中...");
-    console.dir(updatedTaskData);
+    // カンマ区切り文字列を配列に変換する
+    updatedTaskData.tags = updatedTaskData.tags.split(',').map(tag => tag.trim());
 
     // 該当するタスクを更新
     const updatedTask = await Task.findByIdAndUpdate(
