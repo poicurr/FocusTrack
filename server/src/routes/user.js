@@ -81,8 +81,10 @@ router.put('/tasks/:taskId', authenticateToken, async (req, res) => {
   try {
     const { taskId } = req.params; // URLからtaskIdを取得
     const updatedTaskData = req.body; // リクエストのボディから更新データを取得
-    // カンマ区切り文字列を配列に変換する
-    updatedTaskData.tags = updatedTaskData.tags.split(',').map(tag => tag.trim());
+
+    // カンマ区切り文字列を配列に変換する <--- ここだけ特別な処理になっている
+    if (typeof updatedTaskData.tags === 'string')
+      updatedTaskData.tags = updatedTaskData.tags.split(',').map(tag => tag.trim());
 
     // 該当するタスクを更新
     const updatedTask = await Task.findByIdAndUpdate(

@@ -30,7 +30,6 @@ function authenticateToken(req, res, next) {
         sameSite: 'Strict', // CSRF対策
         maxAge: 15 * 60 * 1000 // 15m
       });
-      console.log('AccessToken再発行1！！！');
       req.user = decodedRefresh;
       next();
     });
@@ -60,7 +59,6 @@ function authenticateToken(req, res, next) {
             sameSite: 'Strict', // CSRF対策
             maxAge: 15 * 60 * 1000 // 15m
           });
-          console.log('AccessToken再発行2！！！');
           req.user = decodedRefresh;
           next();
         });
