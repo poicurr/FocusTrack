@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Button,
@@ -12,14 +13,31 @@ import {
   Modal,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
+import AddIcon from '@mui/icons-material/Add';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import FlagIcon from '@mui/icons-material/Flag';
 import TaskEdit from './modals/TaskEdit';
+
+import axios from 'axios';
 
 const StyledCard = styled(Card)(({ theme }) => ({
   position: 'relative',
   width: '100%',
+  height: '100%',
+  minHeight: '250px', // 最小の高さを追加
+  display: 'flex',
+  flexDirection: 'column',
   '&:hover .edit-button': {
     opacity: 1,
   },
+}));
+
+const ExecButton = styled(IconButton)(({ theme }) => ({
+  position: 'absolute',
+  top: theme.spacing(1),
+  right: theme.spacing(6),
+  opacity: 0,
+  transition: 'opacity 0.3s ease',
 }));
 
 const EditButton = styled(IconButton)(({ theme }) => ({
@@ -32,73 +50,64 @@ const EditButton = styled(IconButton)(({ theme }) => ({
 
 const StatusChip = styled(Chip)(({ status }) => ({
   backgroundColor:
-    status === '進行中' ? '#1e90ff' :
-    status === '保留中' ? '#ffd700' :
-    status === '完了' ? '#32cd32' :
-    status === 'キャンセル' ? '#ff4500' : '#e0e0e0',
-  color: status === '保留中' ? '#000' : '#fff',
+    status === 'in-progress' ? '#1e90ff' :
+    status === 'pending' ? '#ffd700' :
+    status === 'completed' ? '#32cd32' :
+    status === 'cancelled' ? '#ff4500' : '#e0e0e0',
+  color: status === 'pending' ? '#000' : '#fff',
 }));
 
-const cardData = [
-  {
-    id: "670edd196cd2e1a3ba5d4d43",
-    title: 'プロジェクトA',
-    description: '新しいウェブサイトのデザインと開発。このプロジェクトには多くの段階があり、チーム全体の協力が必要です。ユーザー体験を最優先に考え、最新のウェブ技術を活用して革新的なサイトを作成します。',
-    status: '進行中',
-    tags: ['デザイン', '開発'],
-    deadline: '2024/06/30',
-  },
-  {
-    id: 2,
-    title: 'タスクB',
-    description: 'データベース最適化とパフォーマンス向上。既存のシステムを分析し、クエリの最適化と索引の改善を行います。これは、システム全体の応答速度を向上させるための重要なステップです。詳細な分析と計画に基づいて、最適化を実施します。',
-    status: '保留中',
-    tags: ['データベース', '最適化'],
-    deadline: '2024/07/15',
-  },
-  {
-    id: 3,
-    title: 'プロジェクトC',
-    description: 'モバイルアプリのUI/UX改善。ユーザーフィードバックに基づいて、アプリの使いやすさと視覚的魅力を向上させます。具体的な改善点としては、ナビゲーションの改善、視覚的な要素の調整、ユーザーインターフェースの簡素化などが挙げられます。',
-    status: '完了',
-    tags: ['モバイル', 'UI/UX'],
-    deadline: '2024/05/20',
-  },
-  {
-    id: 4,
-    title: 'タスクD',
-    description: 'レガシーシステムの移行計画。古いシステムから新しいプラットフォームへのスムーズな移行を計画します。この計画には、データマイグレーション、システムテスト、ユーザーへのトレーニングなどが含まれます。リスクを最小限に抑え、移行を成功させるための詳細な手順を策定します。',
-    status: 'キャンセル',
-    tags: ['システム移行', '計画'],
-    deadline: '2024/08/01',
-  },
-];
+const PriorityChip = styled(Chip)(({ priority }) => ({
+  backgroundColor:
+    priority === 'high' ? '#ff4500' :
+    priority === 'medium' ? '#ffa500' :
+    priority === 'low' ? '#32cd32' : '#e0e0e0',
+  color: '#fff',
+}));
 
 const TaskList = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [open, setOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const [taskId, setTaskId] = useState();
+  const [tasks, setTasks] = useState([]);
 
-  const cardData2 = [];
+  const navigate = useNavigate();
 
-  const filteredCards = cardData.filter((card) =>
+  // タスクリストを取得
+  useEffect(() => {
+    axios.get(`http://localhost:5000/api/user/tasks`, {
+      withCredentials: true, // クッキーを含めるために必要
+    }).then(res => {
+      setTasks(res.data);
+    }).catch(error => {
+      console.error('タスクリストの取得に失敗しました', error);
+      if (error.status === 401 || error.status === 403) {
+        navigate("/login");
+      }
+    });
+  }, [editOpen]); // 画面のリフレッシュタイミングはモーダル開閉のとき
+
+  // タイトル、説明文、ステータス、タグ、優先度でフィルターをかける
+  const filteredCards = tasks.filter((card) =>
     card.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     card.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    card.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+    card.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    card.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    card.priority.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleEdit = (card) => {
-    setOpen(true);
-    setTaskId(card.id);
+    setEditOpen(true);
+    setTaskId(card._id);
   };
 
-  const handleOpen = () => {
-    setOpen(true);
+  const handleAddTask = () => {
+    setEditOpen(true);
     setTaskId(null);
   };
 
   const handleClose = () => {
-    setOpen(false);
+    setEditOpen(false);
     setTaskId(null);
   };
 
@@ -107,15 +116,15 @@ const TaskList = () => {
       <TextField
         fullWidth
         variant="outlined"
-        label="検索"
-        placeholder="タイトル、説明、タグで検索..."
+        label="Search"
+        placeholder="Search by title, description, status, tags, priority..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         sx={{ mb: 3 }}
       />
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
         {filteredCards.map((card) => (
-          <Box key={card.id} sx={{ width: { xs: '100%', sm: 'calc(50% - 12px)', md: 'calc(33.333% - 16px)' }, minWidth: 250}}>
+          <Box key={card._id} sx={{ width: { xs: '100%', sm: 'calc(50% - 12px)', md: 'calc(33.333% - 16px)' }, minWidth: 250}}>
             <StyledCard>
               <CardContent>
                 <Typography variant="h6" component="h2" gutterBottom>
@@ -141,6 +150,13 @@ const TaskList = () => {
                   size="small"
                   sx={{ mb: 1 }}
                 />
+                <PriorityChip
+                  icon={<FlagIcon />}
+                  label={card.priority}
+                  priority={card.priority}
+                  size="small"
+                  sx={{ mb: 1, ml: 1 }}
+                />
                 <Box sx={{ mb: 1 }}>
                   {card.tags.map((tag) => (
                     <Chip
@@ -157,20 +173,46 @@ const TaskList = () => {
               </CardContent>
               <EditButton
                 className="edit-button"
-                aria-label={`${card.title}を編集`}
+                aria-label={`edit ${card.title}`}
                 onClick={() => handleEdit(card)}
               >
                 <EditIcon />
               </EditButton>
+              <ExecButton
+                className="edit-button"
+                aria-label={`task begin: ${card.title}`}
+                onClick={() => handleEdit(card)}
+              >
+                <PlayArrowIcon />
+              </ExecButton>
             </StyledCard>
           </Box>
         ))}
+        <Box sx={{ width: { xs: '100%', sm: 'calc(50% - 12px)', md: 'calc(33.333% - 16px)' } }}>
+          <StyledCard>
+            <CardContent sx={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              justifyContent: 'center', 
+              alignItems: 'center',
+              height: '100%'
+            }}>
+              <Button
+                variant="outlined"
+                startIcon={<AddIcon />}
+                onClick={handleAddTask}
+                sx={{ width: '100%', height: '100%' }}
+              >
+                {'Add new task'}
+              </Button>
+            </CardContent>
+          </StyledCard>
+        </Box>
       </Box>
 
       {/* モーダル */}
-      <Button onClick={handleOpen}>Open modal</Button>
       <Modal
-        open={open}
+        open={editOpen}
         onClose={handleClose}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
@@ -181,6 +223,7 @@ const TaskList = () => {
           left: '50%',
           transform: 'translate(-50%, -50%)',
           width: "80%",
+          height: "80%",
           maxWidth: 600,
           overflowY: "auto",
           bgcolor: 'background.paper',

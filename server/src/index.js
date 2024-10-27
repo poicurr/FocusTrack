@@ -1,5 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const cookieParser = require('cookie-parser');
 const cors = require('cors');
 
 const authRoutes = require('./routes/auth');
@@ -7,7 +8,13 @@ const userRoutes = require('./routes/user');
 require('dotenv').config();
 
 const app = express();
-app.use(cors());
+// app.use(cors());
+// CORS設定を追加
+app.use(cors({
+  origin: 'http://localhost:3000', // クライアントのオリジンを指定
+  credentials: true,               // クレデンシャルを許可
+}));
+app.use(cookieParser());
 app.use(express.json());
 
 // MongoDBに接続
@@ -19,6 +26,13 @@ mongoose.connect(process.env.MONGO_URI, {
   console.log('MongoDB connected');
 }).catch((err) => {
   console.log(`failed to connect db: ${err}`);
+  return;
+});
+
+// エラーハンドリングミドルウェア
+app.use((err, req, res, next) => {
+  console.error(err.stack);  // エラーをログに記録
+  res.status(500).json({ error: 'Something went wrong!' });  // エラーレスポンスを返す
 });
 
 // 認証ルート

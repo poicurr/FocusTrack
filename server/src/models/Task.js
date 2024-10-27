@@ -29,7 +29,9 @@ const taskSchema = new Schema({
   },
 
   // タグの配列
-  tags: [String],
+  tags: {
+    type: [String],
+  },
 
   // タスクの締切日
   deadline: { 
@@ -56,5 +58,14 @@ const taskSchema = new Schema({
     default: Date.now 
   }
 }, { timestamps: true });
+
+taskSchema.pre('save', function(next) {
+  if (typeof this.tags === 'string') {
+    this.tags = this.tags.split(',').map(tag => tag.trim());
+  }
+  next();
+});
+
+taskSchema.index({ deadline: 1, priority:1 });
 
 module.exports = mongoose.model('Task', taskSchema);

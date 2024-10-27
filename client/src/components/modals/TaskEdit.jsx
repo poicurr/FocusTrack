@@ -24,8 +24,8 @@ const TaskEdit = (props) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [priority, setPriority] = useState('medium');
-  const [tags, setTags] = useState('');
-  const [deadline, setDeadline] = useState(null);
+  const [tags, setTags] = useState([]);
+  const [deadline, setDeadline] = useState(Date.now);
   const [status, setStatus] = useState('pending');
 
   const [isFormValid, setIsFormValid] = useState(false);
@@ -36,9 +36,7 @@ const TaskEdit = (props) => {
   useEffect(() => {
     if (!taskId) return;
     axios.get(`http://localhost:5000/api/user/tasks/${taskId}`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
+      withCredentials: true, // クッキーを含めるために必要
     }).then(res => {
       const taskData = res.data;
       setTitle(taskData.title);
@@ -59,13 +57,11 @@ const TaskEdit = (props) => {
     setIsFormValid(!!title && !!deadline);
   }, [title, deadline]);
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
+  const handleSubmit = (ev) => {
+    ev.preventDefault();
 
-    if (!title || !deadline) {
-      return;
-    }
-
+    if (!title || !deadline) return;
+    
     const taskData = {
       title,
       description,
@@ -78,9 +74,7 @@ const TaskEdit = (props) => {
     if (taskId) {
       // タスク更新
       axios.put(`http://localhost:5000/api/user/tasks/${taskId}`, taskData, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
+        withCredentials: true, // クッキーを含めるために必要
       }).catch(error => {
         console.error('タスクの更新に失敗しました', error);
         if (error.status === 401 || error.status === 403) {
@@ -90,9 +84,7 @@ const TaskEdit = (props) => {
     } else {
       // タスク登録
       axios.post(`http://localhost:5000/api/user/tasks`, taskData, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
+        withCredentials: true, // クッキーを含めるために必要
       }).catch(error => {
         console.error('タスクの登録に失敗しました', error);
         if (error.status === 401 || error.status === 403) {
@@ -100,14 +92,27 @@ const TaskEdit = (props) => {
         }
       });
     }
-    
+    onSubmit();
+  };
+
+  const handleDelete = (ev) => {
+    ev.preventDefault();
+    if (!taskId) return;
+    axios.delete(`http://localhost:5000/api/user/tasks/${taskId}`, {
+      withCredentials: true, // クッキーを含めるために必要
+    }).catch(error => {
+      console.error('タスクの削除に失敗しました', error);
+      if (error.status === 401 || error.status === 403) {
+        navigate("/login");
+      }
+    });
     onSubmit();
   };
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ja}>
       <Typography variant="h4" component="h1" gutterBottom align="center">
-        {taskId ? 'タスク編集' : 'タスク登録'}
+        {taskId ? 'Edit Task' : 'Register Task'}
       </Typography>
       <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
         <TextField
@@ -115,7 +120,7 @@ const TaskEdit = (props) => {
           required
           fullWidth
           id="title"
-          label="タイトル"
+          label="title"
           name="title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -124,7 +129,7 @@ const TaskEdit = (props) => {
           margin="normal"
           fullWidth
           id="description"
-          label="説明文"
+          label="description"
           name="description"
           multiline
           rows={4}
@@ -132,34 +137,34 @@ const TaskEdit = (props) => {
           onChange={(e) => setDescription(e.target.value)}
         />
         <FormControl fullWidth margin="normal">
-          <InputLabel id="status-label">ステータス</InputLabel>
+          <InputLabel id="status-label">status</InputLabel>
           <Select
             labelId="status-label"
             id="status"
             name="status"
             value={status}
-            label="ステータス"
+            label="status"
             onChange={(e) => setStatus(e.target.value)}
           >
-            <MenuItem value="pending">保留中</MenuItem>
-            <MenuItem value="in-progress">進行中</MenuItem>
-            <MenuItem value="completed">完了</MenuItem>
-            <MenuItem value="cancelled">キャンセル</MenuItem>
+            <MenuItem value="pending">pending</MenuItem>
+            <MenuItem value="in-progress">in-progress</MenuItem>
+            <MenuItem value="completed">completed</MenuItem>
+            <MenuItem value="cancelled">cancelled</MenuItem>
           </Select>
         </FormControl>
         <TextField
           margin="normal"
           fullWidth
           id="tags"
-          label="タグ"
+          label="tags"
           name="tags"
-          placeholder="カンマ区切りで入力"
+          placeholder="Enter comma-separated"
           value={tags}
-          onChange={(e) => setTags(e.target.value)}
+          onChange={(e) => {setTags(e.target.value)}}
         />
         <DatePicker
           fullWidth
-          label="締切日"
+          label="deadline"
           id="deadline"
           name="deadline"
           value={deadline}
@@ -167,30 +172,41 @@ const TaskEdit = (props) => {
           slotProps={{ textField: { variant: 'outlined' } }}
         />
         <FormControl fullWidth margin="normal">
-          <InputLabel id="priority-label">優先度</InputLabel>
+          <InputLabel id="priority-label">priority</InputLabel>
           <Select
             labelId="priority-label"
             id="priority"
             name="priority"
             value={priority}
-            label="優先度"
+            label="priority"
             onChange={(e) => setPriority(e.target.value)}
           >
-            <MenuItem value="low">低</MenuItem>
-            <MenuItem value="medium">中</MenuItem>
-            <MenuItem value="high">高</MenuItem>
+            <MenuItem value="low">low</MenuItem>
+            <MenuItem value="medium">medium</MenuItem>
+            <MenuItem value="high">high</MenuItem>
           </Select>
         </FormControl>
         <Button
           type="submit"
           fullWidth
           variant="contained"
-          sx={{ mt: 3, mb: 2 }}
+          sx={{ mt: 1, mb: 1 }}
           onSubmit={handleSubmit}
           disabled={!isFormValid}
         >
-          {taskId ? '更新' : '登録'}
+          {taskId ? 'update' : 'register'}
         </Button>
+        {taskId &&
+          <Button
+            fullWidth
+            variant="contained"
+            color="error"
+            sx={{ mt: 1, mb: 1 }}
+            onClick={handleDelete}
+          >
+            {'delete'}
+          </Button>
+        }
       </Box>
     </LocalizationProvider>
   );

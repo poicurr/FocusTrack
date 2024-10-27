@@ -3,9 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { CssBaseline, Box} from '@mui/material';
-import './index.css';
-
+import { CssBaseline } from '@mui/material';
 import ResponsiveAppBar from './components/common/ResponsiveAppBar';
 
 import PrivateRoute from './components/PrivateRoute';
@@ -14,8 +12,7 @@ import TaskList from './components/TaskList';
 import Report from './components/Report';
 import NotificationDemo from './components/Notification';
 import Settings from './components/Settings';
-import TaskDetailModal from './components/modals/TaskEdit';
-import PomodoroTimerModal from './components/modals/PomodoroTimerModal';
+import NotFound from './components/NotFound';
 
 import reportWebVitals from './reportWebVitals';
 
@@ -35,16 +32,15 @@ const lightTheme = createTheme({
 
 root.render(
   <React.StrictMode>
-    <ThemeProvider theme={darkTheme}>
+    <ThemeProvider theme={lightTheme}>
       <CssBaseline />
       <Router>
         <Routes>
+          <Route path="*" element={<NotFound />} />
+          <Route path="/" element={<PrivateRoute><ResponsiveAppBar><TaskList /></ResponsiveAppBar></PrivateRoute>} />
           <Route path="/login" element={<Auth isLogin={true}/>} />
           <Route path="/signup" element={<Auth isLogin={false} />} />
-          <Route path="*" element={<PrivateRoute><ResponsiveAppBar><TaskList /></ResponsiveAppBar></PrivateRoute>} />
           <Route path="/tasks" element={<PrivateRoute><ResponsiveAppBar><TaskList /></ResponsiveAppBar></PrivateRoute>} />
-          <Route path="/task-detail" element={<PrivateRoute><TaskDetailModal /></PrivateRoute>} />
-          <Route path="/timer" element={<PrivateRoute><PomodoroTimerModal /></PrivateRoute>} />
           <Route path="/report" element={<PrivateRoute><ResponsiveAppBar><Report /></ResponsiveAppBar></PrivateRoute>} />
           <Route path="/notification" element={<PrivateRoute><ResponsiveAppBar><NotificationDemo /></ResponsiveAppBar></PrivateRoute>} />
           <Route path="/settings" element={<PrivateRoute><ResponsiveAppBar><Settings /></ResponsiveAppBar></PrivateRoute>} />

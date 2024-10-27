@@ -21,6 +21,8 @@ function Auth(props) {
             axios.post('http://localhost:5000/api/auth/login', {
               email: email,
               password: password
+            }, {
+              withCredentials: true, // クッキーを含めるために必要
             }).then((res) => {
               console.log("Login succeeded");
               localStorage.setItem('token', res.data.token);
@@ -38,6 +40,8 @@ function Auth(props) {
               displayName: displayName,
               email: email,
               password: password
+            }, {
+              withCredentials: true, // クッキーを含めるために必要
             }).then((res) => {
               console.log("Sign up succeeded");
               localStorage.setItem('token', res.data.token);

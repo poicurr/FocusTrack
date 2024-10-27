@@ -11,26 +11,33 @@ router.get('/tasks/:taskId', authenticateToken, async (req, res) => {
   try {
     const taskId = req.params.taskId;
     const taskData = await Task.findById(taskId);
-    if (!taskData) return res.status(404).json({message: "task not found"});
+    if (!taskData) return res.status(404).json({ message: "task not found" });
     res.status(200).json(taskData);
   } catch(error) {
     res.status(500).json({ message: 'サーバーエラーが発生しました', error });
   }
 });
 
+// タスク削除API
+router.delete('/tasks/:taskId', async (req, res) => {
+  try {
+    const taskId = req.params.taskId;
+    await Task.findByIdAndDelete(taskId);
+    res.sendStatus(204); // 成功時には 204 No Content を返すことが一般的
+  } catch (error) {
+    res.status(500).json({ error: 'タスクの削除に失敗しました' });
+  }
+});
+
 // タスクリスト取得API
 router.get('/tasks', authenticateToken, async (req, res) => {
   try {
-    // 認証されたユーザーのIDを取得
     const userId = req.user.id;
-    
-    // 該当ユーザーのタスクリストを取得
-    const tasks = await Task.find({ userId });
-
+    const tasks = await Task.find({ userId })
+      .sort({deadline: 'asc', priority:'desc'});
     // タスクリストを返す
-    res.status(200).json(tasks);
+    res.status(200).json(tasks ? tasks : []);
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: 'サーバーエラーが発生しました' });
   }
 });

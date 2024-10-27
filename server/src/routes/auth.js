@@ -5,10 +5,19 @@ const User = require('../models/User');
 const router = express.Router();
 require('dotenv').config();
 
-// JWTトークン生成関数
-const generateToken = (id) => {
+const authenticateToken = require('../middleware/authenticateToken');
+
+// JWTアクセストークン生成関数
+const generateAccessToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: '1h', // トークンの有効期限
+    expiresIn: '15m', // accessトークンの有効期限
+  });
+};
+
+// JWTリフレッシュトークン生成関数
+const generateRefreshToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_REFLESH, {
+    expiresIn: '7d', // refreshトークンの有効期限
   });
 };
 
@@ -28,15 +37,31 @@ router.post('/signup', async (req, res) => {
     await user.save();
 
     // JWTトークンを生成
-    const token = generateToken(user._id);
+    const accessToken = generateAccessToken(user._id);
+    const refreshToken = generateRefreshToken(user._id);
 
-    // 作成したユーザーとトークンを返却
+    // アクセストークンをHTTP-only Cookieに保存
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: false, // TODO: リリース時にtrue
+      sameSite: 'Strict', // CSRF対策
+      maxAge: 15 * 60 * 1000 // 15m
+    });
+
+    // リフレッシュトークンをHTTP-only Coockieに保存
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: false, // TODO: リリース時にtrue
+      sameSite: 'Strict', // CSRF対策
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7d
+    });
+
+    // 作成したユーザーを返却
     res.status(201).json({
       _id: user._id,
       displayName: user.displayName,
       password: user.password,
       email: user.email,
-      token,
     });
   } catch (error) {
     console.error(error);
@@ -62,18 +87,47 @@ router.post('/login', async (req, res) => {
     }
 
     // JWTトークンを生成
-    const token = generateToken(user._id);
+    const accessToken = generateAccessToken(user._id);
+    const refreshToken = generateRefreshToken(user._id);
 
-    // トークンを返却
+    // アクセストークンをHTTP-only Cookieに保存
+    res.cookie('accessToken', accessToken, {
+      httpOnly: true,
+      secure: false, // TODO: リリース時にtrue
+      sameSite: 'Strict', // CSRF対策
+      maxAge: 15 * 60 * 1000 // 15m
+    });
+
+    // リフレッシュトークンをHTTP-only Coockieに保存する
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: false, // TODO: リリース時にtrue
+      sameSite: 'Strict', // CSRF対策
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7d
+    });
+
+    // 認証されたユーザーを返却
     res.json({
       _id: user._id,
-      email: user.email,
-      token,
+      email: user.email
     });
+
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: 'Server error' });
   }
+});
+
+// ログアウト処理
+router.post('/logout', (req, res) => {
+  res.clearCookie('accessToken');
+  res.clearCookie('refreshToken');
+  res.json({ message: 'Logged out' });
+});
+
+// 認証チェック処理
+router.get('/check-auth', authenticateToken, (req, res) => {
+  res.sendStatus(200);
 });
 
 module.exports = router;

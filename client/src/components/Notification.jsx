@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 
 // WebSocketサーバーに接続
-const socket = io('http://localhost:8080');
+//const socket = io('http://localhost:8080');
 
 const NotificationDemo = () => {
   const [notifications, setNotifications] = useState([]);
@@ -11,12 +11,12 @@ const NotificationDemo = () => {
   
   useEffect(() => {
     // WebSocketからのメッセージを受け取る
-    socket.on('message', message => {
-      showInAppNotification(message);
-      triggerVibration(); // 通知が来た時にバイブレーション
-      playSound(); // 通知音
-      changeTabTitle('🔔 New Notification');
-    });
+    // socket.on('message', message => {
+    //   showInAppNotification(message);
+    //   triggerVibration(); // 通知が来た時にバイブレーション
+    //   playSound(); // 通知音
+    //   changeTabTitle('🔔 New Notification');
+    // });
 
     // プッシュ通知の許可を求める
     if ('Notification' in window) {
@@ -26,11 +26,6 @@ const NotificationDemo = () => {
     // コンポーネントがマウントされたときにサウンド用のオーディオをロード
     const audio = new Audio('/notification_sound.mp3');
     setNotificationSound(audio);
-    
-    // クリーンアップでタイトルを元に戻す
-    return () => {
-      document.title = 'Notification Demo';
-    };
   }, []);
 
   // アプリ内通知を表示する関数

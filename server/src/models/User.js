@@ -23,8 +23,8 @@ const userSchema = new Schema({
     required: true 
   },
 
-  // プロフィール画像のURL
-  profileImageUrl: { 
+  // プロフィール画像のURL(base64形式)
+  profileImage: { 
     type: String 
   },
 
