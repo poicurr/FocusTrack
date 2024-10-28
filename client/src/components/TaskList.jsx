@@ -11,6 +11,8 @@ import {
   IconButton,
   styled,
   Modal,
+  Switch,
+  FormControlLabel,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
@@ -70,6 +72,7 @@ const TaskList = () => {
   const [editOpen, setEditOpen] = useState(false);
   const [taskId, setTaskId] = useState();
   const [tasks, setTasks] = useState([]);
+  const [showCompleted, setShowCompleted] = useState(false);
 
   const navigate = useNavigate();
 
@@ -89,11 +92,13 @@ const TaskList = () => {
 
   // タイトル、説明文、ステータス、タグ、優先度でフィルターをかける
   const filteredCards = tasks.filter((card) =>
-    card.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    card.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    card.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    card.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    card.priority.toLowerCase().includes(searchTerm.toLowerCase())
+    (
+      card.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      card.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      card.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      card.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      card.priority.toLowerCase().includes(searchTerm.toLowerCase())
+    ) && showCompleted ? card.status === 'completed' : card.status !== 'completed'
   );
 
   const handleEdit = (card) => {
@@ -113,15 +118,26 @@ const TaskList = () => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <TextField
-        fullWidth
-        variant="outlined"
-        label="Search"
-        placeholder="Search by title, description, status, tags, priority..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        sx={{ mb: 3 }}
-      />
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3, gap: 1 }}>
+        <TextField
+          fullWidth
+          variant="outlined"
+          label="Search"
+          placeholder="Search by title, description, status, tags, priority..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              checked={showCompleted}
+              onChange={(e) => setShowCompleted(e.target.checked)}
+              color="primary"
+            />
+          }
+          label={showCompleted ? "Completed" : "Outstanding"}
+        />
+      </Box>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
         {filteredCards.map((card) => (
           <Box key={card._id} sx={{ width: { xs: '100%', sm: 'calc(50% - 12px)', md: 'calc(33.333% - 16px)' }, minWidth: 250}}>
