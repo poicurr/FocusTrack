@@ -135,7 +135,11 @@ const TaskList = () => {
               color="primary"
             />
           }
-          label={showCompleted ? "Completed" : "Outstanding"}
+          label={
+            <Typography sx={{ display: { xs: 'none', sm: 'block' } }}>
+              {showCompleted ? "Completed" : "Outstanding"}
+            </Typography>
+          }
         />
       </Box>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
