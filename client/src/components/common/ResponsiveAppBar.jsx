@@ -16,10 +16,14 @@ import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import TagIcon from '@mui/icons-material/Tag';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 import MenuIcon from '@mui/icons-material/Menu';
 import SettingsIcon from '@mui/icons-material/Settings';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
+
+import axios from 'axios';
 
 const drawerWidth = 240;
 
@@ -27,8 +31,8 @@ const ResponsiveAppBar = (props) => {
   const { children } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [isClosing, setIsClosing] = React.useState(false);
-
-  const navigate = useNavigate();
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [menuOpen, setMenuOpen] = React.useState(false);
 
   const handleDrawerClose = () => {
     setIsClosing(true);
@@ -44,6 +48,28 @@ const ResponsiveAppBar = (props) => {
       setMobileOpen(!mobileOpen);
     }
   };
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+    setMenuOpen(true);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+    setMenuOpen(false);
+  };
+
+  const onLogout = () => {
+    axios.post(`http://localhost:5000/api/auth/logout`, {}, {
+      withCredentials: true, // クッキーを含めるために必要
+    }).then(() => {
+      setAnchorEl(null);
+      setMenuOpen(false);
+      navigate("/login");
+    });
+  }
+
+  const navigate = useNavigate();
 
   const drawer = (
     <div>
@@ -92,7 +118,7 @@ const ResponsiveAppBar = (props) => {
         position="fixed"
         sx={{
           width: { sm: "100%" },
-          zIndex: 9999,
+          zIndex: 9000,
         }}
       >
         <Toolbar>
@@ -111,9 +137,28 @@ const ResponsiveAppBar = (props) => {
           </Typography>
           <IconButton
             color="inherit"
-            onClick={() => {}}
-            sx={{ ml: 'auto'}}
-          ><AccountCircleIcon/></IconButton>
+            aria-controls={menuOpen ? 'basic-menu' : undefined}
+            aria-haspopup="true"
+            aria-expanded={menuOpen ? 'true' : undefined}
+            onClick={handleClick}
+            sx={{ ml: 'auto' }}
+          >
+            <AccountCircleIcon/>
+          </IconButton>
+          <Menu
+              id="basic-menu"
+              anchorEl={anchorEl}
+              open={menuOpen}
+              onClose={handleClose}
+              MenuListProps={{
+                'aria-labelledby': 'basic-button',
+              }}
+              sx = {{ zIndex: 9100 }}
+            >
+              <MenuItem onClick={handleClose}>Profile</MenuItem>
+              <MenuItem onClick={handleClose}>My account</MenuItem>
+              <MenuItem onClick={onLogout}>Logout</MenuItem>
+            </Menu>
         </Toolbar>
       </AppBar>
       <Box
