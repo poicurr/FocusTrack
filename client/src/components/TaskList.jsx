@@ -91,14 +91,14 @@ const TaskList = () => {
   }, [editOpen]); // 画面のリフレッシュタイミングはモーダル開閉のとき
 
   // タイトル、説明文、ステータス、タグ、優先度でフィルターをかける
-  const filteredCards = tasks.filter((card) =>
-    (
+  const filteredCards = tasks.filter(card => (
       card.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       card.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
       card.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
       card.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      card.priority.toLowerCase().includes(searchTerm.toLowerCase())
-    ) && showCompleted ? card.status === 'completed' : card.status !== 'completed'
+      card.priority.toLowerCase().includes(searchTerm.toLowerCase()))
+  ).filter(card =>
+    showCompleted ? card.status === 'completed' : card.status !== 'completed'
   );
 
   const handleEdit = (card) => {

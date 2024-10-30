@@ -14,6 +14,8 @@ import NotificationDemo from './components/Notification';
 import Settings from './components/Settings';
 import NotFound from './components/NotFound';
 
+import PomodoroTimerModal from './components/modals/PomodoroTimerModal';
+
 import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -38,6 +40,7 @@ root.render(
         <Routes>
           <Route path="*" element={<NotFound />} />
           <Route path="/" element={<PrivateRoute><ResponsiveAppBar><TaskList /></ResponsiveAppBar></PrivateRoute>} />
+          <Route path="/timer" element={<ResponsiveAppBar><PomodoroTimerModal /></ResponsiveAppBar>} />
           <Route path="/login" element={<Auth isLogin={true}/>} />
           <Route path="/signup" element={<Auth isLogin={false} />} />
           <Route path="/tasks" element={<PrivateRoute><ResponsiveAppBar><TaskList /></ResponsiveAppBar></PrivateRoute>} />

@@ -26,10 +26,17 @@ const Report = () => {
     labels: ['10/01', '10/02', '10/03', '10/04', '10/05', '10/06', '10/07'],
     datasets: [
       {
-        label: '完了したタスク数',
+        label: 'Completed Tasks',
         data: [3, 5, 2, 6, 4, 7, 1],
         fill: false,
         borderColor: '#3f51b5',
+        tension: 0.1,
+      },
+      {
+        label: 'Pomodoro Sessions',
+        data: [5, 8, 5, 9, 5, 8, 3],
+        fill: false,
+        borderColor: '#f44336',
         tension: 0.1,
       },
     ],
@@ -46,13 +53,23 @@ const Report = () => {
     ],
     datasets: [
       {
-        label: '完了したタスク数',
+        label: 'Completed Tasks',
         data: [
           3, 5, 2, 6, 4, 7, 1, 8, 2, 5, 6, 3, 4, 7, 5, 3, 8, 4, 6, 7, 2, 5,
           3, 6, 4, 5, 8, 6, 7, 5, 4
         ],
         fill: false,
         borderColor: '#3f51b5',
+        tension: 0.1,
+      },
+      {
+        label: 'Pomodoro Sessions',
+        data: [
+          5, 8, 5, 9, 5, 8, 3, 10, 4, 8, 9, 6, 5, 9, 7, 5, 10, 5, 8, 9, 4, 6,
+          6, 12, 7, 8, 10, 8, 9, 6, 8
+        ],
+        fill: false,
+        borderColor: '#f44336',
         tension: 0.1,
       },
     ],
@@ -64,7 +81,7 @@ const Report = () => {
   return (
     <Box p={3}>
       {/* ヘッダー */}
-      <Typography variant="h4" gutterBottom>タスクレポート</Typography>
+      <Typography variant="h4" gutterBottom>Report</Typography>
 
       {/* フィルター */}
       <Box mb={2}>
@@ -108,7 +125,12 @@ const Report = () => {
       <Box mb={3}>
         <Typography variant="h6" gutterBottom>日ごとの完了タスク数</Typography>
         <Box sx={{ height: 300 }}>
-          <Line data={taskDataByFilter} options={{ maintainAspectRatio: false }} />
+          <Line data={taskDataByFilter} options={{
+            maintainAspectRatio: false,
+            responsive: true,
+            plugins: { legend: { position: 'top' } },
+            scales: { y: { beginAtZero: true } },
+          }} />
         </Box>
       </Box>
 
