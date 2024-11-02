@@ -15,6 +15,15 @@ import {
   Slider,
   Grid,
 } from '@mui/material';
+
+import { 
+  Dialog, 
+  DialogActions, 
+  DialogContent, 
+  DialogContentText, 
+  DialogTitle 
+} from '@mui/material';
+
 import { styled } from '@mui/system';
 
 const Input = styled('input')({
@@ -28,7 +37,17 @@ export default function SettingsPage() {
   const [workTime, setWorkTime] = useState(25);
   const [shortBreakTime, setShortBreakTime] = useState(5);
   const [longBreakTime, setLongBreakTime] = useState(15);
-  const [notifications, setNotifications] = useState(true);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+
+  const [deleteOpen, setDeleteOpen] = useState(false);
+
+  const handleClickOpen = () => {
+    setDeleteOpen(true);
+  };
+
+  const handleClose = () => {
+    setDeleteOpen(false);
+  };
 
   const fileInputRef = useRef(null);
 
@@ -48,12 +67,18 @@ export default function SettingsPage() {
     console.log({
       avatar,
       displayName,
-      theme,
       workTime,
       shortBreakTime,
       longBreakTime,
-      notifications,
+      notificationsEnabled,
+      theme,
     });
+  };
+
+  const handleDeleteAccount = () => {
+    // ここにアカウント削除のロジックを実装
+    console.log('アカウントが削除されました');
+    handleClose();
   };
 
   return (
@@ -160,8 +185,8 @@ export default function SettingsPage() {
         <FormControlLabel
           control={
             <Switch
-              checked={notifications}
-              onChange={(e) => setNotifications(e.target.checked)}
+              checked={notificationsEnabled}
+              onChange={(e) => setNotificationsEnabled(e.target.checked)}
             />
           }
           label="Notifications"
@@ -169,10 +194,53 @@ export default function SettingsPage() {
         />
 
         <Box sx={{ mt: 4 }}>
-          <Button variant="contained" color="primary" onClick={handleSave}>
+          <Button
+            variant="contained"
+            color="primary"
+            fullWidth
+            onClick={handleSave}
+          >
             Save
           </Button>
         </Box>
+
+        <Box sx={{ mt: 4 }}>
+          <Button
+            variant="contained"
+            color="error"
+            fullWidth
+            onClick={handleClickOpen}
+          >
+            delete this account
+          </Button>
+        </Box>
+
+        <Dialog
+          open={deleteOpen}
+          onClose={handleClose}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+          disableAutoFocus
+          disableEnforceFocus
+        >
+          <DialogTitle id="alert-dialog-title">
+            {"アカウントを削除しますか？"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              この操作は取り消すことができません。アカウントを削除すると、すべてのデータが永久に失われます。本当に削除しますか？
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose} color="primary">
+              キャンセル
+            </Button>
+            <Button onClick={handleDeleteAccount} color="error" autoFocus>
+              削除する
+            </Button>
+          </DialogActions>
+        </Dialog>
+
       </Box>
     </Container>
   );

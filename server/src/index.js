@@ -4,7 +4,8 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 
 const authRoutes = require('./routes/auth');
-const userRoutes = require('./routes/user');
+const taskRoutes = require('./routes/task');
+const memoRoutes = require('./routes/memo');
 require('dotenv').config();
 
 const app = express();
@@ -38,8 +39,11 @@ app.use((err, req, res, next) => {
 // 認証ルート
 app.use('/api/auth', authRoutes);
 
-// ユーザAPI
-app.use('/api/user', userRoutes);
+// タスク情報API
+app.use('/api/task', taskRoutes);
+
+// メモ保存用API
+app.use('/api/memo', memoRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

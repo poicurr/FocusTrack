@@ -18,6 +18,7 @@ import TagIcon from '@mui/icons-material/Tag';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import NoteIcon from '@mui/icons-material/Note';
 import MenuIcon from '@mui/icons-material/Menu';
 import SettingsIcon from '@mui/icons-material/Settings';
 import Toolbar from '@mui/material/Toolbar';
@@ -88,12 +89,18 @@ const ResponsiveAppBar = (props) => {
           </ListItemButton>
         </ListItem>
         <ListItem key={2} disablePadding>
+          <ListItemButton onClick={() => { navigate("/memo"); }}>
+            <ListItemIcon><NoteIcon /></ListItemIcon>
+            <ListItemText primary="Memo" />
+          </ListItemButton>
+        </ListItem>
+        <ListItem key={3} disablePadding>
           <ListItemButton>
             <ListItemIcon><TagIcon /></ListItemIcon>
             <ListItemText primary="Tags" />
           </ListItemButton>
         </ListItem>
-        <ListItem key={3} disablePadding>
+        <ListItem key={4} disablePadding>
           <ListItemButton onClick={() => { navigate("/notification"); }}>
             <ListItemIcon><NotificationsIcon /></ListItemIcon>
             <ListItemText primary="Notification" />
@@ -102,7 +109,7 @@ const ResponsiveAppBar = (props) => {
       </List>
       <Divider />
       <List>
-        <ListItem key={4} disablePadding>
+        <ListItem key={5} disablePadding>
           <ListItemButton onClick={() => { navigate("/settings"); }}>
             <ListItemIcon><SettingsIcon/></ListItemIcon>
             <ListItemText primary="Settings" />

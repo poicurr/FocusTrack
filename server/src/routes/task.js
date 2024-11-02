@@ -14,7 +14,7 @@ router.get('/tasks/:taskId', authenticateToken, async (req, res) => {
     if (!taskData) return res.status(404).json({ message: "task not found" });
     res.status(200).json(taskData);
   } catch(error) {
-    res.status(500).json({ message: 'サーバーエラーが発生しました', error });
+    res.status(500).json({ message: 'タスクの取得に失敗しました', error });
   }
 });
 
@@ -25,7 +25,7 @@ router.delete('/tasks/:taskId', async (req, res) => {
     await Task.findByIdAndDelete(taskId);
     res.sendStatus(204); // 成功時には 204 No Content を返すことが一般的
   } catch (error) {
-    res.status(500).json({ error: 'タスクの削除に失敗しました' });
+    res.status(500).json({ message: 'タスクの削除に失敗しました', error });
   }
 });
 
@@ -38,7 +38,7 @@ router.get('/tasks', authenticateToken, async (req, res) => {
     // タスクリストを返す
     res.status(200).json(tasks ? tasks : []);
   } catch (error) {
-    res.status(500).json({ message: 'サーバーエラーが発生しました' });
+    res.status(500).json({ message: 'サーバーエラーが発生しました', error });
   }
 });
 
@@ -69,10 +69,10 @@ router.post('/tasks', authenticateToken, async (req, res) => {
     await newTask.save();
 
     // 保存完了後、成功メッセージを返す
-    res.status(201).json({ message: 'タスクが正常に作成されました', task: newTask });
+    res.status(201).json({ message: 'タスクが登録されました', task: newTask });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'サーバーエラーが発生しました' });
+    res.status(500).json({ message: 'タスクの登録に失敗しました', error });
   }
 });
 
@@ -100,7 +100,7 @@ router.put('/tasks/:taskId', authenticateToken, async (req, res) => {
     res.status(200).json(updatedTask); // 更新されたタスクをレスポンスとして返す
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'サーバーエラーが発生しました' });
+    res.status(500).json({ messsage: 'タスクの更新に失敗しました', error });
   }
 });
 

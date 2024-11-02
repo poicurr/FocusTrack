@@ -78,7 +78,7 @@ const TaskList = () => {
 
   // タスクリストを取得
   useEffect(() => {
-    axios.get(`http://localhost:5000/api/user/tasks`, {
+    axios.get(`http://localhost:5000/api/task/tasks`, {
       withCredentials: true, // クッキーを含めるために必要
     }).then(res => {
       setTasks(res.data);
@@ -91,12 +91,12 @@ const TaskList = () => {
   }, [editOpen]); // 画面のリフレッシュタイミングはモーダル開閉のとき
 
   // タイトル、説明文、ステータス、タグ、優先度でフィルターをかける
-  const filteredCards = tasks.filter(card => (
-      card.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      card.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      card.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      card.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      card.priority.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredCards = tasks.filter(card => 
+    card.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    card.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    card.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    card.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    card.priority.toLowerCase().includes(searchTerm.toLowerCase())
   ).filter(card =>
     showCompleted ? card.status === 'completed' : card.status !== 'completed'
   );

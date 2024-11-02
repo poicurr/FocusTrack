@@ -35,7 +35,7 @@ const TaskEdit = (props) => {
   // タスクIDが存在する場合、タスク情報を取得
   useEffect(() => {
     if (!taskId) return;
-    axios.get(`http://localhost:5000/api/user/tasks/${taskId}`, {
+    axios.get(`http://localhost:5000/api/task/tasks/${taskId}`, {
       withCredentials: true, // クッキーを含めるために必要
     }).then(res => {
       const taskData = res.data;
@@ -46,7 +46,6 @@ const TaskEdit = (props) => {
       setDeadline(new Date(taskData.deadline));
       setStatus(taskData.status);
     }).catch(error => {
-      console.error('タスクの取得に失敗しました', error);
       if (error.status === 401 || error.status === 403) {
         navigate("/login");
       }
@@ -60,7 +59,7 @@ const TaskEdit = (props) => {
   const handleSubmit = (ev) => {
     ev.preventDefault();
 
-    if (!title || !deadline) return;
+    if (!isFormValid) return; 
     
     const taskData = {
       title,
@@ -73,20 +72,18 @@ const TaskEdit = (props) => {
 
     if (taskId) {
       // タスク更新
-      axios.put(`http://localhost:5000/api/user/tasks/${taskId}`, taskData, {
+      axios.put(`http://localhost:5000/api/task/tasks/${taskId}`, taskData, {
         withCredentials: true, // クッキーを含めるために必要
       }).catch(error => {
-        console.error('タスクの更新に失敗しました', error);
         if (error.status === 401 || error.status === 403) {
           navigate("/login");
         }
       });
     } else {
       // タスク登録
-      axios.post(`http://localhost:5000/api/user/tasks`, taskData, {
+      axios.post(`http://localhost:5000/api/task/tasks`, taskData, {
         withCredentials: true, // クッキーを含めるために必要
       }).catch(error => {
-        console.error('タスクの登録に失敗しました', error);
         if (error.status === 401 || error.status === 403) {
           navigate("/login");
         }
@@ -98,10 +95,9 @@ const TaskEdit = (props) => {
   const handleDelete = (ev) => {
     ev.preventDefault();
     if (!taskId) return;
-    axios.delete(`http://localhost:5000/api/user/tasks/${taskId}`, {
+    axios.delete(`http://localhost:5000/api/task/tasks/${taskId}`, {
       withCredentials: true, // クッキーを含めるために必要
     }).catch(error => {
-      console.error('タスクの削除に失敗しました', error);
       if (error.status === 401 || error.status === 403) {
         navigate("/login");
       }

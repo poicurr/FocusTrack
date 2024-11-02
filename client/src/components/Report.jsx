@@ -7,7 +7,7 @@ import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
 
 const Report = () => {
-  const [filter, setFilter] = useState('weekly');
+  const [filter, setFilter] = useState('1week');
 
   const handleFilterChange = (event) => {
     setFilter(event.target.value);
@@ -60,7 +60,7 @@ const Report = () => {
         ],
         fill: false,
         borderColor: '#3f51b5',
-        tension: 0.1,
+        tension: 0,
       },
       {
         label: 'Pomodoro Sessions',
@@ -70,13 +70,13 @@ const Report = () => {
         ],
         fill: false,
         borderColor: '#f44336',
-        tension: 0.1,
+        tension: 0,
       },
     ],
   };
 
   // 選択したフィルターに応じてデータを切り替える
-  const taskDataByFilter = filter === 'weekly' ? weeklyTaskData : monthlyTaskData;
+  const taskDataByFilter = filter === '1week' ? weeklyTaskData : monthlyTaskData;
 
   return (
     <Box p={3}>
@@ -87,9 +87,10 @@ const Report = () => {
       <Box mb={2}>
         <Typography variant="h6">フィルター：</Typography>
         <Select value={filter} onChange={handleFilterChange}>
-          <MenuItem value="weekly">1週間</MenuItem>
-          <MenuItem value="monthly">1ヶ月</MenuItem>
-          <MenuItem value="custom">カスタム期間</MenuItem>
+          <MenuItem value="1week">1Week</MenuItem>
+          <MenuItem value="2week">2Week</MenuItem>
+          <MenuItem value="2week">3Week</MenuItem>
+          <MenuItem value="2week">4Week</MenuItem>
         </Select>
       </Box>
 
