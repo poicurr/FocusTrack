@@ -10,7 +10,7 @@ import PrivateRoute from './components/PrivateRoute';
 import Auth from './components/Auth';
 import TaskList from './components/TaskList';
 import Report from './components/Report';
-import Memo from './components/Memo';
+import Note from './components/Note';
 import NotificationDemo from './components/Notification';
 import Settings from './components/Settings';
 import NotFound from './components/NotFound';
@@ -42,10 +42,10 @@ root.render(
           <Route path="*" element={<NotFound />} />
           <Route path="/" element={<PrivateRoute><ResponsiveAppBar><TaskList /></ResponsiveAppBar></PrivateRoute>} />
           <Route path="/timer" element={<ResponsiveAppBar><PomodoroTimerModal /></ResponsiveAppBar>} />
-          <Route path="/memo" element={<PrivateRoute><ResponsiveAppBar><Memo /></ResponsiveAppBar></PrivateRoute>} />
           <Route path="/login" element={<Auth isLogin={true}/>} />
           <Route path="/signup" element={<Auth isLogin={false} />} />
           <Route path="/tasks" element={<PrivateRoute><ResponsiveAppBar><TaskList /></ResponsiveAppBar></PrivateRoute>} />
+          <Route path="/memo" element={<PrivateRoute><ResponsiveAppBar><Note /></ResponsiveAppBar></PrivateRoute>} />
           <Route path="/report" element={<PrivateRoute><ResponsiveAppBar><Report /></ResponsiveAppBar></PrivateRoute>} />
           <Route path="/notification" element={<PrivateRoute><ResponsiveAppBar><NotificationDemo /></ResponsiveAppBar></PrivateRoute>} />
           <Route path="/settings" element={<PrivateRoute><ResponsiveAppBar><Settings /></ResponsiveAppBar></PrivateRoute>} />
