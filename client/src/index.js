@@ -45,7 +45,7 @@ root.render(
           <Route path="/login" element={<Auth isLogin={true}/>} />
           <Route path="/signup" element={<Auth isLogin={false} />} />
           <Route path="/tasks" element={<PrivateRoute><ResponsiveAppBar><TaskList /></ResponsiveAppBar></PrivateRoute>} />
-          <Route path="/memo" element={<PrivateRoute><ResponsiveAppBar><Note /></ResponsiveAppBar></PrivateRoute>} />
+          <Route path="/note" element={<PrivateRoute><ResponsiveAppBar><Note /></ResponsiveAppBar></PrivateRoute>} />
           <Route path="/report" element={<PrivateRoute><ResponsiveAppBar><Report /></ResponsiveAppBar></PrivateRoute>} />
           <Route path="/notification" element={<PrivateRoute><ResponsiveAppBar><NotificationDemo /></ResponsiveAppBar></PrivateRoute>} />
           <Route path="/settings" element={<PrivateRoute><ResponsiveAppBar><Settings /></ResponsiveAppBar></PrivateRoute>} />
