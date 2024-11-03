@@ -28,8 +28,8 @@ function Note() {
   }, 1000); // 1秒間の遅延
 
   useEffect(() => {
-    saveMemo(memo);
-  }, [memo]);
+    saveMemo(note);
+  }, [note]);
 
   return (
     <TextField
@@ -39,7 +39,7 @@ function Note() {
       variant="outlined"
       placeholder="Write a note here..."
       value={note}
-      onChange={(e) => setMemo(e.target.value)}
+      onChange={(e) => setNote(e.target.value)}
       style={{
         marginTop: '16px',
         fontSize: '1.2rem',
