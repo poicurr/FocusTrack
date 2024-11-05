@@ -208,7 +208,7 @@ const TaskList = () => {
             </StyledCard>
           </Box>
         ))}
-        <Box sx={{ width: { xs: '100%', sm: 'calc(50% - 12px)', md: 'calc(33.333% - 16px)' } }}>
+        <Box sx={{ width: { xs: '100%', sm: 'calc(50% - 12px)', md: 'calc(33.333% - 16px)' }, minWidth: 250}}>
           <StyledCard>
             <CardContent sx={{ 
               display: 'flex', 
