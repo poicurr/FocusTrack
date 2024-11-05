@@ -30,6 +30,7 @@ const settingsSchema = new Schema({
 
   theme: {
     type: String,
+    enum: ['light', 'dark'],
     default: 'light'
   }
   
