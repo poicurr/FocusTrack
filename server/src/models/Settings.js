@@ -32,8 +32,18 @@ const settingsSchema = new Schema({
     type: String,
     enum: ['light', 'dark'],
     default: 'light'
+  },
+
+  createdAt: { 
+    type: Date, 
+    default: Date.now 
+  },
+
+  updatedAt: { 
+    type: Date, 
+    default: Date.now 
   }
   
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model('Settings', settingsSchema);
