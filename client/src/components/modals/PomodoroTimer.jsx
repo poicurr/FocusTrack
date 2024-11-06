@@ -3,6 +3,7 @@ import Clock from 'react-clock';
 import 'react-clock/dist/Clock.css';
 import { Box, Button, Typography } from '@mui/material';
 import 'react-circular-progressbar/dist/styles.css';
+import './PomodoroTimer.css';
 
 const SIZE = 300;
 const STROKE_WIDTH = 8;
@@ -97,7 +98,7 @@ const PomodoroTimer = () => {
           height: SIZE + STROKE_WIDTH * 2,
           backgroundImage: progressImage,
         }}>
-          <Typography sx={{ textAlign: "center", mt: 12}}>
+          <Typography className="timestr" variant="h5" sx={{ textAlign: "center", mt: '65%'}}>
             {formatTime(secondsLeft)}
           </Typography>
         </Box>
