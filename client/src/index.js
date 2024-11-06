@@ -16,7 +16,7 @@ import NotificationDemo from './components/Notification';
 import Settings from './components/Settings';
 import NotFound from './components/NotFound';
 
-import PomodoroTimerModal from './components/modals/PomodoroTimerModal';
+import PomodoroTimer from './components/modals/PomodoroTimer';
 
 import reportWebVitals from './reportWebVitals';
 
@@ -43,7 +43,7 @@ root.render(
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Auth isLogin={true}/>} />
           <Route path="/signup" element={<Auth isLogin={false} />} />
-          <Route path="/timer" element={<PrivateRoute><ResponsiveAppBar><PomodoroTimerModal /></ResponsiveAppBar></PrivateRoute>} />
+          <Route path="/timer" element={<PrivateRoute><ResponsiveAppBar><PomodoroTimer /></ResponsiveAppBar></PrivateRoute>} />
           <Route path="/tasks" element={<PrivateRoute><ResponsiveAppBar><TaskList /></ResponsiveAppBar></PrivateRoute>} />
           <Route path="/note" element={<PrivateRoute><ResponsiveAppBar><Note /></ResponsiveAppBar></PrivateRoute>} />
           <Route path="/report" element={<PrivateRoute><ResponsiveAppBar><Report /></ResponsiveAppBar></PrivateRoute>} />

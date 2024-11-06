@@ -4,6 +4,9 @@ import 'react-clock/dist/Clock.css';
 import { Box, Button, Typography } from '@mui/material';
 import 'react-circular-progressbar/dist/styles.css';
 
+const SIZE = 300;
+const STROKE_WIDTH = 8;
+
 // props.th1 < props.th2
 const createSvg = (props) => {
   const {th1, th2, radius, color, strokeWidth} = props;
@@ -23,7 +26,7 @@ const createSvg = (props) => {
   return svg;
 };
 
-const PomodoroTimerModal = () => {
+const PomodoroTimer = () => {
   const [time, setTime] = useState(new Date());
   const [isRunning, setIsRunning] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(1500); // 25分 (1500秒)
@@ -38,12 +41,12 @@ const PomodoroTimerModal = () => {
     const offset = -90.0;
     const th1 = offset + time.getMinutes() * 6.0 + time.getSeconds() * 0.1;
     const th2 = th1 + secondsLeft / 10.0;
-    const strokeWidth = 4;
+    const strokeWidth = STROKE_WIDTH;
   
     const fgImage = "url(\"data:image/svg+xml;base64," + btoa(createSvg({
       th1: th1,
       th2: th2,
-      radius: 76,
+      radius: SIZE / 2,
       color: "#3f51b5",
       strokeWidth: strokeWidth,
     })) + "\")";
@@ -51,7 +54,7 @@ const PomodoroTimerModal = () => {
     const bgImage = "url(\"data:image/svg+xml;base64," + btoa(createSvg({
       th1: 0,
       th2: 359.9999,
-      radius: 76,
+      radius: SIZE / 2,
       color: "#d6d6d6",
       strokeWidth: strokeWidth,
     })) + "\")";
@@ -84,22 +87,24 @@ const PomodoroTimerModal = () => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 4 }}>
-      <Box sx={{ position: 'relative', width: "160px", height: "160px" }}>
+      <Box sx={{ position: 'relative', width: SIZE + STROKE_WIDTH * 2, height: SIZE + STROKE_WIDTH * 2 }}>
         {/* プログレスバー */}
         <Box sx={{
           position: 'absolute',
-          top: "-4px",
-          left: "-4px",
-          width: "160px",
-          height: "160px",
+          top: 1 - STROKE_WIDTH,
+          left: 1 - STROKE_WIDTH,
+          width: SIZE + STROKE_WIDTH * 2,
+          height: SIZE + STROKE_WIDTH * 2,
           backgroundImage: progressImage,
         }}>
-          <Typography sx={{ textAlign: "center", mt: 12}}>{formatTime(secondsLeft)}</Typography>
+          <Typography sx={{ textAlign: "center", mt: 12}}>
+            {formatTime(secondsLeft)}
+          </Typography>
         </Box>
 
         {/* アナログ時計 */}
         <Box sx={{ position: 'absolute', left: 1, top: 1}}>
-          <Clock value={time} />
+          <Clock value={time} size={SIZE} />
         </Box>
       </Box>
 
@@ -129,4 +134,4 @@ const PomodoroTimerModal = () => {
   );
 };
 
-export default PomodoroTimerModal;
+export default PomodoroTimer;
