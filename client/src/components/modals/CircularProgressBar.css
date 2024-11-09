@@ -1,0 +1,28 @@
+.timer-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .timer-background {
+    fill: none;
+    stroke: #2e2e2e;
+    stroke-width: 4; /* 幅4px */
+  }
+  
+  .timer-progress {
+    fill: none;
+    stroke: red;
+    stroke-width: 4; /* 幅4px */
+    stroke-dasharray: 879; /* 円周の長さに合わせて設定 */
+    stroke-dashoffset: 879;
+    transform-origin: 50% 50%;
+  }
+  
+  button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  

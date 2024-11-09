@@ -4,63 +4,19 @@ import 'react-clock/dist/Clock.css';
 import { Box, Button, Typography } from '@mui/material';
 import 'react-circular-progressbar/dist/styles.css';
 import './PomodoroTimer.css';
+import CircularProgressBar from './CircularProgressBar';
 
-const SIZE = 300;
-const STROKE_WIDTH = 8;
-
-// props.th1 < props.th2
-const createSvg = (props) => {
-  const {th1, th2, radius, color, strokeWidth} = props;
-
-  const x1 = radius + strokeWidth + radius * Math.cos(Math.PI * th1 / 180.0);
-  const y1 = radius + strokeWidth + radius * Math.sin(Math.PI * th1 / 180.0);
-
-  const x2 = radius + strokeWidth + radius * Math.cos(Math.PI * th2 / 180.0);
-  const y2 = radius + strokeWidth + radius * Math.sin(Math.PI * th2 / 180.0);
-
-  let svg = `<svg width="${(radius + strokeWidth) * 2}" height="${(radius + strokeWidth) * 2}" viewBox="0 0 ${(radius + strokeWidth) * 2} ${(radius + strokeWidth) * 2}" xmlns="http://www.w3.org/2000/svg">`
-  if (th2 - th1 >= 180)
-    svg += `<path d="M ${x1} ${y1} A ${radius} ${radius} 0 1 1 ${x2} ${y2}" fill="none" stroke="${color}" stroke-width="${strokeWidth}"/>`;
-  else
-    svg += `<path d="M ${x1} ${y1} A ${radius} ${radius} 0 0 1 ${x2} ${y2}" fill="none" stroke="${color}" stroke-width="${strokeWidth}"/>`;
-  svg += `</svg>`;
-  return svg;
-};
+const SIZE = 280;
+const STROKE_WIDTH = 4;
 
 const PomodoroTimer = () => {
   const [time, setTime] = useState(new Date());
   const [isRunning, setIsRunning] = useState(false);
-  const [secondsLeft, setSecondsLeft] = useState(1500); // 25分 (1500秒)
-  const [progressImage, setProgressImage] = useState();
+  const [secondsLeft, setSecondsLeft] = useState(25 * 60); // 25分
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(timer);
-  }, []);
-
-  useEffect(() => {
-    const offset = -90.0;
-    const th1 = offset + time.getMinutes() * 6.0 + time.getSeconds() * 0.1;
-    const th2 = th1 + secondsLeft / 10.0;
-    const strokeWidth = STROKE_WIDTH;
-  
-    const fgImage = "url(\"data:image/svg+xml;base64," + btoa(createSvg({
-      th1: th1,
-      th2: th2,
-      radius: SIZE / 2,
-      color: "#3f51b5",
-      strokeWidth: strokeWidth,
-    })) + "\")";
-
-    const bgImage = "url(\"data:image/svg+xml;base64," + btoa(createSvg({
-      th1: 0,
-      th2: 359.9999,
-      radius: SIZE / 2,
-      color: "#d6d6d6",
-      strokeWidth: strokeWidth,
-    })) + "\")";
-
-    setProgressImage(fgImage + "," + bgImage);
   }, []);
 
   useEffect(() => {
@@ -95,25 +51,27 @@ const PomodoroTimer = () => {
           top: 1 - STROKE_WIDTH,
           left: 1 - STROKE_WIDTH,
           width: SIZE + STROKE_WIDTH * 2,
-          height: SIZE + STROKE_WIDTH * 2,
-          backgroundImage: progressImage,
+          height: SIZE + STROKE_WIDTH * 2
         }}>
-          <Typography className="timestr" variant="h5" sx={{ textAlign: "center", mt: '65%'}}>
-            {formatTime(secondsLeft)}
-          </Typography>
+          <CircularProgressBar startAngle={-90} endAngle={180}/>
         </Box>
 
         {/* アナログ時計 */}
         <Box sx={{ position: 'absolute', left: 1, top: 1}}>
           <Clock value={time} size={SIZE} />
         </Box>
+        <Typography className="timestr" variant="h5" sx={{ textAlign: "center", mt: '65%'}}>
+          {formatTime(secondsLeft)}
+        </Typography>
       </Box>
 
       {/* スタート・ストップボタン */}
       <Button
         variant="contained"
         color={isRunning ? 'secondary' : 'primary'}
-        onClick={() => setIsRunning(!isRunning)}
+        onClick={() => {
+          setIsRunning(!isRunning);
+        }}
         sx={{ mt: 3 }}
       >
         {isRunning ? '一時停止' : '開始'}
@@ -124,7 +82,7 @@ const PomodoroTimer = () => {
         variant="outlined"
         color="primary"
         onClick={() => {
-          setSecondsLeft(1500); // 25分にリセット
+          setSecondsLeft(25 * 60); // 25分にリセット
           setIsRunning(false);
         }}
         sx={{ mt: 2 }}
