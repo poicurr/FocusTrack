@@ -80,10 +80,14 @@ const PomodoroTimer = () => {
         color={isRunning ? 'secondary' : 'primary'}
         onClick={() => {
           setIsRunning(!isRunning);
+          const m = time.getMinutes();
+          const s = time.getSeconds();
+          setStartAngle(6 * m + 0.1 * s);
+          setEndAngle(startAngle + secondsLeft * 0.1);
         }}
         sx={{ mt: 3 }}
       >
-        {isRunning ? '一時停止' : '開始'}
+        {isRunning ? 'Pause' : 'Start'}
       </Button>
 
       {/* リセットボタン */}
@@ -96,7 +100,7 @@ const PomodoroTimer = () => {
         }}
         sx={{ mt: 2 }}
       >
-        リセット
+        Reset
       </Button>
     </Box>
   );
