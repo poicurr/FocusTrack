@@ -38,10 +38,6 @@ const PomodoroTimer = (props) => {
           }
           return prev - 1;
         });
-        const m = time.getMinutes();
-        const s = time.getSeconds();
-        setStartAngle(6 * m + 0.1 * s);
-        setEndAngle(startAngle + secondsLeft * 0.1);
       }, 1000);
     }
     return () => clearInterval(countdown);

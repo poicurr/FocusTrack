@@ -61,6 +61,25 @@ function CircularProgressBar(props) {
             visibility: visible ? "visible" : "hidden",
           }}
         />
+        {/* Numbers */}
+        {[...Array(12)].map((_, i) => {
+          const angle = ((i + 1) * 30 * Math.PI) / 180
+          const x = SIZE / 2 + 0.8 * RADIUS * Math.sin(angle)
+          const y = SIZE / 2 - 0.8 * RADIUS * Math.cos(angle)
+          return (
+            <text
+              key={i}
+              x={x}
+              y={y}
+              fontSize="18"
+              textAnchor="middle"
+              dominantBaseline="middle"
+              fill="black"
+            >
+              {i + 1}
+            </text>
+          )
+        })}
       </svg>
     </div>
   );
