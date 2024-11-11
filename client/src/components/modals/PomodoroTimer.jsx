@@ -23,6 +23,13 @@ const PomodoroTimer = (props) => {
     const timer = setInterval(() => {
       setTime(new Date());
     }, 1000);
+
+    // 内部データを初期化
+    const m = time.getMinutes();
+    const s = time.getSeconds();
+    setStartAngle(6 * m + 0.1 * s);
+    setEndAngle(startAngle + secondsLeft * 0.1);
+    
     return () => clearInterval(timer);
   }, []);
 
