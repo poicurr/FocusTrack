@@ -19,6 +19,7 @@ import AddIcon from '@mui/icons-material/Add';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import FlagIcon from '@mui/icons-material/Flag';
 import TaskEdit from './modals/TaskEdit';
+import PomodoroTimer from './modals/PomodoroTimer';
 
 import axios from 'axios';
 
@@ -70,6 +71,7 @@ const PriorityChip = styled(Chip)(({ priority }) => ({
 const TaskList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [editOpen, setEditOpen] = useState(false);
+  const [timerOpen, setTimerOpen] = useState(false);
   const [taskId, setTaskId] = useState();
   const [tasks, setTasks] = useState([]);
   const [showCompleted, setShowCompleted] = useState(false);
@@ -106,6 +108,11 @@ const TaskList = () => {
     setTaskId(card._id);
   };
 
+  const handleTimer = (card) => {
+    setTimerOpen(true);
+    setTaskId(card._id);
+  };
+
   const handleAddTask = () => {
     setEditOpen(true);
     setTaskId(null);
@@ -113,6 +120,7 @@ const TaskList = () => {
 
   const handleClose = () => {
     setEditOpen(false);
+    setTimerOpen(false);
     setTaskId(null);
   };
 
@@ -201,7 +209,7 @@ const TaskList = () => {
               <ExecButton
                 className="edit-button"
                 aria-label={`task begin: ${card.title}`}
-                onClick={() => handleEdit(card)}
+                onClick={() => handleTimer(card)}
               >
                 <PlayArrowIcon />
               </ExecButton>
@@ -230,12 +238,10 @@ const TaskList = () => {
         </Box>
       </Box>
 
-      {/* モーダル */}
+      {/* 編集モーダル */}
       <Modal
         open={editOpen}
         onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
       >
         <Box sx={{
           position: 'absolute',
@@ -253,6 +259,30 @@ const TaskList = () => {
           p: 4,
         }}>
           <TaskEdit taskId={taskId} onSubmit={handleClose} />
+        </Box>
+      </Modal>
+
+      {/* タイマーモーダル */}
+      <Modal
+        open={timerOpen}
+        onClose={handleClose}
+      >
+        <Box sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: "80%",
+          height: "80%",
+          maxWidth: 600,
+          overflowY: "auto",
+          bgcolor: 'background.paper',
+          border: '1px solid #2e2e2e',
+          borderRadius: 5,
+          boxShadow: 24,
+          p: 4,
+        }}>
+          <PomodoroTimer taskId={taskId} onSubmit={handleClose} />
         </Box>
       </Modal>
     </Box>

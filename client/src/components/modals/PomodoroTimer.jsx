@@ -9,7 +9,10 @@ import CircularProgressBar from './CircularProgressBar';
 const SIZE = 280;
 const STROKE_WIDTH = 4;
 
-const PomodoroTimer = () => {
+const PomodoroTimer = (props) => {
+
+  const { taskId, onSubmit } = props;
+
   const [time, setTime] = useState(new Date());
   const [isRunning, setIsRunning] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(25 * 60); // 25分
