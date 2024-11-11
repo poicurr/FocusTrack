@@ -6,24 +6,19 @@ const STROKE_WIDTH = 4; // 線幅
 const RADIUS = INNER_DIAMETER / 2; // 半径
 const SIZE = INNER_DIAMETER + STROKE_WIDTH * 2; // SVG全体のサイズ
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS; // 円周の長さ
-const DURATION = 1200; // アニメーションの合計時間（ミリ秒）
+const DURATION = 1000; // アニメーションの合計時間（ミリ秒）
 
-function CircularProgressBar({ startAngle = -90, endAngle = 270 }) {
-  const [isRunning, setIsRunning] = useState(false);
+function CircularProgressBar(props) {
+
+  const { startAngle, endAngle, visible } = props;
+
   const [progress, setProgress] = useState(0);
   const requestRef = useRef(null);
   const startTimeRef = useRef(null);
 
   const startAnimation = () => {
-    setIsRunning(true);
     startTimeRef.current = Date.now();
     requestRef.current = requestAnimationFrame(animate);
-  };
-
-  const stopAnimation = () => {
-    setIsRunning(false);
-    cancelAnimationFrame(requestRef.current);
-    requestRef.current = null;
   };
 
   const animate = () => {
@@ -33,18 +28,13 @@ function CircularProgressBar({ startAngle = -90, endAngle = 270 }) {
 
     if (newProgress < 1) {
       requestRef.current = requestAnimationFrame(animate);
-    } else {
-      setIsRunning(false);
     }
   };
 
-  const toggleAnimation = () => {
-    if (isRunning) {
-      stopAnimation();
-    } else {
-      startAnimation();
-    }
-  };
+  useEffect(() => {
+    setProgress(0);
+    startAnimation();
+  }, [visible]);
 
   const totalAngle = endAngle - startAngle;
   const dashOffset = CIRCUMFERENCE * (1 - progress * (totalAngle / 360));
@@ -68,12 +58,10 @@ function CircularProgressBar({ startAngle = -90, endAngle = 270 }) {
           style={{
             strokeDashoffset: dashOffset,
             transform: `rotate(${startAngle}deg)`,
+            visibility: visible ? "visible" : "hidden",
           }}
         />
       </svg>
-      <button onClick={toggleAnimation}>
-        {isRunning ? "Stop" : "Start"}
-      </button>
     </div>
   );
 }

@@ -247,7 +247,7 @@ const TaskList = () => {
           maxWidth: 600,
           overflowY: "auto",
           bgcolor: 'background.paper',
-          border: '2px solid #000',
+          border: '1px solid #2e2e2e',
           borderRadius: 5,
           boxShadow: 24,
           p: 4,
