@@ -36,10 +36,23 @@ function Note() {
       multiline
       rows={30}
       fullWidth
+      spellCheck={false}
       variant="outlined"
       placeholder="Write a note here..."
       value={note}
-      onChange={(e) => setNote(e.target.value)}
+      onChange={(e) => {
+        setNote(e.target.value)
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Tab') { // タブ入力は半角space2つに置き換える
+          e.preventDefault();
+          // ここではthisの代わりにe.targetとなる
+          const start = e.target.selectionStart;
+          const end = e.target.selectionEnd;
+          e.target.value = e.target.value.substring(0, start) + '  ' + e.target.value.substring(end);
+          e.target.selectionStart = e.target.selectionEnd = start + 2;
+        }
+      }}
       style={{
         marginTop: '16px',
         fontSize: '1.2rem',
