@@ -6,34 +6,37 @@ const STROKE_WIDTH = 4; // 線幅
 const RADIUS = INNER_DIAMETER / 2; // 半径
 const SIZE = INNER_DIAMETER + STROKE_WIDTH * 2; // SVG全体のサイズ
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS; // 円周の長さ
-const DURATION = 1000; // アニメーションの合計時間（ミリ秒）
+const DURATION = 1000; // アニメーションの合計時間[ms]
 
 function CircularProgressBar(props) {
 
   const { startAngle, endAngle, visible } = props;
 
-  const [progress, setProgress] = useState(0);
+  const [progress, setProgress] = useState(0); // 0 ~ 1
   const requestRef = useRef(null);
   const startTimeRef = useRef(null);
 
-  const startAnimation = () => {
-    startTimeRef.current = Date.now();
-    requestRef.current = requestAnimationFrame(animate);
-  };
-
-  const animate = () => {
-    const elapsed = Date.now() - startTimeRef.current;
-    const newProgress = Math.min(elapsed / DURATION, 1);
-    setProgress(newProgress);
-
-    if (newProgress < 1) {
-      requestRef.current = requestAnimationFrame(animate);
-    }
-  };
-
   useEffect(() => {
-    setProgress(0);
-    startAnimation();
+    const startAnimation = () => {
+      startTimeRef.current = Date.now();
+      requestRef.current = requestAnimationFrame(animate);
+    };
+
+    const animate = () => {
+      const elapsedTime = Date.now() - startTimeRef.current; // [ms]
+      const newProgress = Math.min(elapsedTime / DURATION, 1);
+      setProgress(newProgress);
+
+      if (newProgress < 1) {
+        requestRef.current = requestAnimationFrame(animate);
+      }
+    };
+
+    if (visible) {
+      setProgress(0);
+      startAnimation();
+    }
+    return () => cancelAnimationFrame(requestRef.current);
   }, [visible]);
 
   const totalAngle = endAngle - startAngle;
