@@ -68,6 +68,11 @@ const PriorityChip = styled(Chip)(({ priority }) => ({
   color: '#fff',
 }));
 
+const formatDate = (datestr) => {
+  const date = new Date(datestr);
+  return date.toLocaleDateString('ja-JP', {});
+}
+
 const TaskList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [editOpen, setEditOpen] = useState(false);
@@ -196,7 +201,7 @@ const TaskList = () => {
                   ))}
                 </Box>
                 <Typography variant="caption" color="text.secondary">
-                  締切日: {card.deadline}
+                  締切日: {formatDate(card.deadline)}
                 </Typography>
               </CardContent>
               <EditButton
