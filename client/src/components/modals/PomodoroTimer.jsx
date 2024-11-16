@@ -31,7 +31,7 @@ const PomodoroTimer = (props) => {
     const m = time.getMinutes();
     const s = time.getSeconds();
     setStartAngle(6 * m + 0.1 * s);
-    setEndAngle(startAngle + workTimeLeft * 6);
+    setEndAngle(startAngle + 0.1 * workTimeLeft);
     
     return () => clearInterval(timer);
   }, []);
