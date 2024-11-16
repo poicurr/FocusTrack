@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Clock from 'react-clock';
 import 'react-clock/dist/Clock.css';
 import { Box, Button, Typography } from '@mui/material';
@@ -15,9 +15,12 @@ const PomodoroTimer = (props) => {
 
   const [time, setTime] = useState(new Date());
   const [isRunning, setIsRunning] = useState(false);
-  const [secondsLeft, setSecondsLeft] = useState(25 * 60); // 25分
+  const [workTimeLeft, setWorkTimeLeft] = useState(25 * 60); // 25分
   const [startAngle, setStartAngle] = useState(0);
   const [endAngle, setEndAngle] = useState(0);
+
+  const startTimeRef = useRef(null);
+  const requestIdRef = useRef(null);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -28,26 +31,32 @@ const PomodoroTimer = (props) => {
     const m = time.getMinutes();
     const s = time.getSeconds();
     setStartAngle(6 * m + 0.1 * s);
-    setEndAngle(startAngle + secondsLeft * 0.1);
+    setEndAngle(startAngle + workTimeLeft * 6);
     
     return () => clearInterval(timer);
   }, []);
 
   useEffect(() => {
-    let countdown;
-    if (isRunning) {
-      countdown = setInterval(() => {
-        setSecondsLeft((prev) => {
-          if (prev <= 0) {
-            clearInterval(countdown);
-            setIsRunning(false);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(countdown);
+    if (!isRunning) return;
+    const countdown = () => {
+      startTimeRef.current = Date.now();
+
+      const update = () => {
+        const elapsedTime = (Date.now() - startTimeRef.current) / 1000; // 経過時間 (秒)
+        const remainingTime = Math.max(25 * 60 - elapsedTime, 0); // 残り時間
+        setWorkTimeLeft(remainingTime.toFixed(1)); // 小数点以下1桁まで表示
+
+        if (remainingTime > 0) {
+          requestIdRef.current = requestAnimationFrame(update); // 次のフレームをスケジュール
+        }
+      };
+      requestIdRef.current = requestAnimationFrame(update);
+    };
+
+    countdown();
+
+    return () => cancelAnimationFrame(requestIdRef.current);
+
   }, [isRunning]);
 
   const formatTime = (seconds) => {
@@ -76,7 +85,7 @@ const PomodoroTimer = (props) => {
           <Clock value={time} size={SIZE} />
         </Box>
         <Typography variant="h5" sx={{ textAlign: "center", mt: '65%'}}>
-          {formatTime(secondsLeft)}
+          {formatTime(Math.floor(workTimeLeft))}
         </Typography>
       </Box>
 
@@ -89,7 +98,7 @@ const PomodoroTimer = (props) => {
           const m = time.getMinutes();
           const s = time.getSeconds();
           setStartAngle(6 * m + 0.1 * s);
-          setEndAngle(startAngle + secondsLeft * 0.1);
+          setEndAngle(startAngle + workTimeLeft * 0.1);
         }}
         sx={{ mt: 3 }}
       >
@@ -101,7 +110,7 @@ const PomodoroTimer = (props) => {
         variant="outlined"
         color="primary"
         onClick={() => {
-          setSecondsLeft(25 * 60); // 25分にリセット
+          setWorkTimeLeft(25 * 60); // 25分にリセット
           setIsRunning(false);
         }}
         sx={{ mt: 2 }}
