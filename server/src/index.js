@@ -5,6 +5,7 @@ const cors = require('cors');
 
 const authRoutes = require('./routes/auth');
 const taskRoutes = require('./routes/task');
+const settingsRoutes = require('./routes/settings');
 const memoRoutes = require('./routes/memo');
 require('dotenv').config();
 
@@ -41,6 +42,9 @@ app.use('/api/auth', authRoutes);
 
 // タスク情報API
 app.use('/api/task', taskRoutes);
+
+// 設定情報API
+app.use('/api/settings', settingsRoutes);
 
 // メモ保存用API
 app.use('/api/memo', memoRoutes);

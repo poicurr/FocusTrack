@@ -14,9 +14,6 @@ import {
   FormControl,
   Slider,
   Grid,
-} from '@mui/material';
-
-import { 
   Dialog, 
   DialogActions, 
   DialogContent, 
@@ -25,13 +22,15 @@ import {
 } from '@mui/material';
 
 import { styled } from '@mui/system';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const Input = styled('input')({
   display: 'none',
 });
 
 export default function SettingsPage() {
-  const [avatar, setAvatar] = useState(null);
+  const [avatar, setAvatar] = useState("");
   const [displayName, setDisplayName] = useState('');
   const [theme, setTheme] = useState('light');
   const [workTime, setWorkTime] = useState(25);
@@ -40,6 +39,8 @@ export default function SettingsPage() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 
   const [deleteOpen, setDeleteOpen] = useState(false);
+
+  const navigate = useNavigate();
 
   const handleClickOpen = () => {
     setDeleteOpen(true);
@@ -63,16 +64,37 @@ export default function SettingsPage() {
   };
 
   const handleSave = () => {
-    // Here you would typically save the settings to a backend or local storage
-    console.log({
-      avatar,
-      displayName,
-      workTime,
-      shortBreakTime,
-      longBreakTime,
-      notificationsEnabled,
-      theme,
+    const data = {
+      avatar: avatar,
+      displayName: displayName,
+      workTime: workTime,
+      shortBreakTime: shortBreakTime,
+      longBreakTime: longBreakTime,
+      notificationsEnabled: notificationsEnabled,
+      theme: theme,
+    };
+
+    const formData = new FormData();
+    formData.append("avatar", avatar);
+    formData.append("displayName", displayName);
+    formData.append("workTime", workTime);
+    formData.append("shortBreakTime", shortBreakTime);
+    formData.append("longBreakTime", longBreakTime);
+    formData.append("notificationsEnabled", notificationsEnabled);
+    formData.append("theme", theme);
+
+    const response = axios.post(`http://localhost:5000/api/settings/upload`, formData, {
+      withCredentials: true, // クッキーを含めるために必要
+      headers: {
+        "Content-Type": "multipart/form-data",
+      }
+    }).catch(error => {
+      if (error.status === 401 || error.status === 403) {
+        navigate("/login");
+      }
     });
+
+    console.dir(response.data);
   };
 
   const handleDeleteAccount = () => {

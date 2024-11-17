@@ -23,7 +23,7 @@ const userSchema = new Schema({
     required: true 
   },
 
-  // アバター画像のURL(base64形式)
+  // アバター画像のURL
   avatar: { 
     type: String 
   },
