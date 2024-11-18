@@ -22,9 +22,6 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
 });
 
-// 静的ファイルを公開する設定
-router.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
 // エンドポイント設定
 router.post("/upload", authenticateToken, upload.single("avatar"), (req, res) => {
   const { avatar, displayName } = req.body;
