@@ -10,7 +10,10 @@ const path = require("path");
 
 const upload = multer({
   storage: multer.diskStorage({
-    destination: "uploads/",
+    destination: (req, file, cb) => {
+      const uploadDir = path.join(__dirname, "..", "uploads"); // サーバールートにuploads/ディレクトリを配置
+      cb(null, uploadDir);
+    },
     filename: (req, file, cb) => {
       const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
       cb(null, `${uniqueSuffix}-${file.originalname}`);
@@ -19,9 +22,14 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
 });
 
+// 静的ファイルを公開する設定
+router.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 // エンドポイント設定
-router.post("/upload", upload.single("avatar"), (req, res) => {
+router.post("/upload", authenticateToken, upload.single("avatar"), (req, res) => {
   const { avatar, displayName } = req.body;
+  console.log(displayName);
+
   if (!avatar || !displayName) {
     return res.status(400).json({ message: "Missing required fields" });
   }
@@ -37,7 +45,7 @@ router.post("/upload", upload.single("avatar"), (req, res) => {
   
   // ファイル保存
   const fileName = `${Date.now()}-avatar.${fileExtension}`;
-  const filePath = path.join(__dirname, "uploads", fileName);
+  const filePath = path.join("public", "uploads", fileName);
 
   // ファイルデータを保存
   fs.writeFile(filePath, base64Data, "base64", (err) => {
