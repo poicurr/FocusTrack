@@ -75,21 +75,17 @@ router.post("/upload", authenticateToken, upload.single("avatar"), async (req, r
   }
 
   // Settings情報更新
-  const updatedSettings = await Settings.findByIdAndUpdate(
-    userId,
-    { $set: {
-        workTime: workTime,
-        shortBreakTime: shortBreakTime,
-        longBreakTime: longBreakTime,
-        notificationsEnabled: notificationsEnabled,
-        theme: theme,
-      }
-    },
-    { new: true, runValidators: true } // 更新後のデータを返すオプションとバリデーション
-  );
+  let settings = await Settings.findOne({ userId });
 
-  if (!updatedSettings) {
-    const settings = new Settings({
+  if (settings) {
+    settings.workTime = workTime;
+    settings.shortBreakTime = shortBreakTime;
+    settings.longBreakTime = longBreakTime;
+    settings.notificationsEnabled = notificationsEnabled;
+    settings.theme = theme;
+    await settings.save();
+  } else {
+    settings = new Settings({
       userId: userId,
       workTime: workTime,
       shortBreakTime: shortBreakTime,
@@ -97,18 +93,9 @@ router.post("/upload", authenticateToken, upload.single("avatar"), async (req, r
       notificationsEnabled: notificationsEnabled,
       theme: theme,
     });
-    settings.save();
+    await settings.save();
   }
-
-  res.status(200).json({
-    avatar: avatar,
-    displayName: displayName,
-    workTime: workTime,
-    shortBreakTime: shortBreakTime,
-    longBreakTime: longBreakTime,
-    notificationsEnabled: notificationsEnabled,
-    theme: theme,
-  });
+  res.status(200).json(settings);
 });
 
 module.exports = router;
