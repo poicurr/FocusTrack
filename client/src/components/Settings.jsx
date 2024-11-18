@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Box,
   Container,
@@ -42,6 +42,25 @@ export default function SettingsPage() {
 
   const navigate = useNavigate();
 
+  useEffect(() => {
+    axios.get(`http://localhost:5000/api/settings/fetch`, {
+      withCredentials: true, // クッキーを含めるために必要
+    }).then(res => {
+      const data = res.data;
+      setAvatar(data.avatar);
+      setDisplayName(data.displayName);
+      setTheme(data.theme);
+      setWorkTime(data.workTime);
+      setShortBreakTime(data.shortBreakTime);
+      setLongBreakTime(data.longBreakTime);
+      setNotificationsEnabled(data.notificationsEnabled);
+    }).catch(error => {
+      if (error.status === 401 || error.status === 403) {
+        navigate("/login");
+      }
+    });
+  }, []);
+
   const handleClickOpen = () => {
     setDeleteOpen(true);
   };
@@ -64,16 +83,7 @@ export default function SettingsPage() {
   };
 
   const handleSave = () => {
-    const data = {
-      avatar: avatar,
-      displayName: displayName,
-      workTime: workTime,
-      shortBreakTime: shortBreakTime,
-      longBreakTime: longBreakTime,
-      notificationsEnabled: notificationsEnabled,
-      theme: theme,
-    };
-
+    // 画像含むリクエストなのでマルチパートを使う
     const formData = new FormData();
     formData.append("avatar", avatar);
     formData.append("displayName", displayName);

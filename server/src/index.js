@@ -10,7 +10,10 @@ const memoRoutes = require('./routes/memo');
 require('dotenv').config();
 
 const app = express();
-// app.use(cors());
+
+// 静的ファイルを提供する設定
+app.use('/uploads', express.static(__dirname + '/public/uploads'));
+
 // CORS設定を追加
 app.use(cors({
   origin: 'http://localhost:3000', // クライアントのオリジンを指定

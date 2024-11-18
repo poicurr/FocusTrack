@@ -22,6 +22,29 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
 });
 
+// Settings画面データ取得
+router.get("/fetch", authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    
+    const user = await User.findById(userId);
+    const settings = await Settings.findOne({ userId: userId });
+
+    const settingsData = {
+      avatar: user.avatar,
+      displayName: user.displayName,
+      theme: settings.theme,
+      workTime: settings.workTime,
+      shortBreakTime: settings.shortBreakTime,
+      longBreakTime: settings.longBreakTime,
+      notificationsEnabled: settings.notificationsEnabled,
+    };
+    res.status(200).json(settingsData);
+  } catch (error) {
+    res.status(500).json({ message: 'サーバーエラーが発生しました', error });
+  }
+});
+
 // エンドポイント設定
 router.post("/upload", authenticateToken, upload.single("avatar"), async (req, res) => {
   const {
@@ -34,44 +57,62 @@ router.post("/upload", authenticateToken, upload.single("avatar"), async (req, r
     theme
   } = req.body;
 
-  // avatarの処理（Base64データの検証と変換）
-  const matches = avatar.match(/^data:(.+);base64,(.+)$/);
-  if (!matches) {
-    return res.status(400).json({ message: "Invalid Base64 data" });
-  }
-  
-  const mimeType = matches[1];
-  const base64Data = matches[2];
-  const fileExtension = mimeType.split("/")[1]; // 例: image/png -> png
-  
-  // ファイル保存
-  const fileName = `${Date.now()}-avatar.${fileExtension}`;
-  const filePath = path.join("public", "uploads", fileName);
-
-  // ファイルデータを保存
-  fs.writeFile(filePath, base64Data, "base64", (err) => {
-    if (err) {
-      console.error("Error saving file:", err);
-      return res.status(500).json({ message: "Failed to save file" });
-    }
-  });
-
   // 認証されたユーザーIDを取得
   const userId = req.user.id;
 
-  // ユーザー情報更新
-  const updatedUser = await User.findByIdAndUpdate(
-    userId,
-    { $set: {
-        avatar: filePath,
-        displayName: displayName
-      }
-    },
-    { new: true, runValidators: true } // 更新後のデータを返すオプションとバリデーション
-  );
+  let updatedUser = {};
 
-  if (!updatedUser) {
-    return res.status(404).json({ message: 'ユーザーが見つかりませんでした' });
+  // avatarの処理（Base64データの検証と変換）
+  const matches = avatar.match(/^data:(.+);base64,(.+)$/);
+  if (matches) {
+    // 画像データつきのリクエスト
+    
+    const mimeType = matches[1];
+    const base64Data = matches[2];
+    const fileExtension = mimeType.split("/")[1]; // 例: image/png -> png
+    
+    // ファイル保存
+    const fileName = `${Date.now()}-avatar.${fileExtension}`;
+    const filePath = path.join("public", "uploads", fileName);
+
+    // ファイルデータを保存
+    fs.writeFile(filePath, base64Data, "base64", (err) => {
+      if (err) {
+        console.error("Error saving file:", err);
+        return res.status(500).json({ message: "Failed to save file" });
+      }
+    });
+
+    // ユーザー情報更新
+    updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: {
+          avatar: filePath,
+          displayName: displayName
+        }
+      },
+      { new: true, runValidators: true } // 更新後のデータを返すオプションとバリデーション
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'ユーザーが見つかりませんでした' });
+    }
+  } else {
+    // 画像データなしのリクエスト
+
+    // ユーザー情報更新
+    updatedUser = await User.findByIdAndUpdate(
+        userId,
+        { $set: {
+            displayName: displayName
+        }
+        },
+        { new: true, runValidators: true } // 更新後のデータを返すオプションとバリデーション
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'ユーザーが見つかりませんでした' });
+    }
   }
 
   // 既存Settings情報の更新または新規作成
