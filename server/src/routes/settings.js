@@ -23,14 +23,18 @@ const upload = multer({
 });
 
 // エンドポイント設定
-router.post("/upload", authenticateToken, upload.single("avatar"), (req, res) => {
-  const { avatar, displayName } = req.body;
-  console.log(displayName);
+router.post("/upload", authenticateToken, upload.single("avatar"), async (req, res) => {
+  const {
+    avatar,
+    displayName,
+    workTime,
+    shortBreakTime,
+    longBreakTime,
+    notificationsEnabled,
+    theme
+  } = req.body;
 
-  if (!avatar || !displayName) {
-    return res.status(400).json({ message: "Missing required fields" });
-  }
-  // Base64データの検証と変換
+  // avatarの処理（Base64データの検証と変換）
   const matches = avatar.match(/^data:(.+);base64,(.+)$/);
   if (!matches) {
     return res.status(400).json({ message: "Invalid Base64 data" });
@@ -50,59 +54,61 @@ router.post("/upload", authenticateToken, upload.single("avatar"), (req, res) =>
       console.error("Error saving file:", err);
       return res.status(500).json({ message: "Failed to save file" });
     }
+  });
 
-    console.log(`File saved: ${filePath}`);
-    res.status(200).json({
-      message: "Upload successful",
-      displayName: displayName,
-      fileName: fileName,
-      filePath: filePath,
+  // 認証されたユーザーIDを取得
+  const userId = req.user.id;
+
+  // ユーザー情報更新
+  const updatedUser = await User.findByIdAndUpdate(
+    userId,
+    { $set: {
+        avatar: filePath,
+        displayName: displayName
+      }
+    },
+    { new: true, runValidators: true } // 更新後のデータを返すオプションとバリデーション
+  );
+
+  if (!updatedUser) {
+    return res.status(404).json({ message: 'ユーザーが見つかりませんでした' });
+  }
+
+  // Settings情報更新
+  const updatedSettings = await Settings.findByIdAndUpdate(
+    userId,
+    { $set: {
+        workTime: workTime,
+        shortBreakTime: shortBreakTime,
+        longBreakTime: longBreakTime,
+        notificationsEnabled: notificationsEnabled,
+        theme: theme,
+      }
+    },
+    { new: true, runValidators: true } // 更新後のデータを返すオプションとバリデーション
+  );
+
+  if (!updatedSettings) {
+    const settings = new Settings({
+      userId: userId,
+      workTime: workTime,
+      shortBreakTime: shortBreakTime,
+      longBreakTime: longBreakTime,
+      notificationsEnabled: notificationsEnabled,
+      theme: theme,
     });
+    settings.save();
+  }
+
+  res.status(200).json({
+    avatar: avatar,
+    displayName: displayName,
+    workTime: workTime,
+    shortBreakTime: shortBreakTime,
+    longBreakTime: longBreakTime,
+    notificationsEnabled: notificationsEnabled,
+    theme: theme,
   });
 });
-
-/*
-// Settings情報取得API
-router.post('/update', authenticateToken, async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const user = await User.findById(userId);
-    const settings = await Settings.findById(userId);
-
-    if (!user || !settings) {
-      res.status(404).json({ message: 'failed to load resources', error });
-    }
-
-    const data = req.body;
-
-    user.avatar = data.avatar;
-    user.displayName = data.displayName;
-    console.log(`email: ${user.email}`);
-    console.log(`avatar: ${data.avatar}`);
-    console.log(`displayName: ${data.displayName}`);
-    user.save();
-
-    settings.theme = theme;
-    settings.workTime = workTime;
-    settings.shortBreakTime = shortBreakTime;
-    settings.longBreakTime = longBreakTime;
-    settings.notificationEnabled = notificationEnabled;
-    settings.save();
-
-    res.status(200).json({
-      avatar,
-      displayName,
-      theme,
-      workTime,
-      shortBreakTime,
-      longBreakTime,
-      notificationEnabled,
-    });
-
-  } catch (error) {
-    res.status(500).json({ message: 'サーバーエラーが発生しました', error });
-  }
-});
-*/
 
 module.exports = router;
