@@ -74,28 +74,20 @@ router.post("/upload", authenticateToken, upload.single("avatar"), async (req, r
     return res.status(404).json({ message: 'ユーザーが見つかりませんでした' });
   }
 
-  // Settings情報更新
-  let settings = await Settings.findOne({ userId });
-
-  if (settings) {
-    settings.workTime = workTime;
-    settings.shortBreakTime = shortBreakTime;
-    settings.longBreakTime = longBreakTime;
-    settings.notificationsEnabled = notificationsEnabled;
-    settings.theme = theme;
-    await settings.save();
-  } else {
-    settings = new Settings({
-      userId: userId,
+  // 既存Settings情報の更新または新規作成
+  const updatedSettings = await Settings.findOneAndUpdate(
+    { userId },
+    {
       workTime: workTime,
       shortBreakTime: shortBreakTime,
       longBreakTime: longBreakTime,
       notificationsEnabled: notificationsEnabled,
       theme: theme,
-    });
-    await settings.save();
-  }
-  res.status(200).json(settings);
+    },
+    { new: true, upsert: true } // upsert: trueで存在しない場合は作成
+  );
+
+  res.status(200).json(updatedSettings);
 });
 
 module.exports = router;
