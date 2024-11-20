@@ -12,7 +12,7 @@ require('dotenv').config();
 const app = express();
 
 // 静的ファイルを提供する設定
-app.use('/uploads', express.static(__dirname + '/public/uploads'));
+app.use('/public', express.static(__dirname + '/../public'));
 
 // CORS設定を追加
 app.use(cors({

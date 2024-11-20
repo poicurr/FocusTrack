@@ -37,7 +37,6 @@ export default function SettingsPage() {
   const [shortBreakTime, setShortBreakTime] = useState(5);
   const [longBreakTime, setLongBreakTime] = useState(15);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-
   const [deleteOpen, setDeleteOpen] = useState(false);
 
   const navigate = useNavigate();
@@ -103,8 +102,6 @@ export default function SettingsPage() {
         navigate("/login");
       }
     });
-
-    console.dir(response.data);
   };
 
   const handleDeleteAccount = () => {
@@ -119,11 +116,10 @@ export default function SettingsPage() {
         <Typography variant="h4" component="h1" gutterBottom>
           Settings
         </Typography>
-
         <Box sx={{ mb: 3, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <Avatar
-              src={avatar || '/placeholder-user.jpg'}
+              src={avatar ? "http://localhost:5000/" + avatar : '/placeholder-user.jpg'}
               sx={{ width: 100, height: 100, cursor: 'pointer' }}
               onClick={() => fileInputRef.current?.click()}
             />
