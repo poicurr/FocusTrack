@@ -10,7 +10,7 @@ function Note() {
 
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/api/memo/memo`, { withCredentials: true })
+      .get(`http://localhost:5000/api/note/note`, { withCredentials: true })
       .then((res) => setNote(res.data))
       .catch((error) => {
         const status = error.response?.status;
@@ -18,9 +18,9 @@ function Note() {
       });
   }, [navigate]);
 
-  const saveMemo = debounce((memoContent) => {
+  const saveNote = debounce((noteContent) => {
     axios
-      .post(`http://localhost:5000/api/memo/memo`, { memo: memoContent }, { withCredentials: true })
+      .post(`http://localhost:5000/api/note/note`, { note: noteContent }, { withCredentials: true })
       .catch((error) => {
         const status = error.response?.status;
         if (status === 401 || status === 403) navigate("/login");
@@ -28,7 +28,7 @@ function Note() {
   }, 1000); // 1秒間の遅延
 
   useEffect(() => {
-    saveMemo(note);
+    saveNote(note);
   }, [note]);
 
   return (
