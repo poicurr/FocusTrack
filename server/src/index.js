@@ -6,7 +6,7 @@ const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const taskRoutes = require('./routes/task');
 const settingsRoutes = require('./routes/settings');
-const memoRoutes = require('./routes/memo');
+const noteRoutes = require('./routes/note');
 require('dotenv').config();
 
 const app = express();
@@ -50,7 +50,7 @@ app.use('/api/task', taskRoutes);
 app.use('/api/settings', settingsRoutes);
 
 // メモ保存用API
-app.use('/api/memo', memoRoutes);
+app.use('/api/note', noteRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

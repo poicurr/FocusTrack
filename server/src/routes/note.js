@@ -2,34 +2,34 @@
 const express = require('express');
 const router = express.Router();
 const authenticateToken = require('../middleware/authenticateToken');
-const Memo = require('../models/Memo');
+const Note = require('../models/Note');
 
 // メモ取得API
-router.get('/memo', authenticateToken, async (req, res) => {
+router.get('/note', authenticateToken, async (req, res) => {
   try {
     const userId = req.user.id;
-    const memo = await Memo.findOne({ userId });
-    if (!memo) return res.status(404).json({ message: "memo not found" });
-    res.status(200).json(memo.memo); // メモの内容のみを返す
+    const note = await Note.findOne({ userId });
+    if (!note) return res.status(404).json({ message: "note not found" });
+    res.status(200).json(note.note); // メモの内容のみを返す
   } catch(error) {
     res.status(500).json({ message: 'メモの取得に失敗しました', error });
   }
 });
 
 // メモを登録または更新
-router.post('/memo', authenticateToken, async (req, res) => {
+router.post('/note', authenticateToken, async (req, res) => {
   try {
-    const { memo } = req.body;
+    const { note } = req.body;
     const userId = req.user.id;
 
     // 既存メモの更新または新規作成
-    const updatedMemo = await Memo.findOneAndUpdate(
+    const updatedNote = await Note.findOneAndUpdate(
       { userId },
-      { memo },
+      { note },
       { new: true, upsert: true } // upsert: trueで存在しない場合は作成
     );
 
-    res.status(201).json({ message: 'メモが保存されました', memo: updatedMemo });
+    res.status(201).json({ message: 'メモが保存されました', note: updatedNote });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'メモの保存に失敗しました', error });
