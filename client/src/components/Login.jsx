@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { TextField, Button, Typography, Link, Box } from '@mui/material';
+import { Typography, Link, Box } from '@mui/material';
 import { AuthContainer, AuthCard, AuthTextField, AuthButton } from './styles/AuthStyles';
 
-function Login({ onLogin, switchToSignUp }) {
+const Login = ({ onLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -36,7 +36,7 @@ function Login({ onLogin, switchToSignUp }) {
           <Typography variant="h5" gutterBottom align="center">
             ログイン
           </Typography>
-          <form>
+          <Box>
             <AuthTextField
               fullWidth
               label="メールアドレス"
@@ -56,7 +56,7 @@ function Login({ onLogin, switchToSignUp }) {
             <AuthButton fullWidth onClick={handleLogin} variant="contained" type="submit">
               ログイン
             </AuthButton>
-          </form>
+          </Box>
           <Typography align="center" sx={{ mt: 2 }}>
             アカウントをお持ちでない方は{' '}
             <Link href="/signup" underline="none" sx={{ color: '#FE6B8B' }}>

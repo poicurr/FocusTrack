@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { TextField, Button, Typography, Link, Box } from '@mui/material';
+import { Typography, Link, Box } from '@mui/material';
 import { AuthContainer, AuthCard, AuthTextField, AuthButton } from './styles/AuthStyles';
 
-export default function SignUp({ onSignUp, switchToLogin }) {
+const SignUp = ({ onSignUp }) => {
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password1, setPassword1] = useState('');
@@ -36,12 +36,12 @@ export default function SignUp({ onSignUp, switchToLogin }) {
           </Typography>
         )}
         <Typography variant="h4" component="h1" gutterBottom align="center" sx={{ fontWeight: 'bold' }}>
-          FocusFlow
+          FocusTrack
         </Typography>
         <Typography variant="h5" gutterBottom align="center">
           新規登録
         </Typography>
-        <form>
+        <Box>
           <AuthTextField
             fullWidth
             label="名前"
@@ -76,7 +76,7 @@ export default function SignUp({ onSignUp, switchToLogin }) {
           <AuthButton fullWidth onClick={handleSignUp} variant="contained" type="submit">
             アカウント作成
           </AuthButton>
-        </form>
+        </Box>
         <Typography align="center" sx={{ mt: 2 }}>
           すでにアカウントをお持ちの方は{' '}
           <Link href="/login" underline="none" sx={{ color: '#FE6B8B' }}>
@@ -88,3 +88,4 @@ export default function SignUp({ onSignUp, switchToLogin }) {
   );
 }
 
+export default SignUp;
