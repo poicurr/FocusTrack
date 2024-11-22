@@ -1,19 +1,25 @@
 import React, { useState } from 'react';
 import { TextField, Button, Typography, Link, Box } from '@mui/material';
+import { AuthContainer, AuthCard, AuthTextField, AuthButton } from './styles/AuthStyles';
 
-function SignUp({ onSignUp, switchToLogin }) {
+export default function SignUp({ onSignUp, switchToLogin }) {
   const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [password1, setPassword1] = useState('');
+  const [password2, setPassword2] = useState('');
   const [error, setError] = useState('');
 
   const handleSignUp = () => {
-    if (!displayName || !email || !password) {
+    if (!displayName || !email || !password1 || !password2) {
       setError('All fields are required');
       return;
     }
+    if (password1 !== password2) {
+      setError('Wrong password');
+      return;
+    }
     // サインアップ処理
-    onSignUp(displayName, email, password, (err) => {
+    onSignUp(displayName, email, password1, (err) => {
       const res = err.response;
       console.error("Sign up failed:", res.data.message);
       setError(res.data.message);
@@ -21,63 +27,64 @@ function SignUp({ onSignUp, switchToLogin }) {
   };
 
   return (
-    <Box display="flex" flexDirection="column" alignItems="center" p={2} width="100%" maxWidth="400px" margin="0 auto">
-      <Typography variant="h4" gutterBottom>
-        Sign Up
-      </Typography>
-      
-      {/* エラーメッセージ */}
-      {error && (
-        <Typography color="error" variant="body2" gutterBottom>
-          {error}
+    <AuthContainer>
+      <AuthCard>
+        {/* エラーメッセージ */}
+        {error && (
+          <Typography color="error" variant="body2" gutterBottom>
+            {error}
+          </Typography>
+        )}
+        <Typography variant="h4" component="h1" gutterBottom align="center" sx={{ fontWeight: 'bold' }}>
+          FocusFlow
         </Typography>
-      )}
-
-      {/* 表示名 */}
-      <TextField
-        label="Display Name"
-        variant="outlined"
-        fullWidth
-        margin="normal"
-        value={displayName}
-        onChange={(e) => setDisplayName(e.target.value)}
-      />
-
-      {/* メールアドレス入力 */}
-      <TextField
-        label="Email"
-        variant="outlined"
-        fullWidth
-        margin="normal"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
-
-      {/* パスワード入力 */}
-      <TextField
-        label="Password"
-        type="password"
-        variant="outlined"
-        fullWidth
-        margin="normal"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-
-      {/* サインアップボタン */}
-      <Button variant="contained" color="primary" fullWidth onClick={handleSignUp} sx={{ marginTop: 2 }}>
-        Sign Up
-      </Button>
-
-      {/* ログイン画面へのリンク */}
-      <Typography variant="body2" sx={{ marginTop: 2 }}>
-        Already have an account?{' '}
-        <Link href="#" onClick={switchToLogin}>
-          Login here
-        </Link>
-      </Typography>
-    </Box>
+        <Typography variant="h5" gutterBottom align="center">
+          新規登録
+        </Typography>
+        <form>
+          <AuthTextField
+            fullWidth
+            label="名前"
+            variant="outlined"
+            onChange={(e) => setDisplayName(e.target.value)}
+            required
+          />
+          <AuthTextField
+            fullWidth
+            label="メールアドレス"
+            variant="outlined"
+            type="email"
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <AuthTextField
+            fullWidth
+            label="パスワード"
+            variant="outlined"
+            type="password"
+            onChange={(e) => setPassword1(e.target.value)}
+            required
+          />
+          <AuthTextField
+            fullWidth
+            label="パスワード（確認）"
+            variant="outlined"
+            type="password"
+            onChange={(e) => setPassword2(e.target.value)}
+            required
+          />
+          <AuthButton fullWidth onClick={handleSignUp} variant="contained" type="submit">
+            アカウント作成
+          </AuthButton>
+        </form>
+        <Typography align="center" sx={{ mt: 2 }}>
+          すでにアカウントをお持ちの方は{' '}
+          <Link href="/login" underline="none" sx={{ color: '#FE6B8B' }}>
+            こちら
+          </Link>
+        </Typography>
+      </AuthCard>
+    </AuthContainer>
   );
 }
 
-export default SignUp;
