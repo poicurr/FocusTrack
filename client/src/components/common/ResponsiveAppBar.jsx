@@ -23,8 +23,18 @@ import MenuIcon from '@mui/icons-material/Menu';
 import SettingsIcon from '@mui/icons-material/Settings';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
+import { styled } from '@mui/system';
 
 import axios from 'axios';
+
+const StyledAppBar = styled(AppBar)({
+  background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
+  boxShadow: 'none',
+});
+
+const StyledListItemIcon = styled(ListItemIcon)({
+  color: '#FE6B8B',
+});
 
 const drawerWidth = 240;
 
@@ -78,31 +88,31 @@ const ResponsiveAppBar = (props) => {
       <List>
         <ListItem key={0} disablePadding>
           <ListItemButton onClick={() => { navigate("/tasks"); }}>
-            <ListItemIcon><FormatListBulletedIcon /></ListItemIcon>
+            <StyledListItemIcon><FormatListBulletedIcon /></StyledListItemIcon>
             <ListItemText primary="Tasks" />
           </ListItemButton>
         </ListItem>
         <ListItem key={1} disablePadding>
           <ListItemButton onClick={() => { navigate("/report"); }}>
-            <ListItemIcon><AnalyticsIcon /></ListItemIcon>
+            <StyledListItemIcon><AnalyticsIcon /></StyledListItemIcon>
             <ListItemText primary="Report" />
           </ListItemButton>
         </ListItem>
         <ListItem key={2} disablePadding>
           <ListItemButton onClick={() => { navigate("/note"); }}>
-            <ListItemIcon><NoteIcon /></ListItemIcon>
+            <StyledListItemIcon><NoteIcon /></StyledListItemIcon>
             <ListItemText primary="Note" />
           </ListItemButton>
         </ListItem>
         <ListItem key={3} disablePadding>
           <ListItemButton>
-            <ListItemIcon><TagIcon /></ListItemIcon>
+            <StyledListItemIcon><TagIcon /></StyledListItemIcon>
             <ListItemText primary="Tags" />
           </ListItemButton>
         </ListItem>
         <ListItem key={4} disablePadding>
           <ListItemButton onClick={() => { navigate("/notification"); }}>
-            <ListItemIcon><NotificationsIcon /></ListItemIcon>
+            <StyledListItemIcon><NotificationsIcon /></StyledListItemIcon>
             <ListItemText primary="Notification" />
           </ListItemButton>
         </ListItem>
@@ -111,7 +121,7 @@ const ResponsiveAppBar = (props) => {
       <List>
         <ListItem key={5} disablePadding>
           <ListItemButton onClick={() => { navigate("/settings"); }}>
-            <ListItemIcon><SettingsIcon/></ListItemIcon>
+            <StyledListItemIcon><SettingsIcon/></StyledListItemIcon>
             <ListItemText primary="Settings" />
           </ListItemButton>
         </ListItem>
@@ -121,7 +131,7 @@ const ResponsiveAppBar = (props) => {
 
   return (
     <Box sx={{ display: 'flex' }}>
-      <AppBar
+      <StyledAppBar
         position="fixed"
         sx={{
           width: { sm: "100%" },
@@ -167,7 +177,7 @@ const ResponsiveAppBar = (props) => {
               <MenuItem onClick={onLogout}>Logout</MenuItem>
             </Menu>
         </Toolbar>
-      </AppBar>
+      </StyledAppBar>
       <Box
         component="nav"
         sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
