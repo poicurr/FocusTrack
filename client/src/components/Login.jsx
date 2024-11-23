@@ -21,51 +21,51 @@ const Login = ({ onLogin }) => {
   };
 
   return (
-    <>
-      {/* エラーメッセージ */}
-      {error && (
-        <Typography color="error" variant="body2" gutterBottom>
-          {error}
+    <AuthContainer>
+      <AuthCard>
+        <Typography variant="h4" component="h1" gutterBottom align="center" sx={{ fontWeight: 'bold' }}>
+          FocusTrack
         </Typography>
-      )}
-      <AuthContainer>
-        <AuthCard>
-          <Typography variant="h4" component="h1" gutterBottom align="center" sx={{ fontWeight: 'bold' }}>
-            FocusTrack
+        <Typography variant="h5" gutterBottom align="center">
+          ログイン
+        </Typography>
+        {/* エラーメッセージ */}
+        {error && (
+          <Typography color="error" variant="body2" gutterBottom>
+            {error}
           </Typography>
-          <Typography variant="h5" gutterBottom align="center">
+        )}
+        <Box>
+          <AuthTextField
+            fullWidth
+            label="メールアドレス"
+            variant="outlined"
+            type="email"
+            onChange={(e) => setEmail(e.target.value)}
+            value={email}
+            required
+          />
+          <AuthTextField
+            fullWidth
+            label="パスワード"
+            variant="outlined"
+            type="password"
+            onChange={(e) => setPassword(e.target.value)}
+            value={password}
+            required
+          />
+          <AuthButton fullWidth onClick={handleLogin} variant="contained" type="submit">
             ログイン
-          </Typography>
-          <Box>
-            <AuthTextField
-              fullWidth
-              label="メールアドレス"
-              variant="outlined"
-              type="email"
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            <AuthTextField
-              fullWidth
-              label="パスワード"
-              variant="outlined"
-              type="password"
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <AuthButton fullWidth onClick={handleLogin} variant="contained" type="submit">
-              ログイン
-            </AuthButton>
-          </Box>
-          <Typography align="center" sx={{ mt: 2 }}>
-            アカウントをお持ちでない方は{' '}
-            <Link href="/signup" underline="none" sx={{ color: '#FE6B8B' }}>
-              こちら
-            </Link>
-          </Typography>
-        </AuthCard>
-      </AuthContainer>
-    </>
+          </AuthButton>
+        </Box>
+        <Typography align="center" sx={{ mt: 2 }}>
+          アカウントをお持ちでない方は{' '}
+          <Link href="/signup" underline="none" sx={{ color: '#FE6B8B' }}>
+            こちら
+          </Link>
+        </Typography>
+      </AuthCard>
+    </AuthContainer>
   );
 }
 

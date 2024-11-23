@@ -29,18 +29,18 @@ const SignUp = ({ onSignUp }) => {
   return (
     <AuthContainer>
       <AuthCard>
-        {/* エラーメッセージ */}
-        {error && (
-          <Typography color="error" variant="body2" gutterBottom>
-            {error}
-          </Typography>
-        )}
         <Typography variant="h4" component="h1" gutterBottom align="center" sx={{ fontWeight: 'bold' }}>
           FocusTrack
         </Typography>
         <Typography variant="h5" gutterBottom align="center">
           新規登録
         </Typography>
+        {/* エラーメッセージ */}
+        {error && (
+          <Typography color="error" variant="body2" gutterBottom>
+            {error}
+          </Typography>
+        )}
         <Box>
           <AuthTextField
             fullWidth

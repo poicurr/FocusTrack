@@ -27,10 +27,12 @@ import { styled } from '@mui/system';
 
 import axios from 'axios';
 
-const StyledAppBar = styled(AppBar)({
-  background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
+const StyledAppBar = styled(AppBar)(({ theme }) => ({
+  background: theme.palette.mode === 'dark' 
+    ? 'linear-gradient(45deg, #2E0B17 30%, #3E1D10 90%)'
+    : 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
   boxShadow: 'none',
-});
+}));
 
 const StyledListItemIcon = styled(ListItemIcon)({
   color: '#FE6B8B',

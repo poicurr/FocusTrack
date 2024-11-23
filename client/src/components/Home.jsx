@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   AppBar, 
   Toolbar, 
@@ -41,16 +42,6 @@ const FeatureCard = styled(Card)({
   },
 });
 
-const DownloadButton = styled(Button)({
-  background: 'black',
-  color: 'white',
-  padding: '10px 30px',
-  fontSize: '1.2rem',
-  '&:hover': {
-    background: '#333',
-  },
-});
-
 const Footer = styled(Box)({
   background: '#f5f5f7',
   padding: '2rem 0',
@@ -58,16 +49,19 @@ const Footer = styled(Box)({
 });
 
 export default function Home() {
+
+  const navigate = useNavigate();
+
   return (
     <>
       <StyledAppBar position="static" elevation={0}>
         <Toolbar>
+          <img src="logo.png" style={{width: 64, height: 64}} alt="logo" />
           <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: 'black' }}>
             FocusTrack
           </Typography>
-          <Button color="inherit" sx={{ color: 'black' }}>特徴</Button>
-          <Button color="inherit" sx={{ color: 'black' }}>価格</Button>
-          <Button color="inherit" sx={{ color: 'black' }}>ダウンロード</Button>
+          <Button color="inherit" sx={{ color: 'black' }} onClick={ ev => navigate("/login") }>Login</Button>
+          <Button color="inherit" sx={{ color: 'black' }} onClick={ ev => navigate("/signup") }>Signup</Button>
         </Toolbar>
       </StyledAppBar>
 
@@ -79,9 +73,6 @@ export default function Home() {
           <Typography variant="h5" paragraph>
             ポモドーロ法とタスク管理を完璧に融合
           </Typography>
-          <DownloadButton variant="contained" size="large">
-            今すぐダウンロード
-          </DownloadButton>
         </Container>
       </HeroSection>
 
@@ -134,11 +125,6 @@ export default function Home() {
             シンプルで美しいデザインと直感的な操作性で、
             生産性向上の新たな扉を開きます。
           </Typography>
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-            <DownloadButton variant="contained" size="large">
-              無料でトライアル
-            </DownloadButton>
-          </Box>
         </Container>
       </Box>
 
