@@ -85,7 +85,7 @@ const ResponsiveAppBar = (props) => {
   const navigate = useNavigate();
 
   const drawer = (
-    <div>
+    <>
       <Toolbar />
       <List>
         <ListItem key={0} disablePadding>
@@ -128,7 +128,7 @@ const ResponsiveAppBar = (props) => {
           </ListItemButton>
         </ListItem>
       </List>
-    </div>
+    </>
   );
 
   return (
@@ -137,7 +137,8 @@ const ResponsiveAppBar = (props) => {
         position="fixed"
         sx={{
           width: { sm: "100%" },
-          zIndex: 9000,
+          boxShadow: "0px 2px 4px -1px rgba(0, 0, 0, 0.2), 0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0, 0, 0, 0.12)",
+          zIndex: 1500,
         }}
       >
         <Toolbar>
