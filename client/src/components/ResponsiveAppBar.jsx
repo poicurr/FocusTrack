@@ -24,6 +24,8 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import { styled } from '@mui/system';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { useSettings } from './SettingsContext';
 
 import axios from 'axios';
 
@@ -46,6 +48,11 @@ const ResponsiveAppBar = (props) => {
   const [isClosing, setIsClosing] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [menuOpen, setMenuOpen] = React.useState(false);
+
+  const navigate = useNavigate();
+  const { settings, loading, error } = useSettings();
+  if (loading) return <p>Loading settings...</p>;
+  if (error) return <p>Error: {error}</p>;
 
   const handleDrawerClose = () => {
     setIsClosing(true);
@@ -81,8 +88,6 @@ const ResponsiveAppBar = (props) => {
       navigate("/login");
     });
   }
-
-  const navigate = useNavigate();
 
   const drawer = (
     <>
@@ -131,94 +136,104 @@ const ResponsiveAppBar = (props) => {
     </>
   );
 
+  const theme = createTheme({
+    palette: {
+      mode: settings.theme,
+    },
+  });
+
   return (
-    <Box sx={{ display: 'flex' }}>
-      <StyledAppBar
-        position="fixed"
-        sx={{
-          width: { sm: "100%" },
-          boxShadow: "0px 2px 4px -1px rgba(0, 0, 0, 0.2), 0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0, 0, 0, 0.12)",
-          zIndex: 1500,
-        }}
-      >
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: 'none' } }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <img src="logo.png" style={{width: 64, height: 64}} alt="logo" />
-          <Typography variant="h6" noWrap component="div">
-            FocusTrack
-          </Typography>
-          <IconButton
-            color="inherit"
-            aria-controls={menuOpen ? 'basic-menu' : undefined}
-            aria-haspopup="true"
-            aria-expanded={menuOpen ? 'true' : undefined}
-            onClick={handleClick}
-            sx={{ ml: 'auto' }}
-          >
-            <AccountCircleIcon/>
-          </IconButton>
-          <Menu
-              id="basic-menu"
-              anchorEl={anchorEl}
-              open={menuOpen}
-              onClose={handleClose}
-              MenuListProps={{
-                'aria-labelledby': 'basic-button',
-              }}
-              sx = {{ zIndex: 9100 }}
+    <ThemeProvider theme={theme}>
+      <Box sx={{ display: 'flex' }}>
+        <StyledAppBar
+          position="fixed"
+          sx={{
+            width: { sm: "100%" },
+            boxShadow: "0px 2px 4px -1px rgba(0, 0, 0, 0.2), 0px 4px 5px 0px rgba(0, 0, 0, 0.14), 0px 1px 10px 0px rgba(0, 0, 0, 0.12)",
+            zIndex: 1500,
+          }}
+        >
+          <Toolbar>
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              edge="start"
+              onClick={handleDrawerToggle}
+              sx={{ mr: 2, display: { sm: 'none' } }}
             >
-              <MenuItem onClick={handleClose}>Profile</MenuItem>
-              <MenuItem onClick={handleClose}>My account</MenuItem>
-              <MenuItem onClick={onLogout}>Logout</MenuItem>
-            </Menu>
-        </Toolbar>
-      </StyledAppBar>
-      <Box
-        component="nav"
-        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-        aria-label="mailbox folders"
-      >
-        {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
-        <Drawer
-          variant="temporary"
-          open={mobileOpen}
-          onTransitionEnd={handleDrawerTransitionEnd}
-          onClose={handleDrawerClose}
-          ModalProps={{
-            keepMounted: true, // Better open performance on mobile.
-          }}
-          sx={{
-            display: { xs: 'block', sm: 'none' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
-          }}
+              <MenuIcon />
+            </IconButton>
+            <img src="logo.png" style={{width: 64, height: 64}} alt="logo" />
+            <Typography variant="h6" noWrap component="div">
+              FocusTrack
+            </Typography>
+            <IconButton
+              color="inherit"
+              aria-controls={menuOpen ? 'basic-menu' : undefined}
+              aria-haspopup="true"
+              aria-expanded={menuOpen ? 'true' : undefined}
+              onClick={handleClick}
+              sx={{ ml: 'auto' }}
+            >
+              {
+                settings.avatar ? <img src = {"http://localhost:5000/" + settings.avatar} style = {{ width: 35, height: 35, borderRadius: "50%", }}/> : <AccountCircleIcon/>
+              }
+            </IconButton>
+            <Menu
+                id="basic-menu"
+                anchorEl={anchorEl}
+                open={menuOpen}
+                onClose={handleClose}
+                MenuListProps={{
+                  'aria-labelledby': 'basic-button',
+                }}
+                sx = {{ zIndex: 9100 }}
+              >
+                <MenuItem onClick={handleClose}>Profile</MenuItem>
+                <MenuItem onClick={handleClose}>My account</MenuItem>
+                <MenuItem onClick={onLogout}>Logout</MenuItem>
+              </Menu>
+          </Toolbar>
+        </StyledAppBar>
+        <Box
+          component="nav"
+          sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+          aria-label="mailbox folders"
         >
-          {drawer}
-        </Drawer>
-        <Drawer
-          variant="permanent"
-          sx={{
-            display: { xs: 'none', sm: 'block' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
-          }}
-          open
-        >
-          {drawer}
-        </Drawer>
+          {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
+          <Drawer
+            variant="temporary"
+            open={mobileOpen}
+            onTransitionEnd={handleDrawerTransitionEnd}
+            onClose={handleDrawerClose}
+            ModalProps={{
+              keepMounted: true, // Better open performance on mobile.
+            }}
+            sx={{
+              display: { xs: 'block', sm: 'none' },
+              '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+            }}
+          >
+            {drawer}
+          </Drawer>
+          <Drawer
+            variant="permanent"
+            sx={{
+              display: { xs: 'none', sm: 'block' },
+              '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+            }}
+            open
+          >
+            {drawer}
+          </Drawer>
+        </Box>
+        {/* mainコンテンツ */}
+        <Box component="main" style={{ flexGrow: 1, padding: '20px', marginTop: '20px' }} value={{ settings, loading, error }}>
+          <Toolbar />
+          {children}
+        </Box>
       </Box>
-      {/* mainコンテンツ */}
-      <Box component="main" style={{ flexGrow: 1, padding: '20px', marginTop: '20px' }}>
-        <Toolbar />
-        {children}
-      </Box>
-    </Box>
+    </ThemeProvider>
   );
 }
 

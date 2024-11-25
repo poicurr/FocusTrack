@@ -28,7 +28,11 @@ router.get("/fetch", authenticateToken, async (req, res) => {
     const userId = req.user.id;
     
     const user = await User.findById(userId);
-    const settings = await Settings.findOne({ userId: userId });
+    const settings = await Settings.findOneAndUpdate(
+      { userId: userId },
+      {},
+      { new: true, upsert: true }
+    );
 
     const settingsData = {
       avatar: user.avatar,

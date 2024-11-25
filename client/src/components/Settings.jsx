@@ -92,7 +92,7 @@ export default function SettingsPage() {
     formData.append("notificationsEnabled", notificationsEnabled);
     formData.append("theme", theme);
 
-    const response = axios.post(`http://localhost:5000/api/settings/upload`, formData, {
+    axios.post(`http://localhost:5000/api/settings/upload`, formData, {
       withCredentials: true, // クッキーを含めるために必要
       headers: {
         "Content-Type": "multipart/form-data",
@@ -102,6 +102,8 @@ export default function SettingsPage() {
         navigate("/login");
       }
     });
+
+    window.location.reload();
   };
 
   const handleDeleteAccount = () => {

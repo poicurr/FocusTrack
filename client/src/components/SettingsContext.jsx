@@ -1,19 +1,41 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 // Contextの作成
 export const SettingsContext = createContext();
 
 // Providerコンポーネント
 export const SettingsProvider = ({ children }) => {
-  const [theme, setTheme] = useState('light');
-  const toggleTheme = () => setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
+  const [settings, setSettings] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);  
+  
+  const navigate = useNavigate();  
+  useEffect(() => {
+    axios.get(`http://localhost:5000/api/settings/fetch`, {
+      withCredentials: true, // クッキーを含めるために必要
+    }).then(res => {
+      setSettings(res.data);
+      setLoading(false);
+    }).catch(error => {
+      if (error.status === 401 || error.status === 403) {
+        navigate("/login");
+      }
+    });
+  }, []);
 
   return (
-    <SettingsContext.Provider value={{ theme, toggleTheme }}>
+    <SettingsContext.Provider value={{ settings, loading, error }}>
       {children}
     </SettingsContext.Provider>
   );
 };
 
-// カスタムフック
-export const useSettings = () => useContext(SettingsContext);
+export const useSettings = () => {
+    const context = useContext(SettingsContext);
+    if (!context) {
+      throw new Error('useSettings must be used within a SettingsProvider');
+    }
+    return context;
+  };

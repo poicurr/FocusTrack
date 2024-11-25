@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import Login from './Login';
 import SignUp from './SignUp';
 
+import "./Auth.css"
+
 import axios from 'axios';
 
 function Auth(props) {
