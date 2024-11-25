@@ -43,13 +43,17 @@ root.render(
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Auth isLogin={true}/>} />
           <Route path="/signup" element={<Auth isLogin={false} />} />
-          <Route path="/timer" element={<PrivateRoute><ResponsiveAppBar><PomodoroTimer /></ResponsiveAppBar></PrivateRoute>} />
-          <Route path="/tasks" element={<PrivateRoute><ResponsiveAppBar><TaskList /></ResponsiveAppBar></PrivateRoute>} />
-          <Route path="/note" element={<PrivateRoute><ResponsiveAppBar><Note /></ResponsiveAppBar></PrivateRoute>} />
-          <Route path="/report" element={<PrivateRoute><ResponsiveAppBar><Report /></ResponsiveAppBar></PrivateRoute>} />
-          <Route path="/notification" element={<PrivateRoute><ResponsiveAppBar><NotificationDemo /></ResponsiveAppBar></PrivateRoute>} />
-          <Route path="/settings" element={<PrivateRoute><ResponsiveAppBar><Settings /></ResponsiveAppBar></PrivateRoute>} />
-          <Route path="*" element={<NotFound />} />
+          <Route path="*" element={
+            <Routes>
+              <Route path="/timer" element={<PrivateRoute><ResponsiveAppBar><PomodoroTimer /></ResponsiveAppBar></PrivateRoute>} />
+              <Route path="/tasks" element={<PrivateRoute><ResponsiveAppBar><TaskList /></ResponsiveAppBar></PrivateRoute>} />
+              <Route path="/note" element={<PrivateRoute><ResponsiveAppBar><Note /></ResponsiveAppBar></PrivateRoute>} />
+              <Route path="/report" element={<PrivateRoute><ResponsiveAppBar><Report /></ResponsiveAppBar></PrivateRoute>} />
+              <Route path="/notification" element={<PrivateRoute><ResponsiveAppBar><NotificationDemo /></ResponsiveAppBar></PrivateRoute>} />
+              <Route path="/settings" element={<PrivateRoute><ResponsiveAppBar><Settings /></ResponsiveAppBar></PrivateRoute>} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          } />
         </Routes>
       </Router>
     </ThemeProvider>
