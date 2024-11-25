@@ -15,8 +15,7 @@ import Note from './components/Note';
 import NotificationDemo from './components/Notification';
 import Settings from './components/Settings';
 import NotFound from './components/NotFound';
-
-import PomodoroTimer from './components/modals/PomodoroTimer';
+import { SettingsProvider } from './components/SettingsContext';
 
 import reportWebVitals from './reportWebVitals';
 
@@ -36,7 +35,6 @@ const lightTheme = createTheme({
 
 root.render(
   <React.StrictMode>
-    <ThemeProvider theme={lightTheme}>
       <CssBaseline />
       <Router>
         <Routes>
@@ -44,19 +42,23 @@ root.render(
           <Route path="/login" element={<Auth isLogin={true}/>} />
           <Route path="/signup" element={<Auth isLogin={false} />} />
           <Route path="*" element={
-            <Routes>
-              <Route path="/timer" element={<PrivateRoute><ResponsiveAppBar><PomodoroTimer /></ResponsiveAppBar></PrivateRoute>} />
-              <Route path="/tasks" element={<PrivateRoute><ResponsiveAppBar><TaskList /></ResponsiveAppBar></PrivateRoute>} />
-              <Route path="/note" element={<PrivateRoute><ResponsiveAppBar><Note /></ResponsiveAppBar></PrivateRoute>} />
-              <Route path="/report" element={<PrivateRoute><ResponsiveAppBar><Report /></ResponsiveAppBar></PrivateRoute>} />
-              <Route path="/notification" element={<PrivateRoute><ResponsiveAppBar><NotificationDemo /></ResponsiveAppBar></PrivateRoute>} />
-              <Route path="/settings" element={<PrivateRoute><ResponsiveAppBar><Settings /></ResponsiveAppBar></PrivateRoute>} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <SettingsProvider>
+              <ThemeProvider theme={lightTheme}>
+                <PrivateRoute><ResponsiveAppBar>
+                  <Routes>
+                    <Route path="/tasks" element={<TaskList />} />
+                    <Route path="/note" element={<Note />} />
+                    <Route path="/report" element={<Report />} />
+                    <Route path="/notification" element={<NotificationDemo />} />
+                    <Route path="/settings" element={<Settings />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </ResponsiveAppBar></PrivateRoute>
+             </ThemeProvider>
+            </SettingsProvider>
           } />
         </Routes>
       </Router>
-    </ThemeProvider>
   </React.StrictMode>
 );
 
