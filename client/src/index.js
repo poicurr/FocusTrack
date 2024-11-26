@@ -31,7 +31,7 @@ root.render(
           <PrivateRoute>
             <SettingsProvider>
               <ResponsiveAppBar>
-              <CssBaseline /> 
+                <CssBaseline /> 
                 <Routes>
                   <Route path="/tasks" element={<TaskList />} />
                   <Route path="/note" element={<Note />} />
