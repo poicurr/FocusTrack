@@ -95,7 +95,7 @@ const TaskList = () => {
         navigate("/login");
       }
     });
-  }, [editOpen, tasks]);
+  }, [editOpen]);
 
   // タイトル、説明文、ステータス、タグ、優先度でフィルターをかける
   const filteredCards = tasks.filter(card => 
@@ -192,7 +192,7 @@ const TaskList = () => {
                 />
                 <Box sx={{ mb: 1 }}>
                   {card.tags.map((tag) => (
-                    <Chip
+                    tag && <Chip
                       key={tag}
                       label={tag}
                       size="small"
