@@ -9,7 +9,6 @@ export const SettingsContext = createContext();
 export const SettingsProvider = ({ children }) => {
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);  
   
   const navigate = useNavigate();  
   useEffect(() => {
@@ -26,16 +25,16 @@ export const SettingsProvider = ({ children }) => {
   }, []);
 
   return (
-    <SettingsContext.Provider value={{ settings, loading, error }}>
+    <SettingsContext.Provider value={{ settings, loading }}>
       {children}
     </SettingsContext.Provider>
   );
 };
 
 export const useSettings = () => {
-    const context = useContext(SettingsContext);
-    if (!context) {
-      throw new Error('useSettings must be used within a SettingsProvider');
-    }
-    return context;
-  };
+  const context = useContext(SettingsContext);
+  if (!context) {
+    throw new Error('useSettings must be used within a SettingsProvider');
+  }
+  return context;
+};

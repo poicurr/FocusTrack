@@ -50,9 +50,8 @@ const ResponsiveAppBar = (props) => {
   const [menuOpen, setMenuOpen] = React.useState(false);
 
   const navigate = useNavigate();
-  const { settings, loading, error } = useSettings();
+  const { settings, loading } = useSettings();
   if (loading) return <p>Loading settings...</p>;
-  if (error) return <p>Error: {error}</p>;
 
   const handleDrawerClose = () => {
     setIsClosing(true);
@@ -228,7 +227,7 @@ const ResponsiveAppBar = (props) => {
           </Drawer>
         </Box>
         {/* mainコンテンツ */}
-        <Box component="main" style={{ flexGrow: 1, padding: '20px', marginTop: '20px' }} value={{ settings, loading, error }}>
+        <Box component="main" style={{ flexGrow: 1, padding: '20px', marginTop: '20px' }}>
           <Toolbar />
           {children}
         </Box>
