@@ -87,6 +87,11 @@ router.post("/upload", authenticateToken, upload.single("avatar"), async (req, r
       }
     });
 
+    // 古い画像データを削除
+    const user = await User.findById(userId);
+    const oldfile = user.avatar;
+    if (oldfile) fs.unlinkSync(oldfile);
+
     // ユーザー情報更新
     updatedUser = await User.findByIdAndUpdate(
       userId,
