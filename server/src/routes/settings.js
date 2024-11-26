@@ -90,7 +90,11 @@ router.post("/upload", authenticateToken, upload.single("avatar"), async (req, r
     // 古い画像データを削除
     const user = await User.findById(userId);
     const oldfile = user.avatar;
-    if (oldfile) fs.unlinkSync(oldfile);
+    try {
+      if (oldfile) fs.unlinkSync(oldfile);
+    } catch(e) {
+      console.log(`failed to delete file: ${e}`);
+    }
 
     // ユーザー情報更新
     updatedUser = await User.findByIdAndUpdate(

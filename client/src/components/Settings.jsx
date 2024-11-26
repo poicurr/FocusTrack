@@ -113,6 +113,7 @@ export default function SettingsPage() {
   };
 
   const isBase64 = () => {
+    if (!avatar) return false;
     return avatar.match(/^data:(.+);base64,(.+)$/);
   }
 

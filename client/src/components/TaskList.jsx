@@ -95,7 +95,7 @@ const TaskList = () => {
         navigate("/login");
       }
     });
-  }, [editOpen]); // 画面のリフレッシュタイミングはモーダル開閉のとき
+  }, [editOpen, tasks]);
 
   // タイトル、説明文、ステータス、タグ、優先度でフィルターをかける
   const filteredCards = tasks.filter(card => 
