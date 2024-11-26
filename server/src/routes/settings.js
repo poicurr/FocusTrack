@@ -95,7 +95,7 @@ router.post("/upload", authenticateToken, upload.single("avatar"), async (req, r
           displayName: displayName
         }
       },
-      { new: true, runValidators: true } // 更新後のデータを返すオプションとバリデーション
+      { new: true, upsert: true, runValidators: true } // 更新後のデータを返すオプションとバリデーション
     );
 
     if (!updatedUser) {

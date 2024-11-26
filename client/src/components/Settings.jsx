@@ -112,6 +112,10 @@ export default function SettingsPage() {
     handleClose();
   };
 
+  const isBase64 = () => {
+    return avatar.match(/^data:(.+);base64,(.+)$/);
+  }
+
   return (
     <Container maxWidth="sm" sx={{ px: { xs: 2, sm: 3 } }}>
       <Box sx={{ my: 4 }}>
@@ -120,11 +124,20 @@ export default function SettingsPage() {
         </Typography>
         <Box sx={{ mb: 3, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            {
+            isBase64() ?
+            <Avatar
+              src={avatar ? avatar : '/placeholder-user.jpg'}
+              sx={{ width: 100, height: 100, cursor: 'pointer' }}
+              onClick={() => fileInputRef.current?.click()}
+            />
+            :
             <Avatar
               src={avatar ? "http://localhost:5000/" + avatar : '/placeholder-user.jpg'}
               sx={{ width: 100, height: 100, cursor: 'pointer' }}
               onClick={() => fileInputRef.current?.click()}
             />
+            }
             <label htmlFor="avatar-upload">
               <Input
                 ref={fileInputRef}
