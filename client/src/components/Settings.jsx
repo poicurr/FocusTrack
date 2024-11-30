@@ -103,7 +103,7 @@ export default function SettingsPage() {
       }
     });
 
-    window.location.reload();
+    window.location.reload(); // FIXME: 💩
   };
 
   const handleDeleteAccount = () => {
