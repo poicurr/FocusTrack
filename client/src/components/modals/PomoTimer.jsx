@@ -62,7 +62,7 @@ const PomoTimer = (props) => {
         if (state.currentState === STATES.STOPPED) {
           // Stop -> Start
           const startAngle = time.getMinutes() * 6 + time.getSeconds() * 0.1;
-          const endAngle = startAngle + state.timeRemaining * 0.1
+          const endAngle = startAngle + state.timeRemaining * 0.1;
           return {
             ...state,
             startAngle: startAngle,
@@ -75,7 +75,7 @@ const PomoTimer = (props) => {
         if (state.currentState === STATES.PAUSED) {
           // Pause -> Start
           const startAngle = time.getMinutes() * 6 + time.getSeconds() * 0.1;
-          const endAngle = startAngle + state.timeRemaining * 0.1
+          const endAngle = startAngle + state.timeRemaining * 0.1;
           return {
             ...state,
             startAngle: startAngle,
@@ -98,21 +98,38 @@ const PomoTimer = (props) => {
         if (state.isRunning && state.timeRemaining > 0) {
           return { ...state, timeRemaining: state.timeRemaining - action.payload };
         }
-        return state;
+        // timerCompleteのタイミング。return state;せずこのままtimerComplete状態に遷移する。
+        // TODO: WorkTime終了時に評価用モーダル表示し、処理をブロックする。
       }
 
       case ACTIONS.TIMER_COMPLETE: {
         if (state.currentState === STATES.WORK) {
           const nextState = state.workCount + 1 >= 4 ? STATES.LONG_BREAK : STATES.SHORT_BREAK;
+          const timeRemaining = nextState === STATES.LONG_BREAK ? settings.longBreakTime * 60 : settings.shortBreakTime * 60;
+          const startAngle = time.getMinutes() * 6 + time.getSeconds() * 0.1;
+          const endAngle = startAngle + timeRemaining * 0.1;
           return {
             ...state,
+            startAngle: startAngle,
+            endAngle: endAngle,
+            progressColor: 'green',
             currentState: nextState,
-            timeRemaining: nextState === STATES.LONG_BREAK ? settings.longBreakTime : settings.shortBreakTime,
+            timeRemaining: timeRemaining,
             workCount: nextState === STATES.LONG_BREAK ? 0 : state.workCount + 1,
           };
         }
         if (state.currentState === STATES.SHORT_BREAK || state.currentState === STATES.LONG_BREAK) {
-          return { ...state, currentState: STATES.WORK, timeRemaining: settings.workTime * 60 };
+          const timeRemaining = settings.workTime * 60;
+          const startAngle = time.getMinutes() * 6 + time.getSeconds() * 0.1;
+          const endAngle = startAngle + timeRemaining * 0.1;
+          return {
+            ...state,
+            startAngle: startAngle,
+            endAngle: endAngle,
+            progressColor: 'red',
+            currentState: STATES.WORK,
+            timeRemaining: timeRemaining
+          };
         }
         return state;
       }
@@ -189,7 +206,7 @@ const PomoTimer = (props) => {
             startAngle={state.startAngle}
             endAngle={state.endAngle}
             visible={state.isRunning}
-            color={"red"}
+            color={state.progressColor}
           />
         </Box>
 
