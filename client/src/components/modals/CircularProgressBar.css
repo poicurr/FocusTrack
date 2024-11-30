@@ -12,7 +12,6 @@
   
   .timer-progress {
     fill: none;
-    stroke: red;
     stroke-width: 4; /* 幅4px */
     stroke-dasharray: 879; /* 円周の長さに合わせて設定 */
     stroke-dashoffset: 879;

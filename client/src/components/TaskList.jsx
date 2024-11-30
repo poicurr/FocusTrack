@@ -19,7 +19,7 @@ import AddIcon from '@mui/icons-material/Add';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import FlagIcon from '@mui/icons-material/Flag';
 import TaskEdit from './modals/TaskEdit';
-import PomodoroTimer from './modals/PomodoroTimer';
+import PomoTimer from './modals/PomoTimer';
 
 import axios from 'axios';
 
@@ -287,7 +287,7 @@ const TaskList = () => {
           boxShadow: 24,
           p: 4,
         }}>
-          <PomodoroTimer taskId={taskId} onSubmit={handleClose} />
+          <PomoTimer taskId={taskId} onSubmit={handleClose} />
         </Box>
       </Modal>
     </Box>

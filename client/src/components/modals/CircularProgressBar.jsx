@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useSettings } from '../SettingsContext';
 import "./CircularProgressBar.css";
 
 const INNER_DIAMETER = 280; // 内径
@@ -10,7 +11,9 @@ const DURATION = 1000; // アニメーションの合計時間[ms]
 
 function CircularProgressBar(props) {
 
-  const { startAngle, endAngle, visible } = props;
+  const { startAngle, endAngle, visible, color = 'red' } = props;
+
+  const { settings } = useSettings();
 
   const [progress, setProgress] = useState(0); // 0 ~ 1
   const requestRef = useRef(null);
@@ -60,8 +63,9 @@ function CircularProgressBar(props) {
           r={RADIUS}
           style={{
             strokeDashoffset: dashOffset,
-            transform: `rotate(${startAngle}deg)`,
+            transform: `rotate(${startAngle - 90}deg)`,
             visibility: visible ? "visible" : "hidden",
+            stroke: color,
           }}
         />
         {/* Numbers */}
@@ -77,7 +81,7 @@ function CircularProgressBar(props) {
               fontSize="18"
               textAnchor="middle"
               dominantBaseline="middle"
-              fill="black"
+              fill={settings.theme === 'light' ? "black" : "white"}
             >
               {i + 1}
             </text>
