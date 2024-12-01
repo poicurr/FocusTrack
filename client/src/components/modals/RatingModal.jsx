@@ -60,9 +60,6 @@ export default function RatingModal({ open, handleClose }) {
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-          <Button onClick={handleClose} sx={{ mr: 1 }}>
-            Cancel
-          </Button>
           <Button onClick={handleSubmit} variant="contained" disabled={rating === 0}>
             Submit
           </Button>

@@ -1,5 +1,5 @@
 import React, { useState, useReducer, useEffect, useRef } from 'react';
-import { Box, Button, Typography } from '@mui/material';
+import { Box, Button, Typography, ButtonGroup } from '@mui/material';
 import Clock from 'react-clock';
 import 'react-clock/dist/Clock.css';
 import 'react-circular-progressbar/dist/styles.css';
@@ -8,14 +8,14 @@ import CircularProgressBar from './CircularProgressBar';
 
 import { useSettings } from '../SettingsContext';
 
+const SIZE = 280;
+const STROKE_WIDTH = 4;
+
 const formatTime = (seconds) => {
   const minutes = Math.floor(seconds / 60);
   const secs = seconds % 60;
   return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
 };
-
-const SIZE = 280;
-const STROKE_WIDTH = 4;
 
 const PomoTimer = (props) => {
   const { taskId, onSubmit } = props;
@@ -85,21 +85,32 @@ const PomoTimer = (props) => {
           };
         }
         if (state.isRunning) {
-          return { ...state, currentState: STATES.PAUSED, isRunning: false, previousState: state.currentState };
+          // Pause
+          return {
+            ...state,
+            currentState: STATES.PAUSED,
+            isRunning: false,
+            previousState: state.currentState
+          };
         }
         return state;
       }
 
       case ACTIONS.STOP: {
-        return { ...initialState };
+        return {
+          ...initialState
+        };
       }
 
       case ACTIONS.TIMER_TICK: {
-        if (state.isRunning && state.timeRemaining > 0) {
-          return { ...state, timeRemaining: state.timeRemaining - action.payload };
+        if (state.timeRemaining > 0) {
+          return {
+            ...state,
+            timeRemaining: state.timeRemaining - action.payload
+          };
         }
         // timerCompleteのタイミング。return state;せずこのままtimerComplete状態に遷移する。
-        // TODO: WorkTime終了時に評価用モーダル表示し、処理をブロックする。
+        // TODO: WorkTime終了時に評価用モーダル表示し、処理をブロックする。PomodoroSession情報を登録。
       }
 
       case ACTIONS.TIMER_COMPLETE: {
@@ -219,35 +230,37 @@ const PomoTimer = (props) => {
         </Typography>
       </Box>
 
-      {/* start/stop/resumeボタン */}
-      <Button
-        variant="contained"
-        color={state.isRunning ? 'secondary' : 'primary'}
-        onClick={startPauseResume}
-        sx={{ mt: 3 }}
-      >
-        {state.isRunning ? "Pause" : state.currentState === STATES.PAUSED ? "Resume" : "Start"}
-      </Button>
+      <ButtonGroup variant="outlined" aria-label="Basic button group">
+        {/* start/stop/resumeボタン */}
+        <Button
+          variant="contained"
+          color={state.isRunning ? 'secondary' : 'primary'}
+          onClick={startPauseResume}
+          sx={{ mt: 2 }}
+        >
+          {state.isRunning ? "Pause" : state.currentState === STATES.PAUSED ? "Resume" : "Start"}
+        </Button>
 
-      {/* ストップボタン */}
-      <Button
-        variant="outlined"
-        color="primary"
-        onClick={stop}
-        sx={{ mt: 2 }}
-      >
-        Stop
-      </Button>
+        {/* Stopボタン */}
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={stop}
+          sx={{ mt: 2 }}
+        >
+          Stop
+        </Button>
 
-      {/* 完了ボタン */}
-      <Button
-        variant="outlined"
-        color="primary"
-        onClick={timerComplete}
-        sx={{ mt: 2 }}
-      >
-        Complete Timer
-      </Button>
+        {/* Completeボタン */}
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={timerComplete}
+          sx={{ mt: 2 }}
+        >
+          Complete
+        </Button>
+      </ButtonGroup>
     </Box>
   );
 }
