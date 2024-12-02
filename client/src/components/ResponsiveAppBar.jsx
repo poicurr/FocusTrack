@@ -138,6 +138,12 @@ const ResponsiveAppBar = (props) => {
   const theme = createTheme({
     palette: {
       mode: settings.theme,
+      primary: {
+        main: '#ff4081',
+      },
+      secondary: {
+        main: '#3f51b5',
+      },
     },
   });
 

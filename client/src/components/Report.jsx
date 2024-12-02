@@ -1,163 +1,86 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
-  Box, Typography, Card, CardContent, Grid, Select, MenuItem, Table, TableBody, TableCell,
-  TableContainer, TableHead, TableRow, Paper
-} from '@mui/material';
-import { Line } from 'react-chartjs-2';
-import 'chart.js/auto';
+  Box,
+  Grid,
+  Paper,
+  Typography,
+  Button,
+  Menu,
+  MenuItem,
+  Divider,
+  IconButton,
+} from "@mui/material";
+import XIcon from '@mui/icons-material/X';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
+import html2canvas from "html2canvas";
+
+import PomodoroShare from "./PomodoroShare";
+import PomodoroStats from "./PomodoroStats";
+
+// Dummy Data
+const dailyData = {
+  completedTasks: 12,
+  pomodoros: 10,
+  satisfaction: 4.2,
+};
+
+const weeklyData = [
+  { name: "Mon", satisfaction: 4.3, tasks: 5, pomodoros: 7 },
+  { name: "Tue", satisfaction: 3.8, tasks: 4, pomodoros: 6 },
+  { name: "Wed", satisfaction: 4.0, tasks: 6, pomodoros: 8 },
+];
+
+const monthlyData = [
+  { name: "Week 1", tasks: 20, pomodoros: 30 },
+  { name: "Week 2", tasks: 15, pomodoros: 25 },
+  { name: "Week 3", tasks: 22, pomodoros: 32 },
+  { name: "Week 4", tasks: 18, pomodoros: 28 },
+];
 
 const Report = () => {
-  const [filter, setFilter] = useState('1week');
+  const [selectedPeriod, setSelectedPeriod] = useState("Weekly");
 
-  const handleFilterChange = (event) => {
-    setFilter(event.target.value);
+  const handleDownload = async () => {
+    const element = document.getElementById("daily-report");
+    const canvas = await html2canvas(element);
+    const a = document.createElement("a");
+    a.href = canvas.toDataURL("image/png");
+    a.download = "unnamed.png";
+    a.style.display = "none";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   };
-
-  // サンプルタスクデータ
-  const taskData = [
-    { title: 'Task 1', completedOn: '2024-10-01', timeSpent: '25 mins', tags: 'Work' },
-    { title: 'Task 2', completedOn: '2024-10-02', timeSpent: '50 mins', tags: 'Study' },
-    { title: 'Task 3', completedOn: '2024-10-03', timeSpent: '30 mins', tags: 'Exercise' },
-    // 他のタスクデータ
-  ];
-
-  // 1週間分のタスクデータ
-  const weeklyTaskData = {
-    labels: ['10/01', '10/02', '10/03', '10/04', '10/05', '10/06', '10/07'],
-    datasets: [
-      {
-        label: 'Completed Tasks',
-        data: [3, 5, 2, 6, 4, 7, 1],
-        fill: false,
-        borderColor: '#3f51b5',
-        tension: 0.1,
-      },
-      {
-        label: 'Pomodoro Sessions',
-        data: [5, 8, 5, 9, 5, 8, 3],
-        fill: false,
-        borderColor: '#f44336',
-        tension: 0.1,
-      },
-    ],
-  };
-
-  // 1ヶ月分のタスクデータ
-  const monthlyTaskData = {
-    labels: [
-      '10/01', '10/02', '10/03', '10/04', '10/05', '10/06', '10/07',
-      '10/08', '10/09', '10/10', '10/11', '10/12', '10/13', '10/14',
-      '10/15', '10/16', '10/17', '10/18', '10/19', '10/20', '10/21',
-      '10/22', '10/23', '10/24', '10/25', '10/26', '10/27', '10/28',
-      '10/29', '10/30', '10/31'
-    ],
-    datasets: [
-      {
-        label: 'Completed Tasks',
-        data: [
-          3, 5, 2, 6, 4, 7, 1, 8, 2, 5, 6, 3, 4, 7, 5, 3, 8, 4, 6, 7, 2, 5,
-          3, 6, 4, 5, 8, 6, 7, 5, 4
-        ],
-        fill: false,
-        borderColor: '#3f51b5',
-        tension: 0,
-      },
-      {
-        label: 'Pomodoro Sessions',
-        data: [
-          5, 8, 5, 9, 5, 8, 3, 10, 4, 8, 9, 6, 5, 9, 7, 5, 10, 5, 8, 9, 4, 6,
-          6, 12, 7, 8, 10, 8, 9, 6, 8
-        ],
-        fill: false,
-        borderColor: '#f44336',
-        tension: 0,
-      },
-    ],
-  };
-
-  // 選択したフィルターに応じてデータを切り替える
-  const taskDataByFilter = filter === '1week' ? weeklyTaskData : monthlyTaskData;
 
   return (
-    <Box p={3}>
-      {/* ヘッダー */}
-      <Typography variant="h4" gutterBottom>Report</Typography>
+    <Box sx={{ padding: 2 }}>
+      {/* Header */}
+      <Typography variant="h4" gutterBottom>
+        Report
+      </Typography>
 
-      {/* フィルター */}
-      <Box mb={2}>
-        <Typography variant="h6">フィルター：</Typography>
-        <Select value={filter} onChange={handleFilterChange}>
-          <MenuItem value="1week">1Week</MenuItem>
-          <MenuItem value="2week">2Week</MenuItem>
-          <MenuItem value="2week">3Week</MenuItem>
-          <MenuItem value="2week">4Week</MenuItem>
-        </Select>
+      {/* Daily Report Section */}
+      <Box style={{ maxWidth: 800, margin: '0 auto' }}>
+        <div id="daily-report">
+          <PomodoroShare pomodoroCount={8} completedTasks={15} satisfaction={4.5} />
+        </div>
+        <Button
+          variant="contained"
+          color="primary"
+          sx={{ mt: 2 }}
+          onClick={handleDownload}
+        >
+          Download
+        </Button>
       </Box>
 
-      {/* 統計情報 */}
-      <Grid container spacing={2} mb={3}>
-        <Grid item xs={12} md={4}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6">完了したタスク</Typography>
-              <Typography variant="h4" color="primary">16</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6">平均完了時間</Typography>
-              <Typography variant="h4" color="primary">35分</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6">最も利用されたタグ</Typography>
-              <Typography variant="h4" color="primary">Work</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
 
-      {/* 日ごとのタスク消化数（折れ線グラフ） */}
-      <Box mb={3}>
-        <Typography variant="h6" gutterBottom>日ごとの完了タスク数</Typography>
-        <Box sx={{ height: 300 }}>
-          <Line data={taskDataByFilter} options={{
-            maintainAspectRatio: false,
-            responsive: true,
-            plugins: { legend: { position: 'top' } },
-            scales: { y: { beginAtZero: true } },
-          }} />
-        </Box>
-      </Box>
+      <PomodoroStats />
 
-      {/* タスク履歴 */}
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>タスク名</TableCell>
-              <TableCell>完了日</TableCell>
-              <TableCell>作業時間</TableCell>
-              <TableCell>タグ</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {taskData.map((task, index) => (
-              <TableRow key={index}>
-                <TableCell>{task.title}</TableCell>
-                <TableCell>{task.completedOn}</TableCell>
-                <TableCell>{task.timeSpent}</TableCell>
-                <TableCell>{task.tags}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <Divider sx={{ marginY: 2 }} />
+
+      {/* Heatmap Section */}
+
     </Box>
   );
 };
