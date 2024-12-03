@@ -1,4 +1,5 @@
 import React, { useState, useReducer, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Box, Button, Typography, ButtonGroup } from '@mui/material';
 import Clock from 'react-clock';
 import 'react-clock/dist/Clock.css';
@@ -7,6 +8,7 @@ import './PomoTimer.css';
 import CircularProgressBar from './CircularProgressBar';
 
 import { useSettings } from '../SettingsContext';
+import axios from 'axios';
 
 const SIZE = 280;
 const STROKE_WIDTH = 4;
@@ -20,6 +22,8 @@ const formatTime = (seconds) => {
 const PomoTimer = (props) => {
   const { taskId, onSubmit } = props;
   const { settings, loading } = useSettings();
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [time, setTime] = useState(new Date());
 
   // 状態一覧
@@ -188,22 +192,42 @@ const PomoTimer = (props) => {
       }
     };
   }, [state.isRunning]);
+  
+  const navigate = useNavigate();
 
-  // アナログ時計表示用
   useEffect(() => {
+    // アナログ時計表示用
     const timer = setInterval(() => {
       setTime(new Date());
     }, 1000);
+
+    // タスク情報取得
+    axios.get(`http://localhost:5000/api/task/tasks/${taskId}`, {
+      withCredentials: true, // クッキーを含めるために必要
+    }).then(res => {
+      const taskData = res.data;
+      setTitle(taskData.title);
+      setDescription(taskData.description);
+    }).catch(error => {
+      if (error.status === 401 || error.status === 403) {
+        navigate("/login");
+      }
+    });
+
     return () => clearInterval(timer);
   }, []);
 
+
   const startPauseResume = () => dispatch({ type: ACTIONS.START });
   const stop = () => dispatch({ type: ACTIONS.STOP });
-  const timerComplete = () => dispatch({ type: ACTIONS.TIMER_COMPLETE });
+  // const timerComplete = () => dispatch({ type: ACTIONS.TIMER_COMPLETE });
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 4 }}>
-      <Box sx={{ position: 'relative', width: SIZE + STROKE_WIDTH * 2, height: SIZE + STROKE_WIDTH * 2 }}>
+
+      <Typography color="textPrimary" variant='h5'>{title}</Typography>
+
+      <Box sx={{ mt: 3, position: 'relative', width: SIZE + STROKE_WIDTH * 2, height: SIZE + STROKE_WIDTH * 2 }}>
 
         {/* プログレスバー */}
         <Box sx={{
@@ -230,13 +254,12 @@ const PomoTimer = (props) => {
         </Typography>
       </Box>
 
-      <ButtonGroup variant="outlined" aria-label="Basic button group">
+      <ButtonGroup variant="outlined" aria-label="Basic button group" sx={{ mt: 3 }}>
         {/* start/stop/resumeボタン */}
         <Button
           variant="contained"
           color={state.isRunning ? 'secondary' : 'primary'}
           onClick={startPauseResume}
-          sx={{ mt: 2 }}
         >
           {state.isRunning ? "Pause" : state.currentState === STATES.PAUSED ? "Resume" : "Start"}
         </Button>
@@ -246,12 +269,11 @@ const PomoTimer = (props) => {
           variant="outlined"
           color="primary"
           onClick={stop}
-          sx={{ mt: 2 }}
         >
           Stop
         </Button>
 
-        {/* Completeボタン */}
+        {/* Completeボタン
         <Button
           variant="outlined"
           color="primary"
@@ -260,7 +282,11 @@ const PomoTimer = (props) => {
         >
           Complete
         </Button>
+        */}
       </ButtonGroup>
+
+      <Typography color='textSecondary' variant='subtitle1' sx={{ mt: 3 }}>{description}</Typography>
+
     </Box>
   );
 }
