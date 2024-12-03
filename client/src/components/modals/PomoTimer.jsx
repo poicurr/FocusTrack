@@ -121,8 +121,10 @@ const PomoTimer = (props) => {
           if (!modalOpen)
             setModalOpen(true); // WorkTime終了時にモーダルを表示
         }
-
-        return state;
+        
+        if (state.timeRemaining > 0 || state.currentState === STATES.WORK) {
+          return state;
+        }
       }
 
       case ACTIONS.TIMER_COMPLETE: {
