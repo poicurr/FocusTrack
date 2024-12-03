@@ -13,6 +13,7 @@ import TaskList from './components/TaskList';
 import Report from './components/Report';
 import Note from './components/Note';
 import NotificationDemo from './components/Notification';
+import CoachingTips from './components/CoachingTips';
 import Settings from './components/Settings';
 import NotFound from './components/NotFound';
 
@@ -37,6 +38,7 @@ root.render(
                   <Route path="/note" element={<Note />} />
                   <Route path="/report" element={<Report />} />
                   <Route path="/notification" element={<NotificationDemo />} />
+                  <Route path="/coaching" element={<CoachingTips />} />
                   <Route path="/settings" element={<Settings />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
