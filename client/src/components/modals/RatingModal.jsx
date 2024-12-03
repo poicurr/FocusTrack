@@ -29,7 +29,8 @@ export default function RatingModal({ open, onSubmit, handleClose }) {
 
   const handleSubmit = () => {
     console.log('Submitted rating:', rating);
-    onSubmit(rating);
+    onSubmit();
+    setRating(0); // reset before close
     handleClose();
   };
 

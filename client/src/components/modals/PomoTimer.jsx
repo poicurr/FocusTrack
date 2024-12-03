@@ -28,7 +28,6 @@ const PomoTimer = (props) => {
   const [time, setTime] = useState(new Date());
 
   const [modalOpen, setModalOpen] = useState(false);
-  const [rating, setRating] = useState(0);
 
   const [wakeLock, setWakeLock] = useState(null);
 
@@ -261,10 +260,8 @@ const PomoTimer = (props) => {
   const timerComplete = () => dispatch({ type: ACTIONS.TIMER_COMPLETE });
 
   // 評価後に次の状態に遷移
-  const handleRatingSubmit = (rating) => {
-    console.log(rating); // 評価を保存
+  const handleRatingSubmit = () => {
     timerComplete();
-    setRating(0);
     setModalOpen(false); // モーダルを閉じる
   };
 
