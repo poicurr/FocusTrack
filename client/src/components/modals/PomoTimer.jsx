@@ -121,7 +121,7 @@ const PomoTimer = (props) => {
           if (!modalOpen)
             setModalOpen(true); // WorkTime終了時にモーダルを表示
         }
-        
+
         if (state.timeRemaining > 0 || state.currentState === STATES.WORK) {
           return state;
         }
@@ -262,8 +262,9 @@ const PomoTimer = (props) => {
 
   // 評価後に次の状態に遷移
   const handleRatingSubmit = (rating) => {
-    setRating(rating); // 評価を保存
+    console.log(rating); // 評価を保存
     timerComplete();
+    setRating(0);
     setModalOpen(false); // モーダルを閉じる
   };
 
