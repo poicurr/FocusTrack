@@ -262,7 +262,6 @@ const PomoTimer = (props) => {
   // 評価後に次の状態に遷移
   const handleRatingSubmit = () => {
     timerComplete();
-    setModalOpen(false); // モーダルを閉じる
   };
 
   return (
