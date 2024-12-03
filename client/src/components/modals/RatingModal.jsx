@@ -20,7 +20,7 @@ const style = {
   p: 4,
 };
 
-export default function RatingModal({ open, handleClose }) {
+export default function RatingModal({ open, onSubmit, handleClose }) {
   const [rating, setRating] = useState(0);
 
   const handleRatingChange = (event, newValue) => {
@@ -29,6 +29,7 @@ export default function RatingModal({ open, handleClose }) {
 
   const handleSubmit = () => {
     console.log('Submitted rating:', rating);
+    onSubmit(rating);
     handleClose();
   };
 

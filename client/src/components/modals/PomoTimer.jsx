@@ -116,6 +116,12 @@ const PomoTimer = (props) => {
             timeRemaining: state.timeRemaining - action.payload
           };
         }
+
+        if (state.timeRemaining <= 0 && state.currentState === STATES.WORK) {
+          if (!modalOpen)
+            setModalOpen(true); // WorkTime終了時にモーダルを表示
+        }
+
         return state;
       }
 
@@ -172,10 +178,6 @@ const PomoTimer = (props) => {
       lastTimeRef.current += secondsToDecrement * 1000; // 消費した時間分を調整
     }
 
-    if (state.timeRemaining <= 0 && state.currentState === STATES.WORK) {
-      setModalOpen(true); // WorkTime終了時にモーダルを表示
-    }
-
     if (state.isRunning) {
       animationFrameRef.current = requestAnimationFrame(timerLoop);
     }
@@ -208,26 +210,6 @@ const PomoTimer = (props) => {
     }
   };
 
-  // タイマー開始・停止処理
-  useEffect(() => {
-    if (state.isRunning) {
-      requestWakeLock();
-      lastTimeRef.current = performance.now(); // タイマー開始時の基準時間を設定
-      animationFrameRef.current = requestAnimationFrame(timerLoop);
-    } else {
-      if (animationFrameRef.current) {
-        releaseWakeLock();
-        cancelAnimationFrame(animationFrameRef.current);
-        animationFrameRef.current = null;
-      }
-    }
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
-  }, [state.isRunning]);
-  
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -252,17 +234,35 @@ const PomoTimer = (props) => {
     return () => clearInterval(timer);
   }, []);
 
+  // タイマー開始・停止処理
+  useEffect(() => {
+    if (state.isRunning) {
+      requestWakeLock();
+      lastTimeRef.current = performance.now(); // タイマー開始時の基準時間を設定
+      animationFrameRef.current = requestAnimationFrame(timerLoop);
+    } else {
+      if (animationFrameRef.current) {
+        releaseWakeLock();
+        cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+    }
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [state.isRunning]);
 
   const startPauseResume = () => dispatch({ type: ACTIONS.START });
   const stop = () => dispatch({ type: ACTIONS.STOP });
-  // const timerComplete = () => dispatch({ type: ACTIONS.TIMER_COMPLETE });
+  const timerComplete = () => dispatch({ type: ACTIONS.TIMER_COMPLETE });
 
   // 評価後に次の状態に遷移
-  const handleRatingSubmit = (selectedRating) => {
-    setRating(selectedRating); // 評価を保存
+  const handleRatingSubmit = (rating) => {
+    setRating(rating); // 評価を保存
+    timerComplete();
     setModalOpen(false); // モーダルを閉じる
-    console.log(`rating: ${rating}`);
-    dispatch({ type: ACTIONS.TIMER_COMPLETE }); // 次の状態に移行
   };
 
   return (
@@ -320,21 +320,8 @@ const PomoTimer = (props) => {
 
       <Typography color='textSecondary' variant='subtitle1' sx={{ mt: 3 }}>{description}</Typography>
 
-      {modalOpen && (
-        <div className="modal">
-          <h2>Rate your WorkTime</h2>
-          <div>
-            {[1, 2, 3, 4, 5].map((score) => (
-              <button key={score} onClick={() => handleRatingSubmit(score)}>
-                {score}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-{/*
       <RatingModal open={modalOpen} onSubmit={handleRatingSubmit} handleClose={() => setModalOpen(false)} />
-*/}
+
     </Box>
   );
 }
