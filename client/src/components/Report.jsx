@@ -54,13 +54,15 @@ const Report = () => {
 
   return (
     <Box sx={{ padding: 2 }}>
-      {/* Header */}
-      <Typography variant="h4" gutterBottom>
-        Report
-      </Typography>
 
       {/* Daily Report Section */}
       <Box style={{ maxWidth: 800, margin: '0 auto' }}>
+        
+        {/* Header */}
+        <Typography variant="h4" gutterBottom>
+          Report
+        </Typography>
+
         <div id="daily-report">
           <PomodoroShare pomodoroCount={8} completedTasks={15} satisfaction={4.5} />
         </div>
@@ -70,7 +72,7 @@ const Report = () => {
           sx={{ mt: 2 }}
           onClick={handleDownload}
         >
-          Download
+          Download Image
         </Button>
       </Box>
 

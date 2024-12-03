@@ -6,6 +6,7 @@ import 'react-clock/dist/Clock.css';
 import 'react-circular-progressbar/dist/styles.css';
 import './PomoTimer.css';
 import CircularProgressBar from './CircularProgressBar';
+import RatingModal from './RatingModal';
 
 import { useSettings } from '../SettingsContext';
 import axios from 'axios';
@@ -26,6 +27,11 @@ const PomoTimer = (props) => {
   const [description, setDescription] = useState("");
   const [time, setTime] = useState(new Date());
 
+  const [modalOpen, setModalOpen] = useState(false);
+  const [rating, setRating] = useState(0);
+
+  const [wakeLock, setWakeLock] = useState(null);
+
   // 状態一覧
   const STATES = {
     STOPPED: "Stopped",
@@ -33,6 +39,7 @@ const PomoTimer = (props) => {
     SHORT_BREAK: "ShortBreak",
     LONG_BREAK: "LongBreak",
     PAUSED: "Paused",
+    WAITING_INPUT: "WaitingInput",
   };
 
   // アクション一覧
@@ -57,14 +64,12 @@ const PomoTimer = (props) => {
     timeRemaining: settings.workTime * 60,
   };
 
-  // 制御用ステートマシン
   const [state, dispatch] = useReducer(timerReducer, initialState);
 
   function timerReducer(state, action) {
     switch (action.type) {
       case ACTIONS.START: {
         if (state.currentState === STATES.STOPPED) {
-          // Stop -> Start
           const startAngle = time.getMinutes() * 6 + time.getSeconds() * 0.1;
           const endAngle = startAngle + state.timeRemaining * 0.1;
           return {
@@ -77,7 +82,6 @@ const PomoTimer = (props) => {
           };
         }
         if (state.currentState === STATES.PAUSED) {
-          // Pause -> Start
           const startAngle = time.getMinutes() * 6 + time.getSeconds() * 0.1;
           const endAngle = startAngle + state.timeRemaining * 0.1;
           return {
@@ -89,7 +93,6 @@ const PomoTimer = (props) => {
           };
         }
         if (state.isRunning) {
-          // Pause
           return {
             ...state,
             currentState: STATES.PAUSED,
@@ -113,8 +116,7 @@ const PomoTimer = (props) => {
             timeRemaining: state.timeRemaining - action.payload
           };
         }
-        // timerCompleteのタイミング。return state;せずこのままtimerComplete状態に遷移する。
-        // TODO: WorkTime終了時に評価用モーダル表示し、処理をブロックする。PomodoroSession情報を登録。
+        return state;
       }
 
       case ACTIONS.TIMER_COMPLETE: {
@@ -170,18 +172,51 @@ const PomoTimer = (props) => {
       lastTimeRef.current += secondsToDecrement * 1000; // 消費した時間分を調整
     }
 
+    if (state.timeRemaining <= 0 && state.currentState === STATES.WORK) {
+      setModalOpen(true); // WorkTime終了時にモーダルを表示
+    }
+
     if (state.isRunning) {
       animationFrameRef.current = requestAnimationFrame(timerLoop);
+    }
+  };
+
+  // Wake Lockを取得する関数
+  const requestWakeLock = async () => {
+    try {
+      if ("wakeLock" in navigator) {
+        const wakeLockObj = await navigator.wakeLock.request("screen");
+        setWakeLock(wakeLockObj);
+        console.log("Wake Lock acquired");
+        wakeLockObj.addEventListener("release", () => {
+          console.log("Wake Lock released");
+        });
+      } else {
+        console.warn("Wake Lock API is not supported in this browser.");
+      }
+    } catch (err) {
+      console.error("Failed to acquire Wake Lock:", err);
+    }
+  };
+
+  // Wake Lockを解除する関数
+  const releaseWakeLock = () => {
+    if (wakeLock) {
+      wakeLock.release();
+      setWakeLock(null);
+      console.log("Wake Lock manually released");
     }
   };
 
   // タイマー開始・停止処理
   useEffect(() => {
     if (state.isRunning) {
+      requestWakeLock();
       lastTimeRef.current = performance.now(); // タイマー開始時の基準時間を設定
       animationFrameRef.current = requestAnimationFrame(timerLoop);
     } else {
       if (animationFrameRef.current) {
+        releaseWakeLock();
         cancelAnimationFrame(animationFrameRef.current);
         animationFrameRef.current = null;
       }
@@ -221,6 +256,14 @@ const PomoTimer = (props) => {
   const startPauseResume = () => dispatch({ type: ACTIONS.START });
   const stop = () => dispatch({ type: ACTIONS.STOP });
   // const timerComplete = () => dispatch({ type: ACTIONS.TIMER_COMPLETE });
+
+  // 評価後に次の状態に遷移
+  const handleRatingSubmit = (selectedRating) => {
+    setRating(selectedRating); // 評価を保存
+    setModalOpen(false); // モーダルを閉じる
+    console.log(`rating: ${rating}`);
+    dispatch({ type: ACTIONS.TIMER_COMPLETE }); // 次の状態に移行
+  };
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 4 }}>
@@ -273,20 +316,25 @@ const PomoTimer = (props) => {
           Stop
         </Button>
 
-        {/* Completeボタン
-        <Button
-          variant="outlined"
-          color="primary"
-          onClick={timerComplete}
-          sx={{ mt: 2 }}
-        >
-          Complete
-        </Button>
-        */}
       </ButtonGroup>
 
       <Typography color='textSecondary' variant='subtitle1' sx={{ mt: 3 }}>{description}</Typography>
 
+      {modalOpen && (
+        <div className="modal">
+          <h2>Rate your WorkTime</h2>
+          <div>
+            {[1, 2, 3, 4, 5].map((score) => (
+              <button key={score} onClick={() => handleRatingSubmit(score)}>
+                {score}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+{/*
+      <RatingModal open={modalOpen} onSubmit={handleRatingSubmit} handleClose={() => setModalOpen(false)} />
+*/}
     </Box>
   );
 }
