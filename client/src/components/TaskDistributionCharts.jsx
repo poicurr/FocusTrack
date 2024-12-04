@@ -78,10 +78,10 @@ const TaskDistributionCharts = () => {
           sx={{ mb: 2 }}
         >
           <ToggleButton value="7days" aria-label="過去7日">
-            過去7日
+            過去7日間
           </ToggleButton>
           <ToggleButton value="28days" aria-label="過去28日">
-            過去28日
+            過去28日間
           </ToggleButton>
         </ToggleButtonGroup>
         <Box sx={{ 

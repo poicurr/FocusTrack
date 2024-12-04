@@ -12,7 +12,7 @@ import Auth from './components/Auth';
 import TaskList from './components/TaskList';
 import Report from './components/Report';
 import Note from './components/Note';
-import NotificationDemo from './components/Notification';
+import NotificationSettings from './components/NotificationSettings';
 import CoachingTips from './components/CoachingTips';
 import Settings from './components/Settings';
 import NotFound from './components/NotFound';
@@ -37,7 +37,7 @@ root.render(
                   <Route path="/tasks" element={<TaskList />} />
                   <Route path="/note" element={<Note />} />
                   <Route path="/report" element={<Report />} />
-                  <Route path="/notification" element={<NotificationDemo />} />
+                  <Route path="/notification" element={<NotificationSettings />} />
                   <Route path="/coaching" element={<CoachingTips />} />
                   <Route path="/settings" element={<Settings />} />
                   <Route path="*" element={<NotFound />} />
