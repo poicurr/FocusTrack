@@ -1,44 +1,18 @@
 import React, { useState } from "react";
 import {
   Box,
-  Grid,
-  Paper,
   Typography,
   Button,
-  Menu,
-  MenuItem,
   Divider,
-  IconButton,
 } from "@mui/material";
-import XIcon from '@mui/icons-material/X';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
+
 import html2canvas from "html2canvas";
 
 import PomodoroShare from "./PomodoroShare";
 import PomodoroStats from "./PomodoroStats";
-
-// Dummy Data
-const dailyData = {
-  completedTasks: 12,
-  pomodoros: 10,
-  satisfaction: 4.2,
-};
-
-const weeklyData = [
-  { name: "Mon", satisfaction: 4.3, tasks: 5, pomodoros: 7 },
-  { name: "Tue", satisfaction: 3.8, tasks: 4, pomodoros: 6 },
-  { name: "Wed", satisfaction: 4.0, tasks: 6, pomodoros: 8 },
-];
-
-const monthlyData = [
-  { name: "Week 1", tasks: 20, pomodoros: 30 },
-  { name: "Week 2", tasks: 15, pomodoros: 25 },
-  { name: "Week 3", tasks: 22, pomodoros: 32 },
-  { name: "Week 4", tasks: 18, pomodoros: 28 },
-];
+import TaskDistributionCharts from "./TaskDistributionCharts";
 
 const Report = () => {
-  const [selectedPeriod, setSelectedPeriod] = useState("Weekly");
 
   const handleDownload = async () => {
     const element = document.getElementById("daily-report");
@@ -76,10 +50,13 @@ const Report = () => {
         </Button>
       </Box>
 
+      <Divider sx={{ marginY: 2 }} />
 
       <PomodoroStats />
 
       <Divider sx={{ marginY: 2 }} />
+
+      <TaskDistributionCharts />
 
       {/* Heatmap Section */}
 

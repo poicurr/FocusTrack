@@ -29,7 +29,7 @@ export default function RatingModal({ open, onSubmit, handleClose }) {
 
   const handleSubmit = () => {
     console.log('Submitted rating:', rating);
-    onSubmit();
+    onSubmit(); // dispatch TimerComplete event
     setRating(0); // reset before close
     handleClose();
   };
