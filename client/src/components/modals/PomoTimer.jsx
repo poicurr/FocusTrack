@@ -38,7 +38,6 @@ const PomoTimer = (props) => {
     SHORT_BREAK: "ShortBreak",
     LONG_BREAK: "LongBreak",
     PAUSED: "Paused",
-    WAITING_INPUT: "WaitingInput",
   };
 
   // アクション一覧
@@ -243,14 +242,15 @@ const PomoTimer = (props) => {
       animationFrameRef.current = requestAnimationFrame(timerLoop);
     } else {
       if (animationFrameRef.current) {
-        releaseWakeLock();
         cancelAnimationFrame(animationFrameRef.current);
         animationFrameRef.current = null;
       }
     }
     return () => {
+      releaseWakeLock();
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
       }
     };
   }, [state.isRunning]);
@@ -258,11 +258,6 @@ const PomoTimer = (props) => {
   const startPauseResume = () => dispatch({ type: ACTIONS.START });
   const stop = () => dispatch({ type: ACTIONS.STOP });
   const timerComplete = () => dispatch({ type: ACTIONS.TIMER_COMPLETE });
-
-  // 評価後に次の状態に遷移
-  const handleRatingSubmit = () => {
-    timerComplete();
-  };
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 4 }}>
@@ -319,7 +314,7 @@ const PomoTimer = (props) => {
 
       <Typography color='textSecondary' variant='subtitle1' sx={{ mt: 3 }}>{description}</Typography>
 
-      <RatingModal open={modalOpen} onSubmit={handleRatingSubmit} handleClose={() => setModalOpen(false)} />
+      <RatingModal open={modalOpen} onSubmit={timerComplete} handleClose={() => setModalOpen(false)} />
 
     </Box>
   );
