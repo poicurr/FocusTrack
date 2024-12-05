@@ -29,7 +29,7 @@ const PomodoroStats = () => {
   };
 
   return (
-    <Card sx={{ maxWidth: 800, margin: 'auto', mt: 4 }}>
+    <Card sx={{ maxWidth: 800, margin: 'auto', mt: 4 }} elevation={2}>
       <CardContent>
         <Typography variant="h5" component="div" gutterBottom>
           ポモドーロ統計

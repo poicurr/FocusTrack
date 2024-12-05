@@ -158,7 +158,7 @@ const TaskList = () => {
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
         {filteredCards.map((card) => (
           <Box key={card._id} sx={{ width: { xs: '100%', sm: 'calc(50% - 12px)', md: 'calc(33.333% - 16px)' }, minWidth: 250}}>
-            <StyledCard>
+            <StyledCard elevation={2}>
               <CardContent>
                 <Typography variant="h6" component="h2" gutterBottom>
                   {card.title}
