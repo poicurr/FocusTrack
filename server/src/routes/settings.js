@@ -49,16 +49,10 @@ router.get("/fetch", authenticateToken, async (req, res) => {
   }
 });
 
-// エンドポイント設定
-router.post("/upload", authenticateToken, upload.single("avatar"), async (req, res) => {
+// アバター画像登録API
+router.post("/upload/avatar", authenticateToken, upload.single("avatar"), async (req, res) => {
   const {
     avatar,
-    displayName,
-    workTime,
-    shortBreakTime,
-    longBreakTime,
-    notificationsEnabled,
-    theme
   } = req.body;
 
   // 認証されたユーザーIDを取得
@@ -68,75 +62,150 @@ router.post("/upload", authenticateToken, upload.single("avatar"), async (req, r
 
   // avatarの処理（Base64データの検証と変換）
   const matches = avatar.match(/^data:(.+);base64,(.+)$/);
-  if (matches) {
-    // 画像データつきのリクエスト
+  if (!matches) return res.status(400).json({ message: "Failed to save file" });
     
-    const mimeType = matches[1];
-    const base64Data = matches[2];
-    const fileExtension = mimeType.split("/")[1]; // 例: image/png -> png
-    
-    // ファイル保存
-    const fileName = `${Date.now()}-avatar.${fileExtension}`;
-    const filePath = path.join("public", "uploads", fileName);
+  const mimeType = matches[1];
+  const base64Data = matches[2];
+  const fileExtension = mimeType.split("/")[1]; // 例: image/png -> png
 
-    // ファイルデータを保存
-    fs.writeFile(filePath, base64Data, "base64", (err) => {
-      if (err) {
-        console.error("Error saving file:", err);
-        return res.status(500).json({ message: "Failed to save file" });
-      }
-    });
+  // ファイル保存
+  const fileName = `${Date.now()}-avatar.${fileExtension}`;
+  const filePath = path.join("public", "uploads", "avatar", fileName);
 
-    // 古い画像データを削除
-    const user = await User.findById(userId);
-    const oldfile = user.avatar;
-    try {
-      if (oldfile) fs.unlinkSync(oldfile);
-    } catch(e) {
-      console.log(`failed to delete file: ${e}`);
+  // ファイルデータを保存
+  fs.writeFile(filePath, base64Data, "base64", (err) => {
+    if (err) {
+      console.error("Error saving file:", err);
+      return res.status(500).json({ message: "Failed to save file" });
     }
+  });
 
-    // ユーザー情報更新
-    updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { $set: {
-          avatar: filePath,
-          displayName: displayName
-        }
-      },
-      { new: true, upsert: true, runValidators: true } // 更新後のデータを返すオプションとバリデーション
-    );
-
-    if (!updatedUser) {
-      return res.status(404).json({ message: 'ユーザーが見つかりませんでした' });
-    }
-  } else {
-    // 画像データなしのリクエスト
-
-    // ユーザー情報更新
-    updatedUser = await User.findByIdAndUpdate(
-        userId,
-        { $set: {
-            displayName: displayName
-        }
-        },
-        { new: true, runValidators: true } // 更新後のデータを返すオプションとバリデーション
-    );
-
-    if (!updatedUser) {
-      return res.status(404).json({ message: 'ユーザーが見つかりませんでした' });
-    }
+  // 古い画像データを削除
+  const user = await User.findById(userId);
+  const oldfile = user.avatar;
+  try {
+    if (oldfile) fs.unlinkSync(oldfile);
+  } catch(e) {
+    console.log(`failed to delete file: ${e}`);
   }
 
+  // ユーザー情報更新
+  updatedUser = await User.findByIdAndUpdate(
+    userId,
+    {
+      $set: {
+        avatar: filePath
+      }
+    },
+    { new: true, upsert: true, runValidators: true } // 更新後のデータを返すオプションとバリデーション
+  );
+
+  if (!updatedUser) {
+    return res.status(404).json({ message: 'ユーザーが見つかりませんでした' });
+  }
+
+  res.status(200).json(updatedUser);
+});
+
+// DisplayName
+router.post("/upload/displayName", authenticateToken, async (req, res) => {
+  const {
+    displayName,
+  } = req.body;
+
+  if (!displayName) return; // displayName is required
+
+  // 認証されたユーザーIDを取得
+  const userId = req.user.id;
+  updatedUser = await User.findByIdAndUpdate(
+    userId,
+    {
+      $set: {
+        displayName: displayName
+      }
+    },
+    { new: true, upsert: true, runValidators: true } // 更新後のデータを返すオプションとバリデーション
+  );
+
+  if (!updatedUser) {
+    return res.status(404).json({ message: 'ユーザーが見つかりませんでした' });
+  }
+  res.status(200).json(updatedUser);
+});
+
+// WorkTime
+router.post("/upload/workTime", authenticateToken, async (req, res) => {
+  const {
+    workTime,
+  } = req.body;
+
+  // 認証されたユーザーIDを取得
+  const userId = req.user.id;
   // 既存Settings情報の更新または新規作成
   const updatedSettings = await Settings.findOneAndUpdate(
     { userId },
     {
       workTime: workTime,
+    },
+    { new: true, upsert: true } // upsert: trueで存在しない場合は作成
+  );
+
+  res.status(200).json(updatedSettings);
+});
+
+// ShortBreakTime
+router.post("/upload/shortBreakTime", authenticateToken, async (req, res) => {
+  const {
+    shortBreakTime,
+  } = req.body;
+
+  // 認証されたユーザーIDを取得
+  const userId = req.user.id;
+  // 既存Settings情報の更新または新規作成
+  const updatedSettings = await Settings.findOneAndUpdate(
+    { userId },
+    {
       shortBreakTime: shortBreakTime,
+    },
+    { new: true, upsert: true } // upsert: trueで存在しない場合は作成
+  );
+
+  res.status(200).json(updatedSettings);
+});
+
+// LongBreakTime
+router.post("/upload/longBreakTime", authenticateToken, async (req, res) => {
+  const {
+    longBreakTime,
+  } = req.body;
+
+  // 認証されたユーザーIDを取得
+  const userId = req.user.id;
+  // 既存Settings情報の更新または新規作成
+  const updatedSettings = await Settings.findOneAndUpdate(
+    { userId },
+    {
       longBreakTime: longBreakTime,
+    },
+    { new: true, upsert: true } // upsert: trueで存在しない場合は作成
+  );
+
+  res.status(200).json(updatedSettings);
+});
+
+// notificationsEnabled
+router.post("/upload/notificationsEnabled", authenticateToken, async (req, res) => {
+  const {
+    notificationsEnabled,
+  } = req.body;
+
+  // 認証されたユーザーIDを取得
+  const userId = req.user.id;
+  // 既存Settings情報の更新または新規作成
+  const updatedSettings = await Settings.findOneAndUpdate(
+    { userId },
+    {
       notificationsEnabled: notificationsEnabled,
-      theme: theme,
     },
     { new: true, upsert: true } // upsert: trueで存在しない場合は作成
   );

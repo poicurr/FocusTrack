@@ -16,7 +16,7 @@ function Note() {
         const status = error.response?.status;
         if (status === 401 || status === 403) navigate("/login");
       });
-  }, [navigate]);
+  }, []);
 
   const saveNote = debounce((noteContent) => {
     axios

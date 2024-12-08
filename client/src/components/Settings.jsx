@@ -14,16 +14,33 @@ import {
   FormControl,
   Slider,
   Grid,
+  Paper,
   Dialog, 
   DialogActions, 
   DialogContent, 
   DialogContentText, 
   DialogTitle 
 } from '@mui/material';
+import { ChromePicker } from 'react-color';
 
 import { styled } from '@mui/system';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import debounce from 'lodash.debounce';
+
+const ColorBox = styled(Box)(({ bgcolor }) => ({
+  width: '100%',
+  height: '50px',
+  backgroundColor: bgcolor,
+  borderRadius: '4px',
+  marginBottom: '10px',
+}));
+
+const StyledPaper = styled(Paper)({
+  padding: '20px',
+  maxWidth: '800px',
+  margin: '0 auto',
+});
 
 const Input = styled('input')({
   display: 'none',
@@ -36,9 +53,20 @@ export default function SettingsPage() {
   const [workTime, setWorkTime] = useState(25);
   const [shortBreakTime, setShortBreakTime] = useState(5);
   const [longBreakTime, setLongBreakTime] = useState(15);
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [primaryColor, setPrimaryColor] = useState('#3f51b5');
+  const [secondaryColor, setSecondaryColor] = useState('#f50057');
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [soundEnabled, setSoundEnabled] = useState(false);
+  const [volume, setVolume] = useState(50);
+  const [audioFile, setAudioFile] = useState(null); // アップロードされたMP3ファイル
+  const audioRef = useRef(null); // 再生用のaudio要素の参照
+  const [fileName, setFileName] = useState(""); // ファイル名表示用
   const [deleteOpen, setDeleteOpen] = useState(false);
 
+  const handleColorChange = (color, setColor) => (color) => {
+    setColor(color.hex);
+  };
+  
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -72,38 +100,165 @@ export default function SettingsPage() {
 
   const handleAvatarChange = (event) => {
     const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setAvatar(reader.result);
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      setAvatar(reader.result);
+      const formData = new FormData();
+      formData.append("avatar", reader.result);
+      try {
+        const res = await axios.post(`http://localhost:5000/api/settings/upload/avatar`, formData, {
+          withCredentials: true, // クッキーを含めるために必要
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+        setAvatar(res.data.avatar);
+        console.log("ファイルが正常にアップロードされました！");
+      } catch (error) {
+        console.error("ファイルのアップロードに失敗しました:", error);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // DisplayName
+  const saveDisplayName = debounce((displayName) => {
+    if (!displayName || displayName.trim() === "") {
+      return;
+    }
+    axios.post(`http://localhost:5000/api/settings/upload/displayName`, { displayName: displayName }, {
+      withCredentials: true
+    }).catch((error) => {
+      const status = error.response?.status;
+      if (status === 401 || status === 403) navigate("/login");
+    });
+  }, 1000); // 1秒間の遅延
+
+  useEffect(() => {
+    saveDisplayName(displayName);
+  }, [displayName]);
+
+  // WorkTime
+  const saveWorkTime = debounce((workTime) => {
+    axios.post(`http://localhost:5000/api/settings/upload/workTime`,
+      { workTime: workTime },
+      { withCredentials: true }
+    ).catch((error) => {
+      const status = error.response?.status;
+      if (status === 401 || status === 403) navigate("/login");
+    });
+  }, 1000); // 1秒間の遅延
+
+  useEffect(() => {
+    saveWorkTime(workTime);
+  }, [workTime]);
+
+  // ShortBreakTime
+  const saveShortBreakTime = debounce((shortBreakTime) => {
+    axios.post(`http://localhost:5000/api/settings/upload/shortBreakTime`,
+      { shortBreakTime: shortBreakTime },
+      { withCredentials: true }
+    ).catch((error) => {
+      const status = error.response?.status;
+      if (status === 401 || status === 403) navigate("/login");
+    });
+  }, 1000); // 1秒間の遅延
+
+  useEffect(() => {
+    saveShortBreakTime(shortBreakTime);
+  }, [shortBreakTime]);
+
+  // LongBreakTime
+  const saveLongBreakTime = debounce((longBreakTime) => {
+    axios.post(`http://localhost:5000/api/settings/upload/longBreakTime`,
+      { longBreakTime: longBreakTime },
+      { withCredentials: true }
+    ).catch((error) => {
+      const status = error.response?.status;
+      if (status === 401 || status === 403) navigate("/login");
+    });
+  }, 1000); // 1秒間の遅延
+
+  useEffect(() => {
+    saveLongBreakTime(longBreakTime);
+  }, [longBreakTime]);
+
+  // 通知のオン/オフ
+   const handleNotificationsEnabled = (ev) => {
+    try {
+      const newValue = !notificationsEnabled;
+      // サーバーに更新リクエストを送信
+      axios.post("http://localhost:5000/api/settings/upload/notificationsEnabled",
+        { notificationsEnabled: newValue },
+        { withCredentials: true } // クッキーを使用して認証情報を送信する場合
+      );
+      setNotificationsEnabled(newValue); // 状態を更新
+    } catch (error) {
+      console.error("サーバー更新に失敗しました:", error);
+    }
+  }
+
+  // サウンドのオン/オフ
+  const handleSoundToggle = (event) => {
+    setSoundEnabled(event.target.checked);
+  };
+
+  // ボリューム調整
+  const handleVolumeChange = (event, newValue) => {
+    setVolume(newValue);
+    if (audioRef.current) {
+      audioRef.current.volume = newValue / 100; // 0～1の範囲で設定
     }
   };
 
-  const handleSave = () => {
-    // 画像含むリクエストなのでマルチパートを使う
+  // MP3ファイルのアップロード処理
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (file && file.type === "audio/mpeg") {
+      const url = URL.createObjectURL(file); // 一時URLを生成
+      setAudioFile(url);
+      setFileName(file.name);
+    } else {
+      alert("MP3ファイルをアップロードしてください。");
+    }
+  };
+
+  // テスト再生
+  const handleTestPlay = () => {
+    if (audioRef.current && audioFile) {
+      audioRef.current.play();
+    } else {
+      alert("通知音をアップロードしてください。");
+    }
+  };
+
+  // サーバーにMP3ファイルをアップロード
+  const handleSoundSave = async () => {
+    if (!fileName) {
+      alert("MP3ファイルをアップロードしてください。");
+      return;
+    }
+
     const formData = new FormData();
-    formData.append("avatar", avatar);
-    formData.append("displayName", displayName);
-    formData.append("workTime", workTime);
-    formData.append("shortBreakTime", shortBreakTime);
-    formData.append("longBreakTime", longBreakTime);
-    formData.append("notificationsEnabled", notificationsEnabled);
-    formData.append("theme", theme);
+    formData.append("audio", document.querySelector('input[type="file"]').files[0]);
 
-    axios.post(`http://localhost:5000/api/settings/upload`, formData, {
-      withCredentials: true, // クッキーを含めるために必要
-      headers: {
-        "Content-Type": "multipart/form-data",
-      }
-    }).catch(error => {
-      if (error.status === 401 || error.status === 403) {
-        navigate("/login");
-      }
-    });
-
-    window.location.reload(); // FIXME: 💩
+    try {
+      await axios.post("http://localhost:5000/settings/upload/audio", formData, 
+        {
+          withCredentials: true, // クッキーを含めるために必要
+        },
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+      alert("ファイルが正常にアップロードされました！");
+    } catch (error) {
+      console.error("ファイルのアップロードに失敗しました:", error);
+      alert("ファイルのアップロードに失敗しました。");
+    }
   };
 
   const handleDeleteAccount = () => {
@@ -126,18 +281,18 @@ export default function SettingsPage() {
         <Box sx={{ mb: 3, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             {
-            isBase64() ?
-            <Avatar
-              src={avatar ? avatar : '/placeholder-user.jpg'}
-              sx={{ width: 100, height: 100, cursor: 'pointer' }}
-              onClick={() => fileInputRef.current?.click()}
-            />
-            :
-            <Avatar
-              src={avatar ? "http://localhost:5000/" + avatar : '/placeholder-user.jpg'}
-              sx={{ width: 100, height: 100, cursor: 'pointer' }}
-              onClick={() => fileInputRef.current?.click()}
-            />
+              isBase64() ?
+              <Avatar
+                src={avatar ? avatar : '/placeholder-user.jpg'}
+                sx={{ width: 100, height: 100, cursor: 'pointer' }}
+                onClick={() => fileInputRef.current?.click()}
+              />
+              :
+              <Avatar
+                src={avatar ? "http://localhost:5000/" + avatar : '/placeholder-user.jpg'}
+                sx={{ width: 100, height: 100, cursor: 'pointer' }}
+                onClick={() => fileInputRef.current?.click()}
+              />
             }
             <label htmlFor="avatar-upload">
               <Input
@@ -158,7 +313,9 @@ export default function SettingsPage() {
           fullWidth
           label="Display Name"
           value={displayName}
-          onChange={(e) => setDisplayName(e.target.value)}
+          onChange={(e) => {
+            setDisplayName(e.target.value)
+          }}
           margin="normal"
         />
 
@@ -174,6 +331,32 @@ export default function SettingsPage() {
             <MenuItem value="dark">Dark</MenuItem>
           </Select>
         </FormControl>
+
+        <StyledPaper elevation={2}>
+          <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
+            Color Settings
+          </Typography>
+          <Grid container spacing={3}>
+            <Grid item xs={12} sm={6}>
+              <Typography variant="h6">Primary</Typography>
+              <ColorBox bgcolor={primaryColor} />
+              <ChromePicker 
+                color={primaryColor}
+                onChange={handleColorChange(primaryColor, setPrimaryColor)}
+                disableAlpha={true}
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <Typography variant="h6">Secondary</Typography>
+              <ColorBox bgcolor={secondaryColor} />
+              <ChromePicker 
+                color={secondaryColor}
+                onChange={handleColorChange(secondaryColor, setSecondaryColor)}
+                disableAlpha={true}
+              />
+            </Grid>
+          </Grid>
+        </StyledPaper>
 
         <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
           Timer Settings
@@ -226,27 +409,98 @@ export default function SettingsPage() {
           </Grid>
         </Grid>
 
-        <FormControlLabel
-          control={
-            <Switch
-              checked={notificationsEnabled}
-              onChange={(e) => setNotificationsEnabled(e.target.checked)}
+        <StyledPaper elevation={2}>
+          <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
+            Notification
+          </Typography>
+          <Box sx={{ mt: 4 }}>
+            {/* 通知のオン/オフ */}
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={notificationsEnabled}
+                  onChange={handleNotificationsEnabled}
+                  color="primary"
+                />
+              }
+              label="Notifications"
             />
-          }
-          label="Notifications"
-          sx={{ mt: 2 }}
-        />
 
-        <Box sx={{ mt: 4 }}>
-          <Button
-            variant="contained"
-            color="primary"
-            fullWidth
-            onClick={handleSave}
-          >
-            Save
-          </Button>
-        </Box>
+            {/* サウンドのオン/オフ */}
+            {notificationsEnabled && (
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={soundEnabled}
+                    onChange={handleSoundToggle}
+                    color="primary"
+                  />
+                }
+                label="通知音を有効にする"
+              />
+            )}
+
+            {/* 通知音のボリューム設定 */}
+            {notificationsEnabled && soundEnabled && (
+              <Box sx={{ mt: 3 }}>
+                <Typography variant="subtitle1" gutterBottom>
+                  通知音のボリューム
+                </Typography>
+                <Slider
+                  value={volume}
+                  onChange={handleVolumeChange}
+                  aria-labelledby="volume-slider"
+                  min={0}
+                  max={100}
+                  valueLabelDisplay="auto"
+                  color="primary"
+                />
+              </Box>
+            )}
+
+            {/* 通知音のアップロード */}
+            {notificationsEnabled && soundEnabled && (
+              <Box sx={{ mt: 3 }}>
+                <Typography variant="subtitle1" gutterBottom>
+                  通知音をアップロード
+                </Typography>
+                <TextField
+                  type="file"
+                  inputProps={{ accept: ".mp3" }}
+                  onChange={handleFileUpload}
+                  fullWidth
+                />
+              </Box>
+            )}
+
+            {/* テスト再生ボタン */}
+            {notificationsEnabled && soundEnabled && audioFile && (
+              <Box sx={{ mt: 3 }}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleTestPlay}
+                >
+                  通知音をテスト再生
+                </Button>
+                <audio ref={audioRef} src={audioFile}></audio>
+              </Box>
+            )}
+
+            {/* 保存ボタン */}
+            {notificationsEnabled && soundEnabled && (
+              <Box sx={{ mt: 3 }}>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  onClick={handleSoundSave}
+                >
+                  設定を保存
+                </Button>
+              </Box>
+            )}
+          </Box>
+        </StyledPaper>
 
         <Box sx={{ mt: 4 }}>
           <Button
