@@ -98,6 +98,7 @@ export default function SettingsPage() {
 
   const fileInputRef = useRef(null);
 
+  // Avatar
   const handleAvatarChange = (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -139,6 +140,21 @@ export default function SettingsPage() {
   useEffect(() => {
     saveDisplayName(displayName);
   }, [displayName]);
+
+  // テーマ設定
+  const handleThemeChange = (ev) => {
+    try {
+      const newValue = theme === 'light' ? 'dark' : 'light';
+      // サーバーに更新リクエストを送信
+      axios.post("http://localhost:5000/api/settings/upload/theme",
+        { theme: newValue },
+        { withCredentials: true } // クッキーを使用して認証情報を送信する場合
+      );
+      setTheme(newValue); // 状態を更新
+    } catch (error) {
+      console.error("サーバー更新に失敗しました:", error);
+    }
+  }
 
   // WorkTime
   const saveWorkTime = debounce((workTime) => {
@@ -325,7 +341,7 @@ export default function SettingsPage() {
             labelId="theme-select-label"
             value={theme}
             label="Theme"
-            onChange={(e) => setTheme(e.target.value)}
+            onChange={handleThemeChange}
           >
             <MenuItem value="light">Light</MenuItem>
             <MenuItem value="dark">Dark</MenuItem>

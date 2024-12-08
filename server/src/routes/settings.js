@@ -213,4 +213,24 @@ router.post("/upload/notificationsEnabled", authenticateToken, async (req, res) 
   res.status(200).json(updatedSettings);
 });
 
+// theme
+router.post("/upload/theme", authenticateToken, async (req, res) => {
+  const {
+    theme,
+  } = req.body;
+
+  // 認証されたユーザーIDを取得
+  const userId = req.user.id;
+  // 既存Settings情報の更新または新規作成
+  const updatedSettings = await Settings.findOneAndUpdate(
+    { userId },
+    {
+      theme: theme,
+    },
+    { new: true, upsert: true } // upsert: trueで存在しない場合は作成
+  );
+
+  res.status(200).json(updatedSettings);
+});
+
 module.exports = router;
