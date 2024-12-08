@@ -53,8 +53,8 @@ export default function SettingsPage() {
   const [workTime, setWorkTime] = useState(25);
   const [shortBreakTime, setShortBreakTime] = useState(5);
   const [longBreakTime, setLongBreakTime] = useState(15);
-  const [primaryColor, setPrimaryColor] = useState('#3f51b5');
-  const [secondaryColor, setSecondaryColor] = useState('#f50057');
+  const [primaryColor, setPrimaryColor] = useState('');
+  const [secondaryColor, setSecondaryColor] = useState('');
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(false);
   const [volume, setVolume] = useState(50);
@@ -62,10 +62,6 @@ export default function SettingsPage() {
   const audioRef = useRef(null); // 再生用のaudio要素の参照
   const [fileName, setFileName] = useState(""); // ファイル名表示用
   const [deleteOpen, setDeleteOpen] = useState(false);
-
-  const handleColorChange = (color, setColor) => (color) => {
-    setColor(color.hex);
-  };
   
   const navigate = useNavigate();
 
@@ -80,6 +76,8 @@ export default function SettingsPage() {
       setWorkTime(data.workTime);
       setShortBreakTime(data.shortBreakTime);
       setLongBreakTime(data.longBreakTime);
+      setPrimaryColor(data.primaryColor);
+      setSecondaryColor(data.secondaryColor);
       setNotificationsEnabled(data.notificationsEnabled);
     }).catch(error => {
       if (error.status === 401 || error.status === 403) {
@@ -155,6 +153,39 @@ export default function SettingsPage() {
       console.error("サーバー更新に失敗しました:", error);
     }
   }
+
+  // Primary Color
+  const savePrimaryColor = debounce((primaryColor) => {
+    axios.post(`http://localhost:5000/api/settings/upload/primaryColor`, { primaryColor: primaryColor }, {
+      withCredentials: true
+    }).catch((error) => {
+      const status = error.response?.status;
+      if (status === 401 || status === 403) navigate("/login");
+    });
+  }, 1000); // 1秒間の遅延
+
+  useEffect(() => {
+    savePrimaryColor(primaryColor);
+  }, [primaryColor]);
+
+  // Secondary Color
+  const saveSecondaryColor = debounce((secondaryColor) => {
+    axios.post(`http://localhost:5000/api/settings/upload/secondaryColor`, { secondaryColor: secondaryColor }, {
+      withCredentials: true
+    }).catch((error) => {
+      const status = error.response?.status;
+      if (status === 401 || status === 403) navigate("/login");
+    });
+  }, 1000); // 1秒間の遅延
+
+  useEffect(() => {
+    saveSecondaryColor(secondaryColor);
+  }, [secondaryColor]);
+
+  // colorChangeHandler(Primary/Secondary共用)
+  const handleColorChange = (color, setColor) => (color) => {
+    setColor(color.hex);
+  };
 
   // WorkTime
   const saveWorkTime = debounce((workTime) => {

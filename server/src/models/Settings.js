@@ -28,6 +28,16 @@ const settingsSchema = new Schema({
     default: true
   },
 
+  primaryColor: {
+    type: String,
+    default: '#3f51b5'
+  },
+
+  secondaryColor: {
+    type: String,
+    default: '#f50057'
+  },
+
   theme: {
     type: String,
     enum: ['light', 'dark'],

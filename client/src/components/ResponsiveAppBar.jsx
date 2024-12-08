@@ -133,10 +133,10 @@ const ResponsiveAppBar = (props) => {
     palette: {
       mode: settings.theme,
       primary: {
-        main: '#ff4081',
+        main: settings.primaryColor,
       },
       secondary: {
-        main: '#3f51b5',
+        main: settings.secondaryColor,
       },
     },
   });

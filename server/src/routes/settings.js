@@ -41,6 +41,8 @@ router.get("/fetch", authenticateToken, async (req, res) => {
       workTime: settings.workTime,
       shortBreakTime: settings.shortBreakTime,
       longBreakTime: settings.longBreakTime,
+      primaryColor: settings.primaryColor,
+      secondaryColor: settings.secondaryColor,
       notificationsEnabled: settings.notificationsEnabled,
     };
     res.status(200).json(settingsData);
@@ -131,6 +133,46 @@ router.post("/upload/displayName", authenticateToken, async (req, res) => {
     return res.status(404).json({ message: 'ユーザーが見つかりませんでした' });
   }
   res.status(200).json(updatedUser);
+});
+
+// PrimaryColor
+router.post("/upload/primaryColor", authenticateToken, async (req, res) => {
+  const {
+    primaryColor,
+  } = req.body;
+
+  // 認証されたユーザーIDを取得
+  const userId = req.user.id;
+  // 既存Settings情報の更新または新規作成
+  const updatedSettings = await Settings.findOneAndUpdate(
+    { userId },
+    {
+      primaryColor: primaryColor,
+    },
+    { new: true, upsert: true } // upsert: trueで存在しない場合は作成
+  );
+
+  res.status(200).json(updatedSettings);
+});
+
+// SecondaryColor
+router.post("/upload/secondaryColor", authenticateToken, async (req, res) => {
+  const {
+    secondaryColor,
+  } = req.body;
+
+  // 認証されたユーザーIDを取得
+  const userId = req.user.id;
+  // 既存Settings情報の更新または新規作成
+  const updatedSettings = await Settings.findOneAndUpdate(
+    { userId },
+    {
+      secondaryColor: secondaryColor,
+    },
+    { new: true, upsert: true } // upsert: trueで存在しない場合は作成
+  );
+
+  res.status(200).json(updatedSettings);
 });
 
 // WorkTime
