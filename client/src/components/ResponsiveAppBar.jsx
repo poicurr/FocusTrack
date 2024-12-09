@@ -14,7 +14,6 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
-import NotificationsIcon from '@mui/icons-material/Notifications';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';

@@ -47,6 +47,12 @@ const Input = styled('input')({
   display: 'none',
 });
 
+// 各MP3ファイルのURL
+const audioFiles = [
+  "http://localhost:5000/public/resources/mail1.mp3",
+  "http://localhost:5000/public/resources/mail2.mp3",
+];
+
 export default function SettingsPage() {
   const [avatar, setAvatar] = useState("");
   const [displayName, setDisplayName] = useState('');
@@ -59,9 +65,9 @@ export default function SettingsPage() {
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(false);
   const [volume, setVolume] = useState(50);
-  const [audioFile, setAudioFile] = useState(null); // アップロードされたMP3ファイル
+  const [sound1, setSound1] = useState(null);
+  const [sound2, setSound2] = useState(null);
   const audioRef = useRef(null); // 再生用のaudio要素の参照
-  const [fileName, setFileName] = useState(""); // ファイル名表示用
   const [deleteOpen, setDeleteOpen] = useState(false);
   
   const navigate = useNavigate();
@@ -86,6 +92,10 @@ export default function SettingsPage() {
         navigate("/login");
       }
     });
+    const sound1 = new Audio(audioFiles[0]);
+    setSound1(sound1);
+    const sound2 = new Audio(audioFiles[1]);
+    setSound2(sound2);
   }, []);
 
   const handleClickOpen = () => {
@@ -269,52 +279,13 @@ export default function SettingsPage() {
     }
   };
 
-  // MP3ファイルのアップロード処理
-  const handleFileUpload = (event) => {
-    const file = event.target.files[0];
-    if (file && file.type === "audio/mpeg") {
-      const url = URL.createObjectURL(file); // 一時URLを生成
-      setAudioFile(url);
-      setFileName(file.name);
-    } else {
-      alert("MP3ファイルをアップロードしてください。");
-    }
+  // 再生処理
+  const playSound1 = () => {
+    sound1.play();
   };
 
-  // テスト再生
-  const handleTestPlay = () => {
-    if (audioRef.current && audioFile) {
-      audioRef.current.play();
-    } else {
-      alert("通知音をアップロードしてください。");
-    }
-  };
-
-  // サーバーにMP3ファイルをアップロード
-  const handleSoundSave = async () => {
-    if (!fileName) {
-      alert("MP3ファイルをアップロードしてください。");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("audio", document.querySelector('input[type="file"]').files[0]);
-
-    try {
-      await axios.post("http://localhost:5000/settings/upload/audio", formData, 
-        {
-          withCredentials: true, // クッキーを含めるために必要
-        },
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
-      alert("ファイルが正常にアップロードされました！");
-    } catch (error) {
-      console.error("ファイルのアップロードに失敗しました:", error);
-      alert("ファイルのアップロードに失敗しました。");
-    }
+  const playSound2 = () => {
+    sound2.play();
   };
 
   const handleDeleteAccount = () => {
@@ -497,7 +468,7 @@ export default function SettingsPage() {
             )}
 
             {/* 通知音のボリューム設定 */}
-            {notificationsEnabled && soundEnabled && (
+            {notificationsEnabled && soundEnabled &&  (
               <Box sx={{ mt: 3 }}>
                 <Typography variant="subtitle1" gutterBottom>
                   通知音のボリューム
@@ -514,44 +485,23 @@ export default function SettingsPage() {
               </Box>
             )}
 
-            {/* 通知音のアップロード */}
-            {notificationsEnabled && soundEnabled && (
-              <Box sx={{ mt: 3 }}>
-                <Typography variant="subtitle1" gutterBottom>
-                  通知音をアップロード
-                </Typography>
-                <TextField
-                  type="file"
-                  inputProps={{ accept: ".mp3" }}
-                  onChange={handleFileUpload}
-                  fullWidth
-                />
-              </Box>
-            )}
-
             {/* テスト再生ボタン */}
-            {notificationsEnabled && soundEnabled && audioFile && (
+            {notificationsEnabled && soundEnabled && (
               <Box sx={{ mt: 3 }}>
                 <Button
                   variant="contained"
                   color="primary"
-                  onClick={handleTestPlay}
+                  onClick={playSound1}
                 >
-                  通知音をテスト再生
+                  通知音1をテスト再生
                 </Button>
-                <audio ref={audioRef} src={audioFile}></audio>
-              </Box>
-            )}
-
-            {/* 保存ボタン */}
-            {notificationsEnabled && soundEnabled && (
-              <Box sx={{ mt: 3 }}>
                 <Button
                   variant="contained"
-                  color="secondary"
-                  onClick={handleSoundSave}
+                  color="primary"
+                  onClick={playSound2}
+                  sx={{ ml: 3 }}
                 >
-                  設定を保存
+                  通知音2をテスト再生
                 </Button>
               </Box>
             )}

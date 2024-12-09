@@ -20,16 +20,25 @@ const formatTime = (seconds) => {
   return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
 };
 
+// 各MP3ファイルのURL
+const audioFiles = [
+  "http://localhost:5000/public/resources/mail1.mp3",
+  "http://localhost:5000/public/resources/mail2.mp3",
+];
+
+let shouldPlaySound = false;
+
 const PomoTimer = (props) => {
   const { taskId, onSubmit } = props;
   const { settings, loading } = useSettings();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [time, setTime] = useState(new Date());
-
   const [modalOpen, setModalOpen] = useState(false);
-
   const [wakeLock, setWakeLock] = useState(null);
+
+  const sound1 = new Audio(audioFiles[0]);
+  const sound2 = new Audio(audioFiles[1]);
 
   // 状態一覧
   const STATES = {
@@ -68,6 +77,8 @@ const PomoTimer = (props) => {
     switch (action.type) {
       case ACTIONS.START: {
         if (state.currentState === STATES.STOPPED) {
+          sound1.play();
+          shouldPlaySound = true;
           const startAngle = time.getMinutes() * 6 + time.getSeconds() * 0.1;
           const endAngle = startAngle + state.timeRemaining * 0.1;
           return {
@@ -80,6 +91,8 @@ const PomoTimer = (props) => {
           };
         }
         if (state.currentState === STATES.PAUSED) {
+          sound1.play();
+          shouldPlaySound = true;
           const startAngle = time.getMinutes() * 6 + time.getSeconds() * 0.1;
           const endAngle = startAngle + state.timeRemaining * 0.1;
           return {
@@ -116,8 +129,14 @@ const PomoTimer = (props) => {
         }
 
         if (state.timeRemaining <= 0 && state.currentState === STATES.WORK) {
-          if (!modalOpen)
+          if (shouldPlaySound) {
+            sound2.play();
+            shouldPlaySound = false;
+          }
+
+          if (!modalOpen) {
             setModalOpen(true); // WorkTime終了時にモーダルを表示
+          }
         }
 
         if (state.timeRemaining > 0 || state.currentState === STATES.WORK) {
@@ -142,6 +161,8 @@ const PomoTimer = (props) => {
           };
         }
         if (state.currentState === STATES.SHORT_BREAK || state.currentState === STATES.LONG_BREAK) {
+          sound1.play();
+          shouldPlaySound = true;
           const timeRemaining = settings.workTime * 60;
           const startAngle = time.getMinutes() * 6 + time.getSeconds() * 0.1;
           const endAngle = startAngle + timeRemaining * 0.1;
