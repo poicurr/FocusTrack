@@ -50,8 +50,7 @@ const ResponsiveAppBar = (props) => {
   const [menuOpen, setMenuOpen] = React.useState(false);
 
   const navigate = useNavigate();
-  const { settings, loading } = useSettings();
-  if (loading) return <p>Loading settings...</p>;
+  const { settings, updateSettings } = useSettings();
 
   const handleDrawerClose = () => {
     setIsClosing(true);

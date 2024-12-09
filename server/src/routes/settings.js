@@ -51,6 +51,55 @@ router.get("/fetch", authenticateToken, async (req, res) => {
   }
 });
 
+// Settings情報更新
+router.post("/update", authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const {
+      avatar,
+      displayName,
+      theme,
+      workTime,
+      shortBreakTime,
+      longBreakTime,
+      primaryColor,
+      secondaryColor,
+      notificationsEnabled,
+    } = req.body;
+    
+    const user = await User.findById(userId);
+    const settings = await Settings.findOneAndUpdate(
+      { userId: userId },
+      {
+        avatar,
+        displayName,
+        theme,
+        workTime,
+        shortBreakTime,
+        longBreakTime,
+        primaryColor,
+        secondaryColor,
+        notificationsEnabled,
+      },
+      { new: true, upsert: true }
+    );
+    const settingsData = {
+      avatar: user.avatar,
+      displayName: user.displayName,
+      theme: settings.theme,
+      workTime: settings.workTime,
+      shortBreakTime: settings.shortBreakTime,
+      longBreakTime: settings.longBreakTime,
+      primaryColor: settings.primaryColor,
+      secondaryColor: settings.secondaryColor,
+      notificationsEnabled: settings.notificationsEnabled,
+    };
+    res.status(200).json(settingsData);
+  } catch (error) {
+    res.status(500).json({ message: 'サーバーエラーが発生しました', error });
+  }
+});
+
 // アバター画像登録API
 router.post("/upload/avatar", authenticateToken, upload.single("avatar"), async (req, res) => {
   const {

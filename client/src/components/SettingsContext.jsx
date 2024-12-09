@@ -7,7 +7,11 @@ export const SettingsContext = createContext();
 
 // Providerコンポーネント
 export const SettingsProvider = ({ children }) => {
-  const [settings, setSettings] = useState(null);
+  const [settings, setSettings] = useState({
+    primaryColor: "#2E0B17",
+    secondaryColor: "#FF8E53",
+    theme: "light",
+  });
   const [loading, setLoading] = useState(true);
   
   const navigate = useNavigate();  
@@ -16,7 +20,6 @@ export const SettingsProvider = ({ children }) => {
       withCredentials: true, // クッキーを含めるために必要
     }).then(res => {
       setSettings(res.data);
-      setLoading(false);
     }).catch(error => {
       if (error.status === 401 || error.status === 403) {
         navigate("/login");
@@ -24,8 +27,20 @@ export const SettingsProvider = ({ children }) => {
     });
   }, []);
 
+  const updateSettings = async (newSettings) => {
+    const res = await axios.post(`http://localhost:5000/api/settings/update`, newSettings, {
+      withCredentials: true, // クッキーを含めるために必要
+    }).then(res => {
+      setSettings(res.data);
+    }).catch(error => {
+      if (error.status === 401 || error.status === 403) {
+        navigate("/login");
+      }
+    });
+  };
+
   return (
-    <SettingsContext.Provider value={{ settings, loading }}>
+    <SettingsContext.Provider value={{ settings, updateSettings }}>
       {children}
     </SettingsContext.Provider>
   );

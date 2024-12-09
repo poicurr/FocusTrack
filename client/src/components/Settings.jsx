@@ -25,6 +25,7 @@ import { ChromePicker } from 'react-color';
 
 import { styled } from '@mui/system';
 import { useNavigate } from 'react-router-dom';
+import { useSettings } from './SettingsContext';
 import axios from 'axios';
 import debounce from 'lodash.debounce';
 
@@ -53,8 +54,8 @@ export default function SettingsPage() {
   const [workTime, setWorkTime] = useState(25);
   const [shortBreakTime, setShortBreakTime] = useState(5);
   const [longBreakTime, setLongBreakTime] = useState(15);
-  const [primaryColor, setPrimaryColor] = useState('');
-  const [secondaryColor, setSecondaryColor] = useState('');
+  const [primaryColor, setPrimaryColor] = useState('#2E0B17');
+  const [secondaryColor, setSecondaryColor] = useState('#FF8E53');
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(false);
   const [volume, setVolume] = useState(50);
@@ -64,6 +65,22 @@ export default function SettingsPage() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   
   const navigate = useNavigate();
+  const { settings, updateSettings } = useSettings();
+
+  const changePrimaryColor = () => {
+    const randomColor = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+    updateSettings({ ...settings, primaryColor: randomColor });
+  };
+
+  const changeSecondaryColor = () => {
+    const randomColor = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
+    updateSettings({ ...settings, secondaryColor: randomColor });
+  };
+
+  const toggleTheme = () => {
+    const newTheme = settings.theme === "light" ? "dark" : "light";
+    updateSettings({ ...settings, theme: newTheme });
+  };
 
   useEffect(() => {
     axios.get(`http://localhost:5000/api/settings/fetch`, {
@@ -149,6 +166,7 @@ export default function SettingsPage() {
         { withCredentials: true } // クッキーを使用して認証情報を送信する場合
       );
       setTheme(newValue); // 状態を更新
+      updateSettings({ ...settings, theme: newValue });
     } catch (error) {
       console.error("サーバー更新に失敗しました:", error);
     }
@@ -162,6 +180,7 @@ export default function SettingsPage() {
       const status = error.response?.status;
       if (status === 401 || status === 403) navigate("/login");
     });
+    updateSettings({ ...settings, primaryColor: primaryColor })
   }, 1000); // 1秒間の遅延
 
   useEffect(() => {
@@ -176,6 +195,7 @@ export default function SettingsPage() {
       const status = error.response?.status;
       if (status === 401 || status === 403) navigate("/login");
     });
+    updateSettings({ ...settings, secondaryColor: secondaryColor });
   }, 1000); // 1秒間の遅延
 
   useEffect(() => {
