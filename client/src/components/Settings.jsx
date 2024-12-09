@@ -131,6 +131,7 @@ export default function SettingsPage() {
           },
         });
         setAvatar(res.data.avatar);
+        updateSettings({ ...settings, avatar: res.data.avatar });
         console.log("ファイルが正常にアップロードされました！");
       } catch (error) {
         console.error("ファイルのアップロードに失敗しました:", error);
@@ -180,7 +181,7 @@ export default function SettingsPage() {
       const status = error.response?.status;
       if (status === 401 || status === 403) navigate("/login");
     });
-    updateSettings({ ...settings, primaryColor: primaryColor })
+    updateSettings({ ...settings, primaryColor: primaryColor });
   }, 1000); // 1秒間の遅延
 
   useEffect(() => {
