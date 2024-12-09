@@ -206,6 +206,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     saveWorkTime(workTime);
+    updateSettings({ ...settings, workTime: workTime });
   }, [workTime]);
 
   // ShortBreakTime
@@ -221,6 +222,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     saveShortBreakTime(shortBreakTime);
+    updateSettings({ ...settings, shortBreakTime: shortBreakTime });
   }, [shortBreakTime]);
 
   // LongBreakTime
@@ -236,6 +238,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     saveLongBreakTime(longBreakTime);
+    updateSettings({ ...settings, longBreakTime: longBreakTime });
   }, [longBreakTime]);
 
   // 通知のオン/オフ
