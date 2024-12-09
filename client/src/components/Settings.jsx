@@ -67,21 +67,6 @@ export default function SettingsPage() {
   const navigate = useNavigate();
   const { settings, updateSettings } = useSettings();
 
-  const changePrimaryColor = () => {
-    const randomColor = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
-    updateSettings({ ...settings, primaryColor: randomColor });
-  };
-
-  const changeSecondaryColor = () => {
-    const randomColor = `#${Math.floor(Math.random() * 16777215).toString(16)}`;
-    updateSettings({ ...settings, secondaryColor: randomColor });
-  };
-
-  const toggleTheme = () => {
-    const newTheme = settings.theme === "light" ? "dark" : "light";
-    updateSettings({ ...settings, theme: newTheme });
-  };
-
   useEffect(() => {
     axios.get(`http://localhost:5000/api/settings/fetch`, {
       withCredentials: true, // クッキーを含めるために必要
