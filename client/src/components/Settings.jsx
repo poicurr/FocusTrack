@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Box,
   Container,
@@ -7,22 +7,20 @@ import {
   TextField,
   Button,
   Switch,
+  FormControl,
   FormControlLabel,
   Select,
   MenuItem,
-  InputLabel,
-  FormControl,
   Slider,
   Grid,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Paper,
-  Dialog, 
-  DialogActions, 
-  DialogContent, 
-  DialogContentText, 
-  DialogTitle 
 } from '@mui/material';
 import { ChromePicker } from 'react-color';
-
 import { styled } from '@mui/system';
 import { useNavigate } from 'react-router-dom';
 import { useSettings } from './SettingsContext';
@@ -47,75 +45,69 @@ const Input = styled('input')({
   display: 'none',
 });
 
-// 各MP3ファイルのURL
-const audioFiles = [
-  "http://localhost:5000/public/resources/mail1.mp3",
-  "http://localhost:5000/public/resources/mail2.mp3",
-];
-
 export default function SettingsPage() {
-  const [avatar, setAvatar] = useState("");
-  const [displayName, setDisplayName] = useState('');
-  const [theme, setTheme] = useState('light');
-  const [workTime, setWorkTime] = useState(25);
-  const [shortBreakTime, setShortBreakTime] = useState(5);
-  const [longBreakTime, setLongBreakTime] = useState(15);
-  const [primaryColor, setPrimaryColor] = useState('#2E0B17');
-  const [secondaryColor, setSecondaryColor] = useState('#FF8E53');
-  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
-  const [soundEnabled, setSoundEnabled] = useState(false);
-  const [volume, setVolume] = useState(50);
-  const [sound1, setSound1] = useState(null);
-  const [sound2, setSound2] = useState(null);
-  const audioRef = useRef(null); // 再生用のaudio要素の参照
+  const [settingsState, setSettingsState] = useState({
+    avatar: '',
+    displayName: '',
+    theme: 'light',
+    workTime: 25,
+    shortBreakTime: 5,
+    longBreakTime: 15,
+    primaryColor: '#2E0B17',
+    secondaryColor: '#FF8E53',
+    notificationsEnabled: false,
+    volume: 50,
+  });
   const [deleteOpen, setDeleteOpen] = useState(false);
-  
   const navigate = useNavigate();
-  const { settings, updateSettings } = useSettings();
-
-  useEffect(() => {
-    axios.get(`http://localhost:5000/api/settings/fetch`, {
-      withCredentials: true, // クッキーを含めるために必要
-    }).then(res => {
-      const data = res.data;
-      setAvatar(data.avatar);
-      setDisplayName(data.displayName);
-      setTheme(data.theme);
-      setWorkTime(data.workTime);
-      setShortBreakTime(data.shortBreakTime);
-      setLongBreakTime(data.longBreakTime);
-      setPrimaryColor(data.primaryColor);
-      setSecondaryColor(data.secondaryColor);
-      setNotificationsEnabled(data.notificationsEnabled);
-    }).catch(error => {
-      if (error.status === 401 || error.status === 403) {
-        navigate("/login");
-      }
-    });
-    const sound1 = new Audio(audioFiles[0]);
-    setSound1(sound1);
-    const sound2 = new Audio(audioFiles[1]);
-    setSound2(sound2);
-  }, []);
-
-  const handleClickOpen = () => {
-    setDeleteOpen(true);
-  };
-
-  const handleClose = () => {
-    setDeleteOpen(false);
-  };
-
+  const { updateSettings } = useSettings();
   const fileInputRef = useRef(null);
 
-  // Avatar
+  // APIから設定を初期化
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const { data } = await axios.get('http://localhost:5000/api/settings/fetch', {
+          withCredentials: true,
+        });
+        setSettingsState(data);
+      } catch (error) {
+        if ([401, 403].includes(error.response?.status)) {
+          navigate('/login');
+        } else {
+          console.error('設定の取得に失敗しました:', error);
+        }
+      }
+    };
+    fetchSettings();
+  }, [navigate]);
+
+  // 共通の設定更新関数
+  const updateSetting = async (key, value) => {
+    try {
+      setSettingsState((prev) => ({ ...prev, [key]: value }));
+      await axios.post(`http://localhost:5000/api/settings/upload/${key}`, { [key]: value }, {
+        withCredentials: true,
+      });
+      updateSettings((prev) => ({ ...prev, [key]: value }));
+    } catch (error) {
+      if ([401, 403].includes(error.response?.status)) {
+        navigate('/login');
+      } else {
+        console.error(`設定の更新に失敗しました (${key}):`, error);
+      }
+    }
+  };
+
+  // アバター変更
   const handleAvatarChange = (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
     reader.onloadend = async () => {
-      setAvatar(reader.result);
+      const avatarData = reader.result;
+      updateSetting('avatar', avatarData);
       const formData = new FormData();
       formData.append("avatar", reader.result);
       try {
@@ -125,8 +117,7 @@ export default function SettingsPage() {
             "Content-Type": "multipart/form-data",
           },
         });
-        setAvatar(res.data.avatar);
-        updateSettings({ ...settings, avatar: res.data.avatar });
+        updateSettings((prev) => ({ ...prev, avatar: res.data.avatar }));
         console.log("ファイルが正常にアップロードされました！");
       } catch (error) {
         console.error("ファイルのアップロードに失敗しました:", error);
@@ -135,169 +126,15 @@ export default function SettingsPage() {
     reader.readAsDataURL(file);
   };
 
-  // DisplayName
-  const saveDisplayName = debounce((displayName) => {
-    if (!displayName || displayName.trim() === "") {
-      return;
-    }
-    axios.post(`http://localhost:5000/api/settings/upload/displayName`, { displayName: displayName }, {
-      withCredentials: true
-    }).catch((error) => {
-      const status = error.response?.status;
-      if (status === 401 || status === 403) navigate("/login");
-    });
-  }, 1000); // 1秒間の遅延
-
-  useEffect(() => {
-    saveDisplayName(displayName);
-  }, [displayName]);
-
-  // テーマ設定
-  const handleThemeChange = (ev) => {
-    try {
-      const newValue = theme === 'light' ? 'dark' : 'light';
-      // サーバーに更新リクエストを送信
-      axios.post("http://localhost:5000/api/settings/upload/theme",
-        { theme: newValue },
-        { withCredentials: true } // クッキーを使用して認証情報を送信する場合
-      );
-      setTheme(newValue); // 状態を更新
-      updateSettings({ ...settings, theme: newValue });
-    } catch (error) {
-      console.error("サーバー更新に失敗しました:", error);
-    }
-  }
-
-  // Primary Color
-  const savePrimaryColor = debounce((primaryColor) => {
-    axios.post(`http://localhost:5000/api/settings/upload/primaryColor`, { primaryColor: primaryColor }, {
-      withCredentials: true
-    }).catch((error) => {
-      const status = error.response?.status;
-      if (status === 401 || status === 403) navigate("/login");
-    });
-    updateSettings({ ...settings, primaryColor: primaryColor });
-  }, 1000); // 1秒間の遅延
-
-  useEffect(() => {
-    savePrimaryColor(primaryColor);
-  }, [primaryColor]);
-
-  // Secondary Color
-  const saveSecondaryColor = debounce((secondaryColor) => {
-    axios.post(`http://localhost:5000/api/settings/upload/secondaryColor`, { secondaryColor: secondaryColor }, {
-      withCredentials: true
-    }).catch((error) => {
-      const status = error.response?.status;
-      if (status === 401 || status === 403) navigate("/login");
-    });
-    updateSettings({ ...settings, secondaryColor: secondaryColor });
-  }, 1000); // 1秒間の遅延
-
-  useEffect(() => {
-    saveSecondaryColor(secondaryColor);
-  }, [secondaryColor]);
-
-  // colorChangeHandler(Primary/Secondary共用)
-  const handleColorChange = (color, setColor) => (color) => {
-    setColor(color.hex);
+  const handleSliderChange = (key) => (_, value) => {
+    setSettingsState((prev) => ({ ...prev, [key]: value }));
+    updateSetting(key, value);
   };
 
-  // WorkTime
-  const saveWorkTime = debounce((workTime) => {
-    axios.post(`http://localhost:5000/api/settings/upload/workTime`,
-      { workTime: workTime },
-      { withCredentials: true }
-    ).catch((error) => {
-      const status = error.response?.status;
-      if (status === 401 || status === 403) navigate("/login");
-    });
-  }, 1000); // 1秒間の遅延
-
-  useEffect(() => {
-    saveWorkTime(workTime);
-    updateSettings({ ...settings, workTime: workTime });
-  }, [workTime]);
-
-  // ShortBreakTime
-  const saveShortBreakTime = debounce((shortBreakTime) => {
-    axios.post(`http://localhost:5000/api/settings/upload/shortBreakTime`,
-      { shortBreakTime: shortBreakTime },
-      { withCredentials: true }
-    ).catch((error) => {
-      const status = error.response?.status;
-      if (status === 401 || status === 403) navigate("/login");
-    });
-  }, 1000); // 1秒間の遅延
-
-  useEffect(() => {
-    saveShortBreakTime(shortBreakTime);
-    updateSettings({ ...settings, shortBreakTime: shortBreakTime });
-  }, [shortBreakTime]);
-
-  // LongBreakTime
-  const saveLongBreakTime = debounce((longBreakTime) => {
-    axios.post(`http://localhost:5000/api/settings/upload/longBreakTime`,
-      { longBreakTime: longBreakTime },
-      { withCredentials: true }
-    ).catch((error) => {
-      const status = error.response?.status;
-      if (status === 401 || status === 403) navigate("/login");
-    });
-  }, 1000); // 1秒間の遅延
-
-  useEffect(() => {
-    saveLongBreakTime(longBreakTime);
-    updateSettings({ ...settings, longBreakTime: longBreakTime });
-  }, [longBreakTime]);
-
-  // 通知のオン/オフ
-   const handleNotificationsEnabled = (ev) => {
-    try {
-      const newValue = !notificationsEnabled;
-      // サーバーに更新リクエストを送信
-      axios.post("http://localhost:5000/api/settings/upload/notificationsEnabled",
-        { notificationsEnabled: newValue },
-        { withCredentials: true } // クッキーを使用して認証情報を送信する場合
-      );
-      setNotificationsEnabled(newValue); // 状態を更新
-    } catch (error) {
-      console.error("サーバー更新に失敗しました:", error);
-    }
-  }
-
-  // サウンドのオン/オフ
-  const handleSoundToggle = (event) => {
-    setSoundEnabled(event.target.checked);
+  const handleColorChange = (key) => (color) => {
+    setSettingsState((prev) => ({ ...prev, [key]: color.hex }));
+    updateSetting(key, color.hex);
   };
-
-  // ボリューム調整
-  const handleVolumeChange = (event, newValue) => {
-    setVolume(newValue);
-    if (audioRef.current) {
-      audioRef.current.volume = newValue / 100; // 0～1の範囲で設定
-    }
-  };
-
-  // 再生処理
-  const playSound1 = () => {
-    sound1.play();
-  };
-
-  const playSound2 = () => {
-    sound2.play();
-  };
-
-  const handleDeleteAccount = () => {
-    // ここにアカウント削除のロジックを実装
-    console.log('アカウントが削除されました');
-    handleClose();
-  };
-
-  const isBase64 = () => {
-    if (!avatar) return false;
-    return avatar.match(/^data:(.+);base64,(.+)$/);
-  }
 
   return (
     <Container maxWidth="sm" sx={{ px: { xs: 2, sm: 3 } }}>
@@ -305,22 +142,14 @@ export default function SettingsPage() {
         <Typography variant="h4" component="h1" gutterBottom>
           Settings
         </Typography>
+
         <Box sx={{ mb: 3, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            {
-              isBase64() ?
-              <Avatar
-                src={avatar ? avatar : '/placeholder-user.jpg'}
-                sx={{ width: 100, height: 100, cursor: 'pointer' }}
-                onClick={() => fileInputRef.current?.click()}
-              />
-              :
-              <Avatar
-                src={avatar ? "http://localhost:5000/" + avatar : '/placeholder-user.jpg'}
-                sx={{ width: 100, height: 100, cursor: 'pointer' }}
-                onClick={() => fileInputRef.current?.click()}
-              />
-            }
+            <Avatar
+              src={settingsState.avatar ? "http://localhost:5000/" + settingsState.avatar : '/placeholder-user.jpg'}
+              sx={{ width: 100, height: 100, cursor: 'pointer' }}
+              onClick={() => fileInputRef.current?.click()}
+            />
             <label htmlFor="avatar-upload">
               <Input
                 ref={fileInputRef}
@@ -339,20 +168,19 @@ export default function SettingsPage() {
         <TextField
           fullWidth
           label="Display Name"
-          value={displayName}
+          value={settingsState.displayName}
           onChange={(e) => {
-            setDisplayName(e.target.value)
+            const value = e.target.value;
+            setSettingsState((prev) => ({ ...prev, displayName: value }));
+            updateSetting('displayName', value);
           }}
           margin="normal"
         />
 
         <FormControl fullWidth margin="normal">
-          <InputLabel id="theme-select-label">Theme</InputLabel>
           <Select
-            labelId="theme-select-label"
-            value={theme}
-            label="Theme"
-            onChange={handleThemeChange}
+            value={settingsState.theme}
+            onChange={(e) => updateSetting('theme', e.target.value)}
           >
             <MenuItem value="light">Light</MenuItem>
             <MenuItem value="dark">Dark</MenuItem>
@@ -360,25 +188,23 @@ export default function SettingsPage() {
         </FormControl>
 
         <StyledPaper elevation={2}>
-          <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
-            Color Settings
-          </Typography>
+          <Typography variant="h6">Color Settings</Typography>
           <Grid container spacing={3}>
-            <Grid item xs={12} sm={6}>
-              <Typography variant="h6">Primary</Typography>
-              <ColorBox bgcolor={primaryColor} />
-              <ChromePicker 
-                color={primaryColor}
-                onChange={handleColorChange(primaryColor, setPrimaryColor)}
+            <Grid item xs={6}>
+              <Typography>Primary</Typography>
+              <ColorBox bgcolor={settingsState.primaryColor} />
+              <ChromePicker
+                color={settingsState.primaryColor}
+                onChange={handleColorChange('primaryColor')}
                 disableAlpha={true}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
-              <Typography variant="h6">Secondary</Typography>
-              <ColorBox bgcolor={secondaryColor} />
-              <ChromePicker 
-                color={secondaryColor}
-                onChange={handleColorChange(secondaryColor, setSecondaryColor)}
+            <Grid item xs={6}>
+              <Typography>Secondary</Typography>
+              <ColorBox bgcolor={settingsState.secondaryColor} />
+              <ChromePicker
+                color={settingsState.secondaryColor}
+                onChange={handleColorChange('secondaryColor')}
                 disableAlpha={true}
               />
             </Grid>
@@ -388,15 +214,12 @@ export default function SettingsPage() {
         <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
           Timer Settings
         </Typography>
-        <Grid container spacing={{ xs: 2, sm: 3 }}>
+        <Grid container spacing={3}>
           <Grid item xs={12}>
-            <Typography id="work-time-slider" gutterBottom>
-              Work Time: {workTime} minutes
-            </Typography>
+            <Typography>Work Time: {settingsState.workTime} min</Typography>
             <Slider
-              value={workTime}
-              onChange={(_, newValue) => setWorkTime(newValue)}
-              aria-labelledby="work-time-slider"
+              value={settingsState.workTime}
+              onChange={handleSliderChange('workTime')}
               valueLabelDisplay="auto"
               step={1}
               marks
@@ -405,13 +228,10 @@ export default function SettingsPage() {
             />
           </Grid>
           <Grid item xs={12}>
-            <Typography id="short-break-slider" gutterBottom>
-              Short Break: {shortBreakTime} minutes
-            </Typography>
+            <Typography>Short Break: {settingsState.shortBreakTime} min</Typography>
             <Slider
-              value={shortBreakTime}
-              onChange={(_, newValue) => setShortBreakTime(newValue)}
-              aria-labelledby="short-break-slider"
+              value={settingsState.shortBreakTime}
+              onChange={handleSliderChange('shortBreakTime')}
               valueLabelDisplay="auto"
               step={1}
               marks
@@ -420,13 +240,10 @@ export default function SettingsPage() {
             />
           </Grid>
           <Grid item xs={12}>
-            <Typography id="long-break-slider" gutterBottom>
-              Long Break: {longBreakTime} minutes
-            </Typography>
+            <Typography>Long Break: {settingsState.longBreakTime} min</Typography>
             <Slider
-              value={longBreakTime}
-              onChange={(_, newValue) => setLongBreakTime(newValue)}
-              aria-labelledby="long-break-slider"
+              value={settingsState.longBreakTime}
+              onChange={handleSliderChange('longBreakTime')}
               valueLabelDisplay="auto"
               step={1}
               marks
@@ -437,114 +254,63 @@ export default function SettingsPage() {
         </Grid>
 
         <StyledPaper elevation={2}>
-          <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
-            Notification
+          <Typography variant="h6" gutterBottom>
+            Notifications
           </Typography>
-          <Box sx={{ mt: 4 }}>
-            {/* 通知のオン/オフ */}
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={notificationsEnabled}
-                  onChange={handleNotificationsEnabled}
-                  color="primary"
-                />
-              }
-              label="Notifications"
-            />
-
-            {/* サウンドのオン/オフ */}
-            {notificationsEnabled && (
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={soundEnabled}
-                    onChange={handleSoundToggle}
-                    color="primary"
-                  />
+          <FormControlLabel
+            control={
+              <Switch
+                checked={settingsState.notificationsEnabled}
+                onChange={() =>
+                  updateSetting('notificationsEnabled', !settingsState.notificationsEnabled)
                 }
-                label="通知音を有効にする"
               />
-            )}
-
-            {/* 通知音のボリューム設定 */}
-            {notificationsEnabled && soundEnabled &&  (
-              <Box sx={{ mt: 3 }}>
-                <Typography variant="subtitle1" gutterBottom>
-                  通知音のボリューム
-                </Typography>
-                <Slider
-                  value={volume}
-                  onChange={handleVolumeChange}
-                  aria-labelledby="volume-slider"
-                  min={0}
-                  max={100}
-                  valueLabelDisplay="auto"
-                  color="primary"
-                />
-              </Box>
-            )}
-
-            {/* テスト再生ボタン */}
-            {notificationsEnabled && soundEnabled && (
-              <Box sx={{ mt: 3 }}>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={playSound1}
-                >
-                  通知音1をテスト再生
-                </Button>
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={playSound2}
-                  sx={{ ml: 3 }}
-                >
-                  通知音2をテスト再生
-                </Button>
-              </Box>
-            )}
-          </Box>
+            }
+            label="Enable Notifications"
+          />
+          {settingsState.notificationsEnabled && (
+            <Box sx={{ mt: 3 }}>
+              <Typography>Volume</Typography>
+              <Slider
+                value={settingsState.volume}
+                onChange={handleSliderChange('volume')}
+                min={0}
+                max={100}
+              />
+            </Box>
+          )}
         </StyledPaper>
 
-        <Box sx={{ mt: 4 }}>
-          <Button
-            variant="contained"
-            color="error"
-            fullWidth
-            onClick={handleClickOpen}
-          >
-            delete this account
-          </Button>
-        </Box>
-
-        <Dialog
-          open={deleteOpen}
-          onClose={handleClose}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-          disableAutoFocus
-          disableEnforceFocus
+        <Button
+          variant="contained"
+          color="error"
+          fullWidth
+          sx={{ mt: 4 }}
+          onClick={() => setDeleteOpen(true)}
         >
-          <DialogTitle id="alert-dialog-title">
-            {"アカウントを削除しますか？"}
-          </DialogTitle>
+          Delete Account
+        </Button>
+
+        <Dialog open={deleteOpen} onClose={() => setDeleteOpen(false)}>
+          <DialogTitle>Delete Account?</DialogTitle>
           <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              この操作は取り消すことができません。アカウントを削除すると、すべてのデータが永久に失われます。本当に削除しますか？
+            <DialogContentText>
+              This action is irreversible. Are you sure you want to delete your account?
             </DialogContentText>
           </DialogContent>
           <DialogActions>
-            <Button onClick={handleClose} color="primary">
-              キャンセル
-            </Button>
-            <Button onClick={handleDeleteAccount} color="error" autoFocus>
-              削除する
+            <Button onClick={() => setDeleteOpen(false)}>Cancel</Button>
+            <Button
+              onClick={() => {
+                console.log('Account deleted');
+                setDeleteOpen(false);
+              }}
+              color="error"
+            >
+              Delete
             </Button>
           </DialogActions>
         </Dialog>
-
       </Box>
     </Container>
   );
