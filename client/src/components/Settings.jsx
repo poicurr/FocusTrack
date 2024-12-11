@@ -25,7 +25,6 @@ import { styled } from '@mui/system';
 import { useNavigate } from 'react-router-dom';
 import { useSettings } from './SettingsContext';
 import axios from 'axios';
-import debounce from 'lodash.debounce';
 
 const ColorBox = styled(Box)(({ bgcolor }) => ({
   width: '100%',
@@ -136,6 +135,11 @@ export default function SettingsPage() {
     updateSetting(key, color.hex);
   };
 
+  const isBase64 = (avatar) => {
+    if (!avatar) return false;
+    return avatar.match(/^data:(.+);base64,(.+)$/);
+  }
+
   return (
     <Container maxWidth="sm" sx={{ px: { xs: 2, sm: 3 } }}>
       <Box sx={{ my: 4 }}>
@@ -145,11 +149,20 @@ export default function SettingsPage() {
 
         <Box sx={{ mb: 3, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Avatar
-              src={settingsState.avatar ? "http://localhost:5000/" + settingsState.avatar : '/placeholder-user.jpg'}
-              sx={{ width: 100, height: 100, cursor: 'pointer' }}
-              onClick={() => fileInputRef.current?.click()}
-            />
+            {
+              isBase64(settingsState.avatar) ?
+              <Avatar
+                src={settingsState.avatar ? settingsState.avatar : '/placeholder-user.jpg'}
+                sx={{ width: 100, height: 100, cursor: 'pointer' }}
+                onClick={() => fileInputRef.current?.click()}
+              />
+              :
+              <Avatar
+                src={settingsState.avatar ? "http://localhost:5000/" + settingsState.avatar : '/placeholder-user.jpg'}
+                sx={{ width: 100, height: 100, cursor: 'pointer' }}
+                onClick={() => fileInputRef.current?.click()}
+              />
+            }
             <label htmlFor="avatar-upload">
               <Input
                 ref={fileInputRef}
