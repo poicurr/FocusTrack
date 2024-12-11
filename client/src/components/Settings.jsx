@@ -44,6 +44,12 @@ const Input = styled('input')({
   display: 'none',
 });
 
+// 各MP3ファイルのURL
+const audioFiles = [
+  "http://localhost:5000/public/resources/mail1.mp3",
+  "http://localhost:5000/public/resources/mail2.mp3",
+];
+
 export default function SettingsPage() {
   const [settingsState, setSettingsState] = useState({
     avatar: '',
@@ -52,15 +58,18 @@ export default function SettingsPage() {
     workTime: 25,
     shortBreakTime: 5,
     longBreakTime: 15,
-    primaryColor: '#2E0B17',
+    primaryColor: '#FE6B8B',
     secondaryColor: '#FF8E53',
     notificationsEnabled: false,
     volume: 50,
   });
+  const [sound1, setSound1] = useState(new Audio(audioFiles[0]));
+  const [sound2, setSound2] = useState(new Audio(audioFiles[1]));
   const [deleteOpen, setDeleteOpen] = useState(false);
   const navigate = useNavigate();
   const { updateSettings } = useSettings();
   const fileInputRef = useRef(null);
+
 
   // APIから設定を初期化
   useEffect(() => {
@@ -139,6 +148,15 @@ export default function SettingsPage() {
     if (!avatar) return false;
     return avatar.match(/^data:(.+);base64,(.+)$/);
   }
+
+  // 再生処理
+  const playSound1 = () => {
+    sound1.play();
+  };
+
+  const playSound2 = () => {
+    sound2.play();
+  };
 
   return (
     <Container maxWidth="sm" sx={{ px: { xs: 2, sm: 3 } }}>
@@ -282,15 +300,34 @@ export default function SettingsPage() {
             label="Enable Notifications"
           />
           {settingsState.notificationsEnabled && (
-            <Box sx={{ mt: 3 }}>
-              <Typography>Volume</Typography>
-              <Slider
-                value={settingsState.volume}
-                onChange={handleSliderChange('volume')}
-                min={0}
-                max={100}
-              />
-            </Box>
+            <>
+              <Box sx={{ mt: 3 }}>
+                <Typography>Volume</Typography>
+                <Slider
+                  value={settingsState.volume}
+                  onChange={handleSliderChange('volume')}
+                  min={0}
+                  max={100}
+                />
+              </Box>
+              <Box sx={{ mt: 3 }}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={playSound1}
+                >
+                  通知音1をテスト再生
+                </Button>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={playSound2}
+                  sx={{ ml: 3 }}
+                >
+                  通知音2をテスト再生
+                </Button>
+              </Box>
+            </>
           )}
         </StyledPaper>
 
