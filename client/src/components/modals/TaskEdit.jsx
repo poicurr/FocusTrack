@@ -7,11 +7,9 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  Container,
   Box,
   List,
   ListItem,
-  Divider,
   Typography,
   IconButton,
   Paper
@@ -20,7 +18,6 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { styled } from '@mui/system';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -28,11 +25,63 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { ja } from 'date-fns/locale';
 import axios from 'axios';
 
+import { DndContext, closestCenter } from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+
 const StyledPaper = styled(Paper)({
   padding: '25px',
   maxWidth: '800px',
   margin: '0 auto',
 });
+
+function SortableItem({ id, task, toggleTaskCompletion, deleteTask }) {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <ListItem ref={setNodeRef} style={style} {...attributes} {...listeners} sx={{ display: 'flex', alignItems: 'center', py: 1 }}>
+      <Box sx={{ mr: 1, cursor: 'move' }}>
+        <DragIndicatorIcon />
+      </Box>
+      <Typography
+        variant="body1"
+        sx={{
+          flexBasis: '30%',
+          flexShrink: 0,
+          textDecoration: task.completed ? 'line-through' : 'none'
+        }}
+      >
+        {task.name}
+      </Typography>
+      <Typography
+        variant="body2"
+        color="text.secondary"
+        sx={{
+          flexGrow: 1,
+          textDecoration: task.completed ? 'line-through' : 'none'
+        }}
+      >
+        {task.content}
+      </Typography>
+      <IconButton onClick={() => toggleTaskCompletion(id)} sx={{ ml: 1 }} aria-label={task.completed ? "タスクを未完了にする" : "タスクを完了にする"}>
+        {task.completed
+          ? <CheckCircleOutlineIcon color="primary" />
+          : <RadioButtonUncheckedIcon />
+        }
+      </IconButton>
+      <IconButton onClick={() => deleteTask(id)} sx={{ ml: 1 }} aria-label="タスクを削除">
+        <DeleteOutlineIcon />
+      </IconButton>
+    </ListItem>
+  );
+}
 
 const TaskEdit = (props) => {
   const { taskId, onSubmit } = props;
@@ -50,7 +99,6 @@ const TaskEdit = (props) => {
   const [taskName, setTaskName] = useState('');
   const [taskContent, setTaskContent] = useState('');
   const [nextId, setNextId] = useState(1);
-  const [completed, setCompleted] = useState(false);
 
   const [isFormValid, setIsFormValid] = useState(false);
 
@@ -129,12 +177,14 @@ const TaskEdit = (props) => {
     onSubmit();
   };
 
-  const handleTaskNameChange = (event) => {
-    setTaskName(event.target.value);
+  const toggleTaskCompletion = (id) => {
+    setChildren(children.map(task =>
+      task.id === id ? { ...task, completed: !task.completed } : task
+    ));
   };
 
-  const handleTaskContentChange = (event) => {
-    setTaskContent(event.target.value);
+  const deleteTask = (id) => {
+    setChildren(children.filter(task => task.id !== id));
   };
 
   const handleAddChild = (event) => {
@@ -147,24 +197,20 @@ const TaskEdit = (props) => {
     }
   };
 
-  const toggleTaskCompletion = (id) => {
-    setChildren(children.map(task => 
-      task.id === id ? { ...task, completed: !task.completed } : task
-    ));
-  };
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
 
-  const deleteTask = (id) => {
-    setChildren(children.filter(task => task.id !== id));
-  };
-
-  const onDragEnd = (result) => {
-    if (!result.destination) return;
-
-    const newTasks = Array.from(children);
-    const [reorderedItem] = newTasks.splice(result.source.index, 1);
-    newTasks.splice(result.destination.index, 0, reorderedItem);
-
-    setChildren(newTasks);
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+    if (active.id !== over.id) {
+      setChildren((items) => {
+        const oldIndex = items.findIndex((item) => item.id === active.id);
+        const newIndex = items.findIndex((item) => item.id === over.id);
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
   };
 
   return (
@@ -247,67 +293,28 @@ const TaskEdit = (props) => {
 
         {/* 子タスク追加フォーム */}
         <StyledPaper elevation={2}>
-          子タスク
-          <DragDropContext onDragEnd={onDragEnd}>
-            <Droppable droppableId="tasks">
-              {(provided) => (
-                <List {...provided.droppableProps} ref={provided.innerRef}>
-                  {children.map((task, index) => (
-                    <Draggable key={task.id} draggableId={task.id.toString()} index={index}>
-                      {(provided) => (
-                        <ListItem
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          sx={{ display: 'flex', alignItems: 'center', py: 1 }}
-                        >
-                          <Box {...provided.dragHandleProps} sx={{ mr: 1, cursor: 'move' }}>
-                            <DragIndicatorIcon />
-                          </Box>
-                          <Typography 
-                            variant="body1" 
-                            sx={{ 
-                              flexBasis: '30%', 
-                              flexShrink: 0,
-                              textDecoration: task.completed ? 'line-through' : 'none'
-                            }}
-                          >
-                            {task.name}
-                          </Typography>
-                          <Typography 
-                            variant="body2" 
-                            color="text.secondary" 
-                            sx={{ 
-                              flexGrow: 1,
-                              textDecoration: task.completed ? 'line-through' : 'none'
-                            }}
-                          >
-                            {task.content}
-                          </Typography>
-                          <IconButton onClick={() => toggleTaskCompletion(task.id)} sx={{ ml: 1 }} aria-label={task.completed ? "タスクを未完了にする" : "タスクを完了にする"}>
-                            {task.completed 
-                              ? <CheckCircleOutlineIcon color="primary" /> 
-                              : <RadioButtonUncheckedIcon />
-                            }
-                          </IconButton>
-                          <IconButton onClick={() => deleteTask(task.id)} sx={{ ml: 1 }} aria-label="タスクを削除">
-                            <DeleteOutlineIcon />
-                          </IconButton>
-                        </ListItem>
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
-                </List>
-              )}
-            </Droppable>
-          </DragDropContext>
-          
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={children.map(task => task.id)}>
+              子タスク
+              <List dense>
+                {children.map((task) => (
+                  <SortableItem
+                    key={task.id}
+                    id={task.id}
+                    task={task}
+                    toggleTaskCompletion={toggleTaskCompletion}
+                    deleteTask={deleteTask}
+                  />
+                ))}
+              </List>
+            </SortableContext>
+          </DndContext>
           <Box component="form" sx={{ display: 'flex', alignItems: 'center' }}>
             <TextField
               label="タスク名"
               variant="outlined"
               value={taskName}
-              onChange={handleTaskNameChange}
+              onChange={(e) => setTaskName(e.target.value)}
               required
               size="small"
               sx={{ mr: 1, flexGrow: 1 }}
@@ -316,7 +323,7 @@ const TaskEdit = (props) => {
               label="内容"
               variant="outlined"
               value={taskContent}
-              onChange={handleTaskContentChange}
+              onChange={(e) => setTaskContent(e.target.value)}
               size="small"
               sx={{ mr: 1, flexGrow: 1 }}
             />
