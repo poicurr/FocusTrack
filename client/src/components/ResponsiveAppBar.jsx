@@ -19,6 +19,7 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import NoteIcon from '@mui/icons-material/Note';
 import MenuIcon from '@mui/icons-material/Menu';
+import TagIcon from '@mui/icons-material/Tag';
 import SettingsIcon from '@mui/icons-material/Settings';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
@@ -103,12 +104,18 @@ const ResponsiveAppBar = (props) => {
           </ListItemButton>
         </ListItem>
         <ListItem key={2} disablePadding>
-          <ListItemButton onClick={() => { navigate("/note"); }}>
+          <ListItemButton onClick={() => { navigate("/memo"); }}>
             <StyledListItemIcon><NoteIcon /></StyledListItemIcon>
             <ListItemText primary="Note" />
           </ListItemButton>
         </ListItem>
         <ListItem key={3} disablePadding>
+          <ListItemButton onClick={() => { navigate("/tags"); }}>
+            <StyledListItemIcon><TagIcon /></StyledListItemIcon>
+            <ListItemText primary="Tags" />
+          </ListItemButton>
+        </ListItem>
+        <ListItem key={4} disablePadding>
           <ListItemButton onClick={() => { navigate("/coaching"); }}>
             <StyledListItemIcon><TipsAndUpdatesIcon /></StyledListItemIcon>
             <ListItemText primary="Coaching Tips" />
@@ -117,7 +124,7 @@ const ResponsiveAppBar = (props) => {
       </List>
       <Divider />
       <List>
-        <ListItem key={4} disablePadding>
+        <ListItem key={5} disablePadding>
           <ListItemButton onClick={() => { navigate("/settings"); }}>
             <StyledListItemIcon><SettingsIcon/></StyledListItemIcon>
             <ListItemText primary="Settings" />

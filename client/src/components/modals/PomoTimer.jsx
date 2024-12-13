@@ -22,8 +22,8 @@ const formatTime = (seconds) => {
 
 // 各MP3ファイルのURL
 const audioFiles = [
-  "http://localhost:5000/public/resources/mail1.mp3",
-  "http://localhost:5000/public/resources/mail2.mp3",
+  "mail1.mp3",
+  "mail2.mp3",
 ];
 
 let shouldPlaySound = false;

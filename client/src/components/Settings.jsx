@@ -46,8 +46,8 @@ const Input = styled('input')({
 
 // 各MP3ファイルのURL
 const audioFiles = [
-  "http://localhost:5000/public/resources/mail1.mp3",
-  "http://localhost:5000/public/resources/mail2.mp3",
+  "mail1.mp3",
+  "mail2.mp3",
 ];
 
 export default function SettingsPage() {
@@ -63,13 +63,12 @@ export default function SettingsPage() {
     notificationsEnabled: false,
     volume: 50,
   });
-  const [sound1, setSound1] = useState(new Audio(audioFiles[0]));
-  const [sound2, setSound2] = useState(new Audio(audioFiles[1]));
   const [deleteOpen, setDeleteOpen] = useState(false);
   const navigate = useNavigate();
   const { updateSettings } = useSettings();
+  const sound1 = new Audio(audioFiles[0]);
+  const sound2 = new Audio(audioFiles[1]);
   const fileInputRef = useRef(null);
-
 
   // APIから設定を初期化
   useEffect(() => {

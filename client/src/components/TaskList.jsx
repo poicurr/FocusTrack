@@ -15,6 +15,7 @@ import {
   FormControlLabel,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import FlagIcon from '@mui/icons-material/Flag';
@@ -73,6 +74,24 @@ const formatDate = (datestr) => {
   return date.toLocaleDateString('ja-JP', {});
 }
 
+const childTasks = [
+  {
+    id: 101,
+    title: "仕様書の作成",
+    status: "completed",
+  },
+  {
+    id: 102,
+    title: "チームミーティングの開催",
+    status: "pending",
+  },
+  {
+    id: 103,
+    title: "デザインの確認",
+    status: "in-progress",
+  },
+]
+
 const TaskList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [editOpen, setEditOpen] = useState(false);
@@ -98,24 +117,24 @@ const TaskList = () => {
   }, [editOpen]);
 
   // タイトル、説明文、ステータス、タグ、優先度でフィルターをかける
-  const filteredCards = tasks.filter(card => 
-    card.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    card.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    card.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    card.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    card.priority.toLowerCase().includes(searchTerm.toLowerCase())
-  ).filter(card =>
-    showCompleted ? card.status === 'completed' : card.status !== 'completed'
+  const filteredTasks = tasks.filter(task => 
+    task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    task.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    task.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    task.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    task.priority.toLowerCase().includes(searchTerm.toLowerCase())
+  ).filter(task =>
+    showCompleted ? task.status === 'completed' : task.status !== 'completed'
   );
 
-  const handleEdit = (card) => {
+  const handleEdit = (task) => {
     setEditOpen(true);
-    setTaskId(card._id);
+    setTaskId(task._id);
   };
 
-  const handleTimer = (card) => {
+  const handleTimer = (task) => {
     setTimerOpen(true);
-    setTaskId(card._id);
+    setTaskId(task._id);
   };
 
   const handleAddTask = () => {
@@ -156,12 +175,12 @@ const TaskList = () => {
         />
       </Box>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
-        {filteredCards.map((card) => (
-          <Box key={card._id} sx={{ width: { xs: '100%', sm: 'calc(50% - 12px)', md: 'calc(33.333% - 16px)' }, minWidth: 250}}>
+        {filteredTasks.map((task) => (
+          <Box key={task._id} sx={{ width: { xs: '100%', sm: 'calc(50% - 12px)', md: 'calc(33.333% - 16px)' }, minWidth: 250}}>
             <StyledCard elevation={2}>
               <CardContent>
                 <Typography variant="h6" component="h2" gutterBottom>
-                  {card.title}
+                  {task.title}
                 </Typography>
                 <Typography
                   variant="body2"
@@ -175,23 +194,23 @@ const TaskList = () => {
                     WebkitBoxOrient: 'vertical',
                   }}
                 >
-                  {card.description}
+                  {task.description}
                 </Typography>
                 <StatusChip
-                  label={card.status}
-                  status={card.status}
+                  label={task.status}
+                  status={task.status}
                   size="small"
                   sx={{ mb: 1 }}
                 />
                 <PriorityChip
                   icon={<FlagIcon />}
-                  label={card.priority}
-                  priority={card.priority}
+                  label={task.priority}
+                  priority={task.priority}
                   size="small"
                   sx={{ mb: 1, ml: 1 }}
                 />
                 <Box sx={{ mb: 1 }}>
-                  {card.tags.map((tag) => (
+                  {task.tags.map((tag) => (
                     tag && <Chip
                       key={tag}
                       label={tag}
@@ -201,20 +220,20 @@ const TaskList = () => {
                   ))}
                 </Box>
                 <Typography variant="caption" color="text.secondary">
-                  締切日: {formatDate(card.deadline)}
+                  締切日: {formatDate(task.deadline)}
                 </Typography>
               </CardContent>
               <EditButton
                 className="edit-button"
-                aria-label={`edit ${card.title}`}
-                onClick={() => handleEdit(card)}
+                aria-label={`edit ${task.title}`}
+                onClick={() => handleEdit(task)}
               >
                 <EditIcon />
               </EditButton>
               <ExecButton
                 className="edit-button"
-                aria-label={`task begin: ${card.title}`}
-                onClick={() => handleTimer(card)}
+                aria-label={`task begin: ${task.title}`}
+                onClick={() => handleTimer(task)}
               >
                 <PlayArrowIcon />
               </ExecButton>
