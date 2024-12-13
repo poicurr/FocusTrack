@@ -46,8 +46,14 @@ function SortableItem({ id, task, toggleTaskCompletion, deleteTask }) {
   };
 
   return (
-    <ListItem ref={setNodeRef} style={style} {...attributes} {...listeners} sx={{ display: 'flex', alignItems: 'center', py: 1 }}>
-      <Box sx={{ mr: 1, cursor: 'move' }}>
+    <ListItem 
+      ref={setNodeRef} 
+      style={style} 
+      {...attributes} 
+      sx={{ display: 'flex', alignItems: 'center', py: 1 }}
+    >
+      {/* ドラッグ操作をアイコンに限定 */}
+      <Box sx={{ mr: 1, cursor: 'move' }} {...listeners}>
         <DragIndicatorIcon />
       </Box>
       <Typography
@@ -70,13 +76,21 @@ function SortableItem({ id, task, toggleTaskCompletion, deleteTask }) {
       >
         {task.content}
       </Typography>
-      <IconButton onClick={() => toggleTaskCompletion(id)} sx={{ ml: 1 }} aria-label={task.completed ? "タスクを未完了にする" : "タスクを完了にする"}>
+      <IconButton
+        onClick={(e) => toggleTaskCompletion(task.id)}
+        sx={{ ml: 1 }}
+        aria-label={task.completed ? "タスクを未完了にする" : "タスクを完了にする"}
+      >
         {task.completed
           ? <CheckCircleOutlineIcon color="primary" />
           : <RadioButtonUncheckedIcon />
         }
       </IconButton>
-      <IconButton onClick={() => deleteTask(id)} sx={{ ml: 1 }} aria-label="タスクを削除">
+      <IconButton
+        onClick={(e) => deleteTask(task.id)}
+        sx={{ ml: 1 }}
+        aria-label="タスクを削除"
+      >
         <DeleteOutlineIcon />
       </IconButton>
     </ListItem>
@@ -177,16 +191,6 @@ const TaskEdit = (props) => {
     onSubmit();
   };
 
-  const toggleTaskCompletion = (id) => {
-    setChildren(children.map(task =>
-      task.id === id ? { ...task, completed: !task.completed } : task
-    ));
-  };
-
-  const deleteTask = (id) => {
-    setChildren(children.filter(task => task.id !== id));
-  };
-
   const handleAddChild = (event) => {
     event.preventDefault();
     if (taskName) {
@@ -197,10 +201,19 @@ const TaskEdit = (props) => {
     }
   };
 
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
-  );
+  const toggleTaskCompletion = (id) => {
+    console.log(`toggle: ${id}`);
+    setChildren(children.map(task =>
+      task.id === id ? { ...task, completed: !task.completed } : task
+    ));
+  };
+
+  const deleteTask = (id) => {
+    console.log(`delete: ${id}`);
+    setChildren(children.filter(task => task.id !== id));
+  };
+
+  const sensors = useSensors(useSensor(PointerSensor));
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
