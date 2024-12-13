@@ -249,7 +249,7 @@ const TaskEdit = (props) => {
         <StyledPaper elevation={2}>
           子タスク
           <DragDropContext onDragEnd={onDragEnd}>
-            <Droppable droppableId="children">
+            <Droppable droppableId="tasks">
               {(provided) => (
                 <List {...provided.droppableProps} ref={provided.innerRef}>
                   {children.map((task, index) => (
