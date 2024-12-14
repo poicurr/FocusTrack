@@ -104,7 +104,7 @@ const TaskList = () => {
 
   // タスクリストを取得
   useEffect(() => {
-    axios.get(`http://localhost:5000/api/task/tasks`, {
+    axios.get(`http://localhost:5000/api/tasks`, {
       withCredentials: true, // クッキーを含めるために必要
     }).then(res => {
       setTasks(res.data);

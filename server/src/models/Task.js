@@ -1,6 +1,23 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
+// 子タスク
+const childTaskSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: true
+  },
+
+  content: {
+    type: String
+  },
+
+  completed: {
+    type: Boolean,
+    default: false
+  },
+});
+
 const taskSchema = new Schema({
 
   // タスク作成者のユーザーID
@@ -44,6 +61,8 @@ const taskSchema = new Schema({
     default: 'pending' 
   },
 
+  children: [childTaskSchema], // 子タスクをサブドキュメントとして保持
+
   // タスク作成日
   createdAt: { 
     type: Date, 
@@ -57,6 +76,6 @@ const taskSchema = new Schema({
   }
 }, { timestamps: true });
 
-taskSchema.index({ deadline: 1, priority:1 });
+taskSchema.index({ deadline: 1, priority: 1 });
 
 module.exports = mongoose.model('Task', taskSchema);

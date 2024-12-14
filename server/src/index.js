@@ -44,7 +44,7 @@ app.use((err, req, res, next) => {
 app.use('/api/auth', authRoutes);
 
 // タスク情報API
-app.use('/api/task', taskRoutes);
+app.use('/api/tasks', taskRoutes);
 
 // 設定情報API
 app.use('/api/settings', settingsRoutes);

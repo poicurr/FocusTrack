@@ -29,7 +29,7 @@ import { DndContext, closestCenter } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 
 const StyledPaper = styled(Paper)({
   padding: '25px',
@@ -121,7 +121,7 @@ const TaskEdit = (props) => {
   // タスクIDが存在する場合、タスク情報を取得
   useEffect(() => {
     if (!taskId) return;
-    axios.get(`http://localhost:5000/api/task/tasks/${taskId}`, {
+    axios.get(`http://localhost:5000/api/tasks/${taskId}`, {
       withCredentials: true, // クッキーを含めるために必要
     }).then(res => {
       const taskData = res.data;
@@ -131,6 +131,7 @@ const TaskEdit = (props) => {
       setTags(taskData.tags);
       setDeadline(new Date(taskData.deadline));
       setStatus(taskData.status);
+      setChildren(taskData.children);
     }).catch(error => {
       if (error.status === 401 || error.status === 403) {
         navigate("/login");
@@ -154,11 +155,12 @@ const TaskEdit = (props) => {
       tags,
       deadline,
       status,
+      children,
     };
 
     if (taskId) {
       // タスク更新
-      axios.put(`http://localhost:5000/api/task/tasks/${taskId}`, taskData, {
+      axios.patch(`http://localhost:5000/api/tasks/${taskId}`, taskData, {
         withCredentials: true, // クッキーを含めるために必要
       }).catch(error => {
         if (error.status === 401 || error.status === 403) {
@@ -167,7 +169,7 @@ const TaskEdit = (props) => {
       });
     } else {
       // タスク登録
-      axios.post(`http://localhost:5000/api/task/tasks`, taskData, {
+      axios.post(`http://localhost:5000/api/tasks`, taskData, {
         withCredentials: true, // クッキーを含めるために必要
       }).catch(error => {
         if (error.status === 401 || error.status === 403) {
@@ -181,7 +183,7 @@ const TaskEdit = (props) => {
   const handleDelete = (ev) => {
     ev.preventDefault();
     if (!taskId) return;
-    axios.delete(`http://localhost:5000/api/task/tasks/${taskId}`, {
+    axios.delete(`http://localhost:5000/api/tasks/${taskId}`, {
       withCredentials: true, // クッキーを含めるために必要
     }).catch(error => {
       if (error.status === 401 || error.status === 403) {
@@ -199,17 +201,24 @@ const TaskEdit = (props) => {
       setTaskName('');
       setTaskContent('');
     }
+
+    if (!taskId) return;
+    axios.post(`http://localhost:5000/api/tasks/${taskId}/children`, { childlen: children }, {
+      withCredentials: true, // クッキーを含めるために必要
+    }).catch(error => {
+      if (error.status === 401 || error.status === 403) {
+        navigate("/login");
+      }
+    });
   };
 
   const toggleTaskCompletion = (id) => {
-    console.log(`toggle: ${id}`);
     setChildren(children.map(task =>
       task.id === id ? { ...task, completed: !task.completed } : task
     ));
   };
 
   const deleteTask = (id) => {
-    console.log(`delete: ${id}`);
     setChildren(children.filter(task => task.id !== id));
   };
 
@@ -305,52 +314,54 @@ const TaskEdit = (props) => {
         </FormControl>
 
         {/* 子タスク追加フォーム */}
-        <StyledPaper elevation={2}>
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <SortableContext items={children.map(task => task.id)}>
-              子タスク
-              <List dense>
-                {children.map((task) => (
-                  <SortableItem
-                    key={task.id}
-                    id={task.id}
-                    task={task}
-                    toggleTaskCompletion={toggleTaskCompletion}
-                    deleteTask={deleteTask}
-                  />
-                ))}
-              </List>
-            </SortableContext>
-          </DndContext>
-          <Box component="form" sx={{ display: 'flex', alignItems: 'center' }}>
-            <TextField
-              label="タスク名"
-              variant="outlined"
-              value={taskName}
-              onChange={(e) => setTaskName(e.target.value)}
-              required
-              size="small"
-              sx={{ mr: 1, flexGrow: 1 }}
-            />
-            <TextField
-              label="内容"
-              variant="outlined"
-              value={taskContent}
-              onChange={(e) => setTaskContent(e.target.value)}
-              size="small"
-              sx={{ mr: 1, flexGrow: 1 }}
-            />
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              onClick={handleAddChild}
-              disabled={!taskName}
-            >
-              追加
-            </Button>
-          </Box>
-        </StyledPaper>
+        {taskId && (
+          <StyledPaper elevation={2}>
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext items={children.map(task => task.id)}>
+                子タスク
+                <List dense>
+                  {children.map((task) => (
+                    <SortableItem
+                      key={task.id}
+                      id={task.id}
+                      task={task}
+                      toggleTaskCompletion={toggleTaskCompletion}
+                      deleteTask={deleteTask}
+                    />
+                  ))}
+                </List>
+              </SortableContext>
+            </DndContext>
+            <Box component="form" sx={{ display: 'flex', alignItems: 'center' }}>
+              <TextField
+                label="タスク名"
+                variant="outlined"
+                value={taskName}
+                onChange={(e) => setTaskName(e.target.value)}
+                required
+                size="small"
+                sx={{ mr: 1, flexGrow: 1 }}
+              />
+              <TextField
+                label="内容"
+                variant="outlined"
+                value={taskContent}
+                onChange={(e) => setTaskContent(e.target.value)}
+                size="small"
+                sx={{ mr: 1, flexGrow: 1 }}
+              />
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                onClick={handleAddChild}
+                disabled={!taskName}
+              >
+                追加
+              </Button>
+            </Box>
+          </StyledPaper>
+        )}
         <Button
           type="submit"
           fullWidth
