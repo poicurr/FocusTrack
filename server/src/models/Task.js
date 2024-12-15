@@ -3,12 +3,12 @@ const { Schema } = mongoose;
 
 // 子タスク
 const childTaskSchema = new mongoose.Schema({
-  title: {
+  taskName: {
     type: String,
     required: true
   },
 
-  content: {
+  taskContent: {
     type: String
   },
 

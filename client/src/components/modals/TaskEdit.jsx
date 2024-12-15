@@ -52,7 +52,6 @@ function SortableItem({ id, task, toggleTaskCompletion, deleteTask }) {
       {...attributes} 
       sx={{ display: 'flex', alignItems: 'center', py: 1 }}
     >
-      {/* ドラッグ操作をアイコンに限定 */}
       <Box sx={{ mr: 1, cursor: 'move' }} {...listeners}>
         <DragIndicatorIcon />
       </Box>
@@ -64,7 +63,7 @@ function SortableItem({ id, task, toggleTaskCompletion, deleteTask }) {
           textDecoration: task.completed ? 'line-through' : 'none'
         }}
       >
-        {task.name}
+        {task.taskName}
       </Typography>
       <Typography
         variant="body2"
@@ -74,10 +73,10 @@ function SortableItem({ id, task, toggleTaskCompletion, deleteTask }) {
           textDecoration: task.completed ? 'line-through' : 'none'
         }}
       >
-        {task.content}
+        {task.taskContent}
       </Typography>
       <IconButton
-        onClick={(e) => toggleTaskCompletion(task.id)}
+        onClick={(e) => toggleTaskCompletion(task._id)}
         sx={{ ml: 1 }}
         aria-label={task.completed ? "タスクを未完了にする" : "タスクを完了にする"}
       >
@@ -87,7 +86,7 @@ function SortableItem({ id, task, toggleTaskCompletion, deleteTask }) {
         }
       </IconButton>
       <IconButton
-        onClick={(e) => deleteTask(task.id)}
+        onClick={(e) => deleteTask(task._id)}
         sx={{ ml: 1 }}
         aria-label="タスクを削除"
       >
@@ -112,7 +111,6 @@ const TaskEdit = (props) => {
   // 子タスク(というかほとんど単なるチェックリスト)
   const [taskName, setTaskName] = useState('');
   const [taskContent, setTaskContent] = useState('');
-  const [nextId, setNextId] = useState(1);
 
   const [isFormValid, setIsFormValid] = useState(false);
 
@@ -193,33 +191,40 @@ const TaskEdit = (props) => {
     onSubmit();
   };
 
-  const handleAddChild = (event) => {
-    event.preventDefault();
-    if (taskName) {
-      setChildren([...children, { id: nextId, name: taskName, content: taskContent, completed: false }]);
-      setNextId(nextId + 1);
-      setTaskName('');
-      setTaskContent('');
+  const handleAddChild = async (ev) => {
+    ev.preventDefault();
+    if (!taskId) return;
+
+    const data = {
+      taskName: taskName,
+      taskContent: taskContent,
+      completed: false
     }
 
-    if (!taskId) return;
-    axios.post(`http://localhost:5000/api/tasks/${taskId}/children`, { childlen: children }, {
+    const res = await axios.post(`http://localhost:5000/api/tasks/${taskId}/children`, { childTask: data }, {
       withCredentials: true, // クッキーを含めるために必要
     }).catch(error => {
       if (error.status === 401 || error.status === 403) {
         navigate("/login");
       }
     });
+
+    if (taskName) {
+      console.dir(res.data);
+      setChildren(children.concat(res.data));
+      setTaskName('');
+      setTaskContent('');
+    }
   };
 
   const toggleTaskCompletion = (id) => {
     setChildren(children.map(task =>
-      task.id === id ? { ...task, completed: !task.completed } : task
+      task._id === id ? { ...task, completed: !task.completed } : task
     ));
   };
 
-  const deleteTask = (id) => {
-    setChildren(children.filter(task => task.id !== id));
+  const deleteChildTask = (id) => {
+    setChildren(children.filter(task => task._id !== id));
   };
 
   const sensors = useSensors(useSensor(PointerSensor));
@@ -228,8 +233,8 @@ const TaskEdit = (props) => {
     const { active, over } = event;
     if (active.id !== over.id) {
       setChildren((items) => {
-        const oldIndex = items.findIndex((item) => item.id === active.id);
-        const newIndex = items.findIndex((item) => item.id === over.id);
+        const oldIndex = items.findIndex((item) => item._id === active.id);
+        const newIndex = items.findIndex((item) => item._id === over.id);
         return arrayMove(items, oldIndex, newIndex);
       });
     }
@@ -317,16 +322,16 @@ const TaskEdit = (props) => {
         {taskId && (
           <StyledPaper elevation={2}>
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              <SortableContext items={children.map(task => task.id)}>
+              <SortableContext items={children.map(task => task._id)}>
                 子タスク
                 <List dense>
                   {children.map((task) => (
                     <SortableItem
-                      key={task.id}
-                      id={task.id}
+                      key={task._id}
+                      id={task._id}
                       task={task}
                       toggleTaskCompletion={toggleTaskCompletion}
-                      deleteTask={deleteTask}
+                      deleteTask={deleteChildTask}
                     />
                   ))}
                 </List>
@@ -334,7 +339,7 @@ const TaskEdit = (props) => {
             </DndContext>
             <Box component="form" sx={{ display: 'flex', alignItems: 'center' }}>
               <TextField
-                label="タスク名"
+                label="task name"
                 variant="outlined"
                 value={taskName}
                 onChange={(e) => setTaskName(e.target.value)}
@@ -343,7 +348,7 @@ const TaskEdit = (props) => {
                 sx={{ mr: 1, flexGrow: 1 }}
               />
               <TextField
-                label="内容"
+                label="content"
                 variant="outlined"
                 value={taskContent}
                 onChange={(e) => setTaskContent(e.target.value)}
@@ -357,7 +362,7 @@ const TaskEdit = (props) => {
                 onClick={handleAddChild}
                 disabled={!taskName}
               >
-                追加
+                Add
               </Button>
             </Box>
           </StyledPaper>

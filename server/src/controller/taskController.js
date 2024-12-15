@@ -77,6 +77,7 @@ const addChildTask = async (req, res) => {
   const { childTask } = req.body;
 
   console.log(`parentId: ${taskId}`);
+  console.dir(childTask);
 
   try {
     const task = await Task.findById(taskId);
@@ -85,7 +86,7 @@ const addChildTask = async (req, res) => {
     task.children.push(childTask);  // 子タスクを追加
     await task.save();
 
-    res.status(200).json(task);
+    res.status(200).json(task.children.pop()); // 末尾の子タスクを返す
   } catch (error) {
     res.status(500).json({ error: "子タスクの追加に失敗しました。" });
   }

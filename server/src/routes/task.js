@@ -56,7 +56,6 @@ router.delete('/:taskId', async (req, res) => {
 
 // 特定の親タスクに子タスクを追加
 router.post('/:taskId/children', async (req, res) => {
-  console.log("add children");
   addChildTask(req, res);
 });
 
