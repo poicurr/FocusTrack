@@ -61,11 +61,15 @@ router.post('/:taskId/children', async (req, res) => {
 
 // 特定の親タスク内の子タスクを更新
 router.patch('/:taskId/children/:childTaskId', async (req, res) => {
+  const {taskId, childTaskId} = req.params;
+  console.log(`patch taskId: ${taskId}, child: ${childTaskId}`);
   updateChildTask(req, res);
 });
 
 // 特定の親タスク内の子タスクを削除
 router.delete('/:taskId/children/:childTaskId', async (req, res) => {
+  const {taskId, childTaskId} = req.params;
+  console.log(`delete taskId: ${taskId}, child: ${childTaskId}`);
   deleteChildTask(req, res);
 });
 

@@ -72,68 +72,8 @@ const deleteTask = async (req, res) => {
   }
 }
 
-const addChildTask = async (req, res) => {
-  const { taskId } = req.params;
-  const { childTask } = req.body;
-
-  console.log(`parentId: ${taskId}`);
-  console.dir(childTask);
-
-  try {
-    const task = await Task.findById(taskId);
-    if (!task) return res.status(404).json({ error: "親タスクが見つかりません。" });
-
-    task.children.push(childTask);  // 子タスクを追加
-    await task.save();
-
-    res.status(200).json(task.children.pop()); // 末尾の子タスクを返す
-  } catch (error) {
-    res.status(500).json({ error: "子タスクの追加に失敗しました。" });
-  }
-};
-
-const updateChildTask = async (req, res) => {
-  const { taskId, childTaskId } = req.params;
-  const { title, completed } = req.body;
-
-  try {
-    const task = await Task.findById(taskId);
-    if (!task) return res.status(404).json({ error: "親タスクが見つかりません。" });
-
-    const child = task.children.id(childTaskId);  // MongoDBの _idを使って子タスクを取得
-    if (!child) return res.status(404).json({ error: "子タスクが見つかりません。" });
-
-    if (title !== undefined) child.title = title;
-    if (completed !== undefined) child.completed = completed;
-
-    await task.save();
-    res.status(200).json(task);
-  } catch (error) {
-    res.status(500).json({ error: "子タスクの更新に失敗しました。" });
-  }
-};
-
-const deleteChildTask = async (req, res) => {
-  const { taskId, childTaskId } = req.params;
-
-  try {
-    const task = await Task.findById(taskId);
-    if (!task) return res.status(404).json({ error: "親タスクが見つかりません。" });
-
-    task.children.id(childTaskId).remove();  // _idを使って子タスクを削除
-    await task.save();
-
-    res.status(200).json(task);
-  } catch (error) {
-    res.status(500).json({ error: "子タスクの削除に失敗しました。" });
-  }
-};
-
 module.exports = {
   createTask,
   updateTask,
   deleteTask,
-  addChildTask,
-  updateChildTask,
-  deleteChildTask,
 };

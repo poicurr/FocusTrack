@@ -201,17 +201,8 @@ const TaskEdit = (props) => {
       completed: false
     }
 
-    const res = await axios.post(`http://localhost:5000/api/tasks/${taskId}/children`, { childTask: data }, {
-      withCredentials: true, // クッキーを含めるために必要
-    }).catch(error => {
-      if (error.status === 401 || error.status === 403) {
-        navigate("/login");
-      }
-    });
-
     if (taskName) {
-      console.dir(res.data);
-      setChildren(children.concat(res.data));
+      setChildren(children.concat(data));
       setTaskName('');
       setTaskContent('');
     }
@@ -223,7 +214,7 @@ const TaskEdit = (props) => {
     ));
   };
 
-  const deleteChildTask = (id) => {
+  const deleteChildTask = async (id) => {
     setChildren(children.filter(task => task._id !== id));
   };
 
