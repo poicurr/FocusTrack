@@ -208,7 +208,7 @@ const TaskList = () => {
                   deadline: {formatDate(task.deadline)}
                 </Typography>
               </CardContent>
-              <Accordion defaultExpanded>
+              <Accordion>
                 <AccordionSummary
                   expandIcon={<ExpandMoreIcon />}
                 >
