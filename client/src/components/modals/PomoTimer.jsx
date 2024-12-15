@@ -240,7 +240,7 @@ const PomoTimer = (props) => {
     }, 1000);
 
     // タスク情報取得
-    axios.get(`http://localhost:5000/api/task/tasks/${taskId}`, {
+    axios.get(`http://localhost:5000/api/tasks/${taskId}`, {
       withCredentials: true, // クッキーを含めるために必要
     }).then(res => {
       const taskData = res.data;

@@ -5,6 +5,9 @@ import {
   Button,
   Card,
   CardContent,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
   Typography,
   Chip,
   TextField,
@@ -15,7 +18,7 @@ import {
   FormControlLabel,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AddIcon from '@mui/icons-material/Add';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import FlagIcon from '@mui/icons-material/Flag';
@@ -73,24 +76,6 @@ const formatDate = (datestr) => {
   const date = new Date(datestr);
   return date.toLocaleDateString('ja-JP', {});
 }
-
-const childTasks = [
-  {
-    id: 101,
-    title: "仕様書の作成",
-    status: "completed",
-  },
-  {
-    id: 102,
-    title: "チームミーティングの開催",
-    status: "pending",
-  },
-  {
-    id: 103,
-    title: "デザインの確認",
-    status: "in-progress",
-  },
-]
 
 const TaskList = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -178,7 +163,7 @@ const TaskList = () => {
         {filteredTasks.map((task) => (
           <Box key={task._id} sx={{ width: { xs: '100%', sm: 'calc(50% - 12px)', md: 'calc(33.333% - 16px)' }, minWidth: 250}}>
             <StyledCard elevation={2}>
-              <CardContent>
+              <CardContent sx={{ height: '100%', minHeight: 0 }}>
                 <Typography variant="h6" component="h2" gutterBottom>
                   {task.title}
                 </Typography>
@@ -220,9 +205,20 @@ const TaskList = () => {
                   ))}
                 </Box>
                 <Typography variant="caption" color="text.secondary">
-                  締切日: {formatDate(task.deadline)}
+                  deadline: {formatDate(task.deadline)}
                 </Typography>
               </CardContent>
+              <Accordion defaultExpanded>
+                <AccordionSummary
+                  expandIcon={<ExpandMoreIcon />}
+                >
+                  Child Tasks
+                </AccordionSummary>
+                <AccordionDetails>
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
+                  malesuada lacus ex, sit amet blandit leo lobortis eget.
+                </AccordionDetails>
+              </Accordion>
               <EditButton
                 className="edit-button"
                 aria-label={`edit ${task.title}`}
