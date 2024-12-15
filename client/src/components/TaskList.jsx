@@ -8,6 +8,9 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  ListItem,
+  Grid,
+  Checkbox,
   Typography,
   Chip,
   TextField,
@@ -38,6 +41,20 @@ const StyledCard = styled(Card)(({ theme }) => ({
     opacity: 1,
   },
 }));
+
+const StyledListItem = styled(ListItem)(({ theme }) => ({
+  padding: theme.spacing(1, 2),
+  borderBottom: `1px solid ${theme.palette.divider}`,
+  '&:last-child': {
+    borderBottom: 'none',
+  },
+}));
+
+const TruncatedTypography = styled(Typography)({
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+});
 
 const ExecButton = styled(IconButton)(({ theme }) => ({
   position: 'absolute',
@@ -208,17 +225,40 @@ const TaskList = () => {
                   deadline: {formatDate(task.deadline)}
                 </Typography>
               </CardContent>
-              <Accordion>
-                <AccordionSummary
-                  expandIcon={<ExpandMoreIcon />}
-                >
-                  Child Tasks
-                </AccordionSummary>
-                <AccordionDetails>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse
-                  malesuada lacus ex, sit amet blandit leo lobortis eget.
-                </AccordionDetails>
-              </Accordion>
+              { task.children?.length > 0 &&
+                <Accordion>
+                  <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                  >
+                    Child Tasks
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    {task.children.map((childTask) => (
+                      <StyledListItem key={childTask._id}>
+                        <Grid container alignItems="center" spacing={2}>
+                          <Grid item xs={3}>
+                            <TruncatedTypography variant="subtitle2">
+                              {childTask.taskName}
+                            </TruncatedTypography>
+                          </Grid>
+                          <Grid item xs={8}>
+                            <TruncatedTypography variant="body2" color="text.secondary">
+                              {childTask.taskContent}
+                            </TruncatedTypography>
+                          </Grid>
+                          <Grid item xs={1}>
+                            <Checkbox
+                              edge="end"
+                              checked={childTask.completed}
+                              inputProps={{ 'aria-labelledby': childTask._id }}
+                            />
+                          </Grid>
+                        </Grid>
+                      </StyledListItem>
+                    ))}
+                  </AccordionDetails>
+                </Accordion>
+              }
               <EditButton
                 className="edit-button"
                 aria-label={`edit ${task.title}`}
