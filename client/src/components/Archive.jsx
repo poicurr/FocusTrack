@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
-  Button,
   Card,
   CardContent,
   Accordion,
@@ -17,16 +16,11 @@ import {
   IconButton,
   styled,
   Modal,
-  Switch,
-  FormControlLabel,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import AddIcon from '@mui/icons-material/Add';
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import FlagIcon from '@mui/icons-material/Flag';
 import TaskEdit from './modals/TaskEdit';
-import PomoTimer from './modals/PomoTimer';
 
 import axios from 'axios';
 
@@ -55,14 +49,6 @@ const TruncatedTypography = styled(Typography)({
   overflow: 'hidden',
   textOverflow: 'ellipsis',
 });
-
-const ExecButton = styled(IconButton)(({ theme }) => ({
-  position: 'absolute',
-  top: theme.spacing(1),
-  right: theme.spacing(6),
-  opacity: 0,
-  transition: 'opacity 0.3s ease',
-}));
 
 const EditButton = styled(IconButton)(({ theme }) => ({
   position: 'absolute',
@@ -97,15 +83,14 @@ const formatDate = (datestr) => {
 const TaskList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [editOpen, setEditOpen] = useState(false);
-  const [timerOpen, setTimerOpen] = useState(false);
   const [taskId, setTaskId] = useState();
   const [tasks, setTasks] = useState([]);
 
   const navigate = useNavigate();
 
-  // タスクリストを取得
+  // アーカイブ済みタスクリストを取得
   useEffect(() => {
-    axios.get(`http://localhost:5000/api/tasks`, {
+    axios.get(`http://localhost:5000/api/tasks/archive`, {
       withCredentials: true, // クッキーを含めるために必要
     }).then(res => {
       setTasks(res.data);
@@ -131,19 +116,8 @@ const TaskList = () => {
     setTaskId(task._id);
   };
 
-  const handleTimer = (task) => {
-    setTimerOpen(true);
-    setTaskId(task._id);
-  };
-
-  const handleAddTask = () => {
-    setEditOpen(true);
-    setTaskId(null);
-  };
-
   const handleClose = () => {
     setEditOpen(false);
-    setTimerOpen(false);
     setTaskId(null);
   };
 
@@ -251,36 +225,9 @@ const TaskList = () => {
               >
                 <EditIcon />
               </EditButton>
-              <ExecButton
-                className="edit-button"
-                aria-label={`task begin: ${task.title}`}
-                onClick={() => handleTimer(task)}
-              >
-                <PlayArrowIcon />
-              </ExecButton>
             </StyledCard>
           </Box>
         ))}
-        <Box sx={{ width: { xs: '100%', sm: 'calc(50% - 12px)', md: 'calc(33.333% - 16px)' }, minWidth: 250}}>
-          <StyledCard>
-            <CardContent sx={{ 
-              display: 'flex', 
-              flexDirection: 'column', 
-              justifyContent: 'center', 
-              alignItems: 'center',
-              height: '100%'
-            }}>
-              <Button
-                variant="outlined"
-                startIcon={<AddIcon />}
-                onClick={handleAddTask}
-                sx={{ width: '100%', height: '100%' }}
-              >
-                {'Add new task'}
-              </Button>
-            </CardContent>
-          </StyledCard>
-        </Box>
       </Box>
 
       {/* 編集モーダル */}
@@ -304,30 +251,6 @@ const TaskList = () => {
           p: 4,
         }}>
           <TaskEdit taskId={taskId} onSubmit={handleClose} />
-        </Box>
-      </Modal>
-
-      {/* タイマーモーダル */}
-      <Modal
-        open={timerOpen}
-        onClose={handleClose}
-      >
-        <Box sx={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: "80%",
-          height: "80%",
-          maxWidth: 600,
-          overflowY: "auto",
-          bgcolor: 'background.paper',
-          border: '1px solid #2e2e2e',
-          borderRadius: 5,
-          boxShadow: 24,
-          p: 4,
-        }}>
-          <PomoTimer taskId={taskId} onSubmit={handleClose} />
         </Box>
       </Modal>
     </Box>

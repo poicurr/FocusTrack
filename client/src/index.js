@@ -11,7 +11,7 @@ import Home from './components/Home';
 import Auth from './components/Auth';
 import TaskList from './components/TaskList';
 import Report from './components/Report';
-import Memo from './components/Memo';
+import Archive from './components/Archive';
 import Tags from './components/Tags';
 import CoachingTips from './components/CoachingTips';
 import Settings from './components/Settings';
@@ -35,7 +35,7 @@ root.render(
                 <CssBaseline /> 
                 <Routes>
                   <Route path="/tasks" element={<TaskList />} />
-                  <Route path="/memo" element={<Memo />} />
+                  <Route path="/archive" element={<Archive />} />
                   <Route path="/report" element={<Report />} />
                   <Route path="/tags" element={<Tags />} />
                   <Route path="/coaching" element={<CoachingTips />} />

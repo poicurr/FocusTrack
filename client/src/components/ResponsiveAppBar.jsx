@@ -17,7 +17,7 @@ import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import AnalyticsIcon from '@mui/icons-material/Analytics';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import NoteIcon from '@mui/icons-material/Note';
+import ArchiveIcon from '@mui/icons-material/Archive';
 import MenuIcon from '@mui/icons-material/Menu';
 import TagIcon from '@mui/icons-material/Tag';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -98,15 +98,15 @@ const ResponsiveAppBar = (props) => {
           </ListItemButton>
         </ListItem>
         <ListItem key={1} disablePadding>
-          <ListItemButton onClick={() => { navigate("/report"); }}>
-            <StyledListItemIcon><AnalyticsIcon /></StyledListItemIcon>
-            <ListItemText primary="Report" />
+          <ListItemButton onClick={() => { navigate("/archive"); }}>
+            <StyledListItemIcon><ArchiveIcon /></StyledListItemIcon>
+            <ListItemText primary="Archive" />
           </ListItemButton>
         </ListItem>
         <ListItem key={2} disablePadding>
-          <ListItemButton onClick={() => { navigate("/memo"); }}>
-            <StyledListItemIcon><NoteIcon /></StyledListItemIcon>
-            <ListItemText primary="Note" />
+          <ListItemButton onClick={() => { navigate("/report"); }}>
+            <StyledListItemIcon><AnalyticsIcon /></StyledListItemIcon>
+            <ListItemText primary="Report" />
           </ListItemButton>
         </ListItem>
         <ListItem key={3} disablePadding>

@@ -7,9 +7,6 @@ const {
   createTask,
   updateTask,
   deleteTask,
-  addChildTask,
-  updateChildTask,
-  deleteChildTask,
 } = require('../controller/taskController')
 const router = express.Router();
 const authenticateToken = require('../middleware/authenticateToken');
@@ -18,8 +15,27 @@ const authenticateToken = require('../middleware/authenticateToken');
 router.get('/', authenticateToken, async (req, res) => {
   try {
     const userId = req.user.id;
-    const tasks = await Task.find({ userId })
+    const tasks = await Task.find({
+      userId: userId,
+      status: { $in: ["pending", "in-progress"] },
+    })
       .sort({deadline: 'asc', priority:'desc'});
+    // タスクリストを返す
+    res.status(200).json(tasks ? tasks : []);
+  } catch (error) {
+    res.status(500).json({ message: 'サーバーエラーが発生しました', error });
+  }
+});
+
+// アーカイブタスク一覧取得
+router.get('/archive', authenticateToken, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const tasks = await Task.find({
+      userId: userId,
+      status: { $in: ["cancelled", "completed"] },
+    })
+      .sort({deadline: 'desc', priority:'desc'});
     // タスクリストを返す
     res.status(200).json(tasks ? tasks : []);
   } catch (error) {
@@ -50,27 +66,8 @@ router.patch('/:taskId', authenticateToken, async (req, res) => {
 });
 
 // 特定の親タスクを削除
-router.delete('/:taskId', async (req, res) => {
+router.delete('/:taskId', authenticateToken, async (req, res) => {
   deleteTask(req, res);
-});
-
-// 特定の親タスクに子タスクを追加
-router.post('/:taskId/children', async (req, res) => {
-  addChildTask(req, res);
-});
-
-// 特定の親タスク内の子タスクを更新
-router.patch('/:taskId/children/:childTaskId', async (req, res) => {
-  const {taskId, childTaskId} = req.params;
-  console.log(`patch taskId: ${taskId}, child: ${childTaskId}`);
-  updateChildTask(req, res);
-});
-
-// 特定の親タスク内の子タスクを削除
-router.delete('/:taskId/children/:childTaskId', async (req, res) => {
-  const {taskId, childTaskId} = req.params;
-  console.log(`delete taskId: ${taskId}, child: ${childTaskId}`);
-  deleteChildTask(req, res);
 });
 
 module.exports = router;
