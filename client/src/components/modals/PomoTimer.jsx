@@ -231,6 +231,28 @@ const PomoTimer = (props) => {
     }
   };
 
+  // タブの表示状態を監視
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        if (state.isRunning) {
+          requestWakeLock();
+        } else {
+          releaseWakeLock();
+        }
+      } else {
+        releaseWakeLock();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      releaseWakeLock();
+    };
+  }, [wakeLock]);
+
   const navigate = useNavigate();
 
   useEffect(() => {
