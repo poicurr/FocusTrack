@@ -76,7 +76,7 @@ function SortableItem({ id, task, toggleTaskCompletion, deleteTask }) {
         {task.taskContent}
       </Typography>
       <IconButton
-        onClick={(e) => toggleTaskCompletion(task._id)}
+        onClick={(e) => toggleTaskCompletion(task._id ? task._id : task.id)}
         sx={{ ml: 1 }}
         aria-label={task.completed ? "タスクを未完了にする" : "タスクを完了にする"}
       >
@@ -86,7 +86,7 @@ function SortableItem({ id, task, toggleTaskCompletion, deleteTask }) {
         }
       </IconButton>
       <IconButton
-        onClick={(e) => deleteTask(task._id)}
+        onClick={(e) => deleteTask(task._id ? task._id : task.id)}
         sx={{ ml: 1 }}
         aria-label="タスクを削除"
       >
@@ -197,7 +197,7 @@ const TaskEdit = (props) => {
     if (!taskId || !taskName) return;
 
     const data = {
-      _id: nextId,
+      id: nextId,
       taskName: taskName,
       taskContent: taskContent,
       completed: false
@@ -210,13 +210,23 @@ const TaskEdit = (props) => {
   };
 
   const toggleTaskCompletion = (id) => {
-    setChildren(children.map(task =>
-      task._id === id ? { ...task, completed: !task.completed } : task
-    ));
+    setChildren(children.map(task => {
+      if (task._id) {
+        return task._id === id ? { ...task, completed: !task.completed } : task;
+      } else {
+        return task.id === id ? { ...task, completed: !task.completed } : task;
+      }
+    }));
   };
 
   const deleteChildTask = async (id) => {
-    setChildren(children.filter(task => task._id !== id));
+    setChildren(children.filter(task => {
+      if (task._id) {
+        return task._id !== id;
+      } else {
+        return task.id !== id;
+      }
+    }));
   };
 
   const sensors = useSensors(useSensor(PointerSensor));
@@ -225,9 +235,17 @@ const TaskEdit = (props) => {
     const { active, over } = event;
     if (active.id !== over.id) {
       setChildren((items) => {
-        const oldIndex = items.findIndex((item) => item._id === active.id);
-        const newIndex = items.findIndex((item) => item._id === over.id);
-        return arrayMove(items, oldIndex, newIndex);
+        if (items[0]._id) {
+          console.log(`_id defined`)
+          const oldIndex = items.findIndex((item) => item._id === active.id);
+          const newIndex = items.findIndex((item) => item._id === over.id);
+          return arrayMove(items, oldIndex, newIndex);
+        } else {
+          console.log(`_id not defined`)
+          const oldIndex = items.findIndex((item) => item.id === active.id);
+          const newIndex = items.findIndex((item) => item.id === over.id);
+          return arrayMove(items, oldIndex, newIndex);
+        }
       });
     }
   };
@@ -314,13 +332,13 @@ const TaskEdit = (props) => {
         {taskId && (
           <StyledPaper elevation={2}>
             <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              <SortableContext items={children.map(task => task._id)}>
+              <SortableContext items={children.map(task => task._id ? task._id : task.id)}>
                 子タスク
                 <List dense>
                   {children.map((task) => (
                     <SortableItem
-                      key={task._id}
-                      id={task._id}
+                      key={task._id ? task._id : task.id}
+                      id={task._id ? task._id : task.id}
                       task={task}
                       toggleTaskCompletion={toggleTaskCompletion}
                       deleteTask={deleteChildTask}
