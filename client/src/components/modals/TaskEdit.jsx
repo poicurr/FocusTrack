@@ -111,6 +111,7 @@ const TaskEdit = (props) => {
   // 子タスク(というかほとんど単なるチェックリスト)
   const [taskName, setTaskName] = useState('');
   const [taskContent, setTaskContent] = useState('');
+  const [nextId, setNextId] = useState(1);
 
   const [isFormValid, setIsFormValid] = useState(false);
 
@@ -193,19 +194,19 @@ const TaskEdit = (props) => {
 
   const handleAddChild = async (ev) => {
     ev.preventDefault();
-    if (!taskId) return;
+    if (!taskId || !taskName) return;
 
     const data = {
+      _id: nextId,
       taskName: taskName,
       taskContent: taskContent,
       completed: false
     }
 
-    if (taskName) {
-      setChildren(children.concat(data));
-      setTaskName('');
-      setTaskContent('');
-    }
+    setChildren(children.concat(data));
+    setTaskName('');
+    setTaskContent('');
+    setNextId(nextId + 1)
   };
 
   const toggleTaskCompletion = (id) => {
