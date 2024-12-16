@@ -226,7 +226,9 @@ const TaskList = () => {
                 </Typography>
               </CardContent>
               { task.children?.length > 0 &&
-                <Accordion>
+                <Accordion sx={{ 
+                  display: { xs: 'none', md: 'block' } // xs: 表示しない, md(900px以上): 表示する
+                }}>
                   <AccordionSummary
                     expandIcon={<ExpandMoreIcon />}
                   >
@@ -235,7 +237,7 @@ const TaskList = () => {
                   <AccordionDetails>
                     {task.children.map((childTask) => (
                       <StyledListItem key={childTask._id}>
-                        <Grid container alignItems="center" spacing={2}>
+                        <Grid container alignItems="center">
                           <Grid item xs={3}>
                             <TruncatedTypography variant="subtitle2">
                               {childTask.taskName}
