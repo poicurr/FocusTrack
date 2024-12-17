@@ -6,7 +6,6 @@ const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const taskRoutes = require('./routes/task');
 const settingsRoutes = require('./routes/settings');
-const noteRoutes = require('./routes/note');
 require('dotenv').config();
 
 const app = express();
@@ -48,9 +47,6 @@ app.use('/api/tasks', taskRoutes);
 
 // 設定情報API
 app.use('/api/settings', settingsRoutes);
-
-// メモ保存用API
-app.use('/api/note', noteRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

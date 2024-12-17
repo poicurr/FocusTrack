@@ -50,7 +50,7 @@ const audioFiles = [
   "mail2.mp3",
 ];
 
-export default function SettingsPage() {
+const Settings = () => {
   const [settingsState, setSettingsState] = useState({
     avatar: '',
     displayName: '',
@@ -364,3 +364,5 @@ export default function SettingsPage() {
     </Container>
   );
 }
+
+export default Settings;

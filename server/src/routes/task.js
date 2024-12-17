@@ -60,12 +60,12 @@ router.post('/', authenticateToken, async (req, res) => {
   createTask(req, res);
 });
 
-// 特定の親タスクを更新
+// 特定の親タスクを更新(子タスクの登録・更新も兼ねている)
 router.patch('/:taskId', authenticateToken, async (req, res) => {
   updateTask(req, res);
 });
 
-// 特定の親タスクを削除
+// 特定の親タスクを削除(子タスクの削除も兼ねている)
 router.delete('/:taskId', authenticateToken, async (req, res) => {
   deleteTask(req, res);
 });

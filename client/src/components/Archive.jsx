@@ -80,7 +80,7 @@ const formatDate = (datestr) => {
   return date.toLocaleDateString('ja-JP', {});
 }
 
-const TaskList = () => {
+const Archive = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [editOpen, setEditOpen] = useState(false);
   const [taskId, setTaskId] = useState();
@@ -257,4 +257,4 @@ const TaskList = () => {
   );
 }
 
-export default TaskList;
+export default Archive;

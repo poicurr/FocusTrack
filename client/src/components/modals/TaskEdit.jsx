@@ -236,12 +236,10 @@ const TaskEdit = (props) => {
     if (active.id !== over.id) {
       setChildren((items) => {
         if (items[0]._id) {
-          console.log(`_id defined`)
           const oldIndex = items.findIndex((item) => item._id === active.id);
           const newIndex = items.findIndex((item) => item._id === over.id);
           return arrayMove(items, oldIndex, newIndex);
         } else {
-          console.log(`_id not defined`)
           const oldIndex = items.findIndex((item) => item.id === active.id);
           const newIndex = items.findIndex((item) => item.id === over.id);
           return arrayMove(items, oldIndex, newIndex);
