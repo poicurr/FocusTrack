@@ -110,9 +110,9 @@ const ResponsiveAppBar = (props) => {
           </ListItemButton>
         </ListItem>
         <ListItem key={3} disablePadding>
-          <ListItemButton onClick={() => { navigate("/tags"); }}>
+          <ListItemButton onClick={() => { navigate("/notification"); }}>
             <StyledListItemIcon><TagIcon /></StyledListItemIcon>
-            <ListItemText primary="Tags" />
+            <ListItemText primary="Notification" />
           </ListItemButton>
         </ListItem>
         <ListItem key={4} disablePadding>

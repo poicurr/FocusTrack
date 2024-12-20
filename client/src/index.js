@@ -12,12 +12,25 @@ import Auth from './components/Auth';
 import TaskList from './components/TaskList';
 import Report from './components/Report';
 import Archive from './components/Archive';
-import Tags from './components/Tags';
+import NotificationManager from './components/NotificationManager';
 import CoachingTips from './components/CoachingTips';
 import Settings from './components/Settings';
 import NotFound from './components/NotFound';
 
 import reportWebVitals from './reportWebVitals';
+
+function registerServiceWorker() {
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker
+        .register(`${process.env.PUBLIC_URL}/service-worker.js`)
+        .then(reg => {
+          console.log('Service Worker registered', reg);
+        })
+        .catch(err => console.error('Service Worker registration failed:', err));
+    });
+  }
+}
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -37,7 +50,7 @@ root.render(
                   <Route path="/tasks" element={<TaskList />} />
                   <Route path="/archive" element={<Archive />} />
                   <Route path="/report" element={<Report />} />
-                  <Route path="/tags" element={<Tags />} />
+                  <Route path="/notification" element={<NotificationManager />} />
                   <Route path="/coaching" element={<CoachingTips />} />
                   <Route path="/settings" element={<Settings />} />
                   <Route path="*" element={<NotFound />} />
@@ -50,6 +63,8 @@ root.render(
     </Router>
   </React.StrictMode>
 );
+
+registerServiceWorker();
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

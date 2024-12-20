@@ -1,10 +1,13 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const webpush = require('web-push');
+const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
 
 const authRoutes = require('./routes/auth');
 const taskRoutes = require('./routes/task');
+const pushRoutes = require('./routes/push');
 const settingsRoutes = require('./routes/settings');
 require('dotenv').config();
 
@@ -44,6 +47,9 @@ app.use('/api/auth', authRoutes);
 
 // タスク情報API
 app.use('/api/tasks', taskRoutes);
+
+// プッシュ通知
+app.use('/api/push', pushRoutes);
 
 // 設定情報API
 app.use('/api/settings', settingsRoutes);
