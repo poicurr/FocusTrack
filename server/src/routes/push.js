@@ -69,8 +69,8 @@ router.post('/schedule', authenticateToken, async (req, res) => {
         {
           title: 'Scheduled Notification',
           body: 'Your scheduled notification has arrived!',
-          icon: '/favicon.ico',
-          url: '/' // 通知クリック時に焦点を当てるURL（クライアント側でフォーカス処理）
+          icon: '/logo.png',
+          url: '/tasks' // 通知クリック時に焦点を当てるURL（クライアント側でフォーカス処理）
         }
       );
     } catch (err) {

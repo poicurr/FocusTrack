@@ -12,20 +12,6 @@ function NotificationManager() {
 
   const vapidPublicKey = "BF7zmA3qDrJUOUU2OI5klQ--FxhR2U8Vuh9CPs2pHkRyUjRzLCLu0tqBkA8RWuITQmqruaKOzbJOKD_ZP-Edegc";
 
-  // Service Worker登録
-  useEffect(() => {
-    navigator.serviceWorker.addEventListener('message', event => {
-      if (event.data && event.data.type === 'PLAY_SOUND') {
-        playSound();
-      }
-    });
-  }, []);
-
-  async function playSound() {
-    const audio = new Audio('./mail2.mp3');
-    audio.play().catch(err => console.error(err));
-  }
-
   async function subscribeToPush() {
     if (!('serviceWorker' in navigator)) {
       alert('Service Worker not supported');
